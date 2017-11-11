@@ -1,0 +1,15 @@
+.main {
+
+}
+
+.logo {
+	font-size: 4.5rem;
+	font-weight: 700;
+	font-family: Lucida Sans,Lucida Sans Regular,Lucida Grande,Lucida Sans Unicode,Verdana,sans-serif;
+	color: #006400;
+}
+
+.title {
+	margin-top: -1rem;
+	font-weight: 400;
+}
