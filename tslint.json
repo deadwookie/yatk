@@ -1,0 +1,61 @@
+{
+  "_doc": "https://palantir.github.io/tslint/rules/",
+  "rules": {
+    "class-name": true,
+    "curly": true,
+    "indent": [
+      true,
+      "tabs"
+    ],
+    "quotemark": [
+      true,
+      "single"
+    ],
+    "max-line-length": [
+      true,
+      160
+    ],
+    "member-ordering": [
+      true,
+      "statics-first"
+    ],
+    "new-parens": true,
+    "no-arg": true,
+    "no-consecutive-blank-lines": [true],
+    "no-console": [
+      true,
+      "time",
+      "timeEnd"
+    ],
+    "no-debugger": true,
+    "no-eval": true,
+    "no-internal-module": true,
+    "no-trailing-whitespace": true,
+    "no-unused-expression": true,
+    "no-var-keyword": true,
+    "one-variable-per-declaration": [
+      true,
+      "ignore-for-loop"
+    ],
+    "semicolon": [
+      true,
+      "never"
+    ],
+    "triple-equals": [
+      true,
+      "allow-null-check"
+    ],
+    "typedef-whitespace": [
+      true
+    ],
+    "use-isnan": true,
+    "whitespace": [
+      true,
+      "check-branch",
+      "check-decl",
+      "check-operator",
+      "check-separator",
+      "check-type"
+    ]
+  }
+}

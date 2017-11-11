@@ -1,0 +1,48 @@
+{
+  "compileOnSave": false,
+  "buildOnSave": false,
+  "compilerOptions": {
+    "outDir": "build",
+    "target": "es5",
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "skipDefaultLibCheck": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowSyntheticDefaultImports": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "strictNullChecks": true,
+    "pretty": true,
+    "declaration": false,
+    "jsx": "react",
+    "baseUrl": ".",
+    "paths": {
+      "components": ["./src/components"],
+      "components/*": ["./src/components/*"]
+    },
+    "lib": [
+      "es6",
+      "dom"
+    ],
+    "types": [
+      "node"
+    ]
+  },
+
+  "include": [
+    "./src/**/*"
+  ],
+
+  "exclude": [
+    "node_modules"
+  ],
+  "atom": {
+    "rewriteTsconfig": false,
+    "formatOnSave": false
+  }
+}
