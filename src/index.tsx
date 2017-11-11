@@ -1,32 +1,21 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 
-// AppContainer is a necessary wrapper component for HMR
-// We use require because TypeScript type warning
-const { AppContainer } = require('react-hot-loader')
+import { Provider } from 'mobx-react'
 
 import './index.css'
-import App from 'components/App'
+import App from './components/App'
+import { Store } from './stores'
 
-const render = (Component: any) => {
+
+const store = Store.create({})
+export function runApp() {
 	ReactDOM.render(
-		<AppContainer>
-			<Component/>
-		</AppContainer>,
+		<Provider store={store}>
+			<App />
+		</Provider>,
 		document.getElementById('main')
 	)
 }
 
-render(App)
-
-// TypeScript declaration for module.hot
-declare var module: { hot: any }
-// Hot Module Replacement API
-if (module.hot) {
-	// If we receive a HMR request for our App container, just re-render
-	module.hot.accept('./components/App', () => {
-		// render(App)
-		const NextApp = require('components/App').default
-		render(NextApp)
-	})
-}
+document.addEventListener('DOMContentLoaded', runApp, false)

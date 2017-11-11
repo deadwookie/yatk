@@ -28,9 +28,6 @@
     "lib": [
       "es6",
       "dom"
-    ],
-    "types": [
-      "node"
     ]
   },
 
