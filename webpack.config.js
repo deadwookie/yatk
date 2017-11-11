@@ -234,12 +234,13 @@ module.exports = {
 		// When using the HTML5 History API
 		historyApiFallback: true,
 		// All the stats options here: https://webpack.js.org/configuration/stats/
-		stats: {
-			// Color is life
-			colors: true,
-			// This reduces the amount of stuff in terminal
-			chunks: false,
-			// 'errors-only': true
-		}
+		stats: 'minimal',
+		// stats: {
+		// 	// Color is life
+		// 	colors: true,
+		// 	// This reduces the amount of stuff in terminal
+		// 	chunks: false,
+		// 	// 'errors-only': true
+		// }
 	},
 }
