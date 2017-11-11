@@ -1,43 +1,41 @@
 {
-  "compileOnSave": false,
-  "buildOnSave": false,
-  "compilerOptions": {
-    "outDir": "build",
-    "target": "es5",
-    "moduleResolution": "node",
-    "importHelpers": true,
-    "sourceMap": true,
-    "experimentalDecorators": true,
-    "skipDefaultLibCheck": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "allowSyntheticDefaultImports": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "strictNullChecks": true,
-    "pretty": true,
-    "declaration": false,
-    "jsx": "react",
-    "baseUrl": ".",
-    "paths": {
-      "components": ["./src/components"],
-      "components/*": ["./src/components/*"]
-    },
-    "lib": [
-      "es6",
-      "dom"
+	"compilerOptions": {
+		"target": "es6",
+		"moduleResolution": "node",
+		"noEmit": true,
+		"sourceMap": true,
+		"jsx": "preserve",
+		"experimentalDecorators": true,
+		"skipLibCheck": true,
+		"skipDefaultLibCheck": true,
+		"allowSyntheticDefaultImports": true,
+		"noImplicitAny": true,
+		"noImplicitThis": true,
+		"noImplicitReturns": true,
+		"noFallthroughCasesInSwitch": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"strictNullChecks": true,
+		"pretty": true,
+    "lib": ["es6", "dom", "esnext"],
+    "plugins": [
+      {
+        "name": "tslint-language-service",
+        "alwaysShowRuleFailuresAsWarnings": true,
+        "ignoreDefinitionFiles": false
+        //"configFile": "../tslint.json",
+        //"disableNoUnusedVariableRule": false
+      }
     ]
   },
-
   "include": [
-    "./src/**/*"
+    "src/**/*"
   ],
-
   "exclude": [
     "node_modules"
   ],
+  "compileOnSave": false,
+  "buildOnSave": false,
   "atom": {
     "rewriteTsconfig": false,
     "formatOnSave": false
