@@ -7,7 +7,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
 
 // variables
-const PORT = process.env.PORT || 9000
+const PORT = process.env.PORT || 8080
 const IS_PROD = Boolean(~process.argv.indexOf('-p') || process.env.NODE_ENV === 'production')
 const SRC_PATH = path.resolve(__dirname, 'src')
 const BUILD_PATH = path.resolve(__dirname, 'build')
