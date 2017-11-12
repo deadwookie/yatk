@@ -1,0 +1,22 @@
+.content {
+	border: 1px solid #999;
+	--border: var(--border-width) var(--border-style) var(--border-color);
+	--color: #0f0;
+	--bg-color: #333;
+	--hover-color: var(--color);
+	--hover-bg-color: #666;
+	--active-color: var(--color);
+	--active-bg-color: var(--bg-color);
+	--blink-color: #6f6;
+	--blink-speed: 1s;
+}
+
+button {
+	padding: 5px 10px;
+	border: 2px solid #006400;
+	background: #fff;
+	color: #006400;
+	font-size: 1.5rem;
+	font-weight: 700;
+	cursor: pointer;
+}

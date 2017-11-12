@@ -9,7 +9,7 @@ export namespace Header {
 export class Header extends React.Component<Header.Props, Header.State> {
 	render() {
 		return (
-			<header className={style.main}>
+			<header className={style.header}>
 				<span className={style.logo}>√1Ⓡи$</span>
 				<h1 className={style.title}>Virus: The Game</h1>
 			</header>
