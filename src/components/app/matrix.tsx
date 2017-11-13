@@ -79,13 +79,13 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 
 		console.log(minX, minY)
 
-		return this.props.store.board.cells.map(cell => {
+		return this.props.store.board.cells.map((cell, idx) => {
 			const positionStyle = {
 				left: (cell.x - minX) * 50,
 				top: (cell.y - minY) * 50,
 			}
 			return (
-				<div className={style.cell} key={cell.sequenceIndex} style={positionStyle}>{cell.sequenceIndex}</div>
+				<div className={style.cell} key={idx} style={positionStyle}>{cell.glyph || cell.sequenceIndex}</div>
 			)
 		})
 	}

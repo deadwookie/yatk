@@ -11,7 +11,7 @@ const store = Store.create({
 	appVersion: '0.0.1',
 	board: {
 		geometry: BoardGeometryType.Spiral,
-		width: 4,
+		maxSequenceLength: 256,
 		movesCount: 0,
 		cells: [],
 		sequence: {

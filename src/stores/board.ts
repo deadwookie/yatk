@@ -6,7 +6,8 @@ export interface Cell {
 	x: number
 	y: number
 	isChained: boolean
-	sequenceIndex: number
+	glyph?: string
+	sequenceIndex?: number
 }
 
 export const Cell: IType<{}, Cell> = types
@@ -14,7 +15,8 @@ export const Cell: IType<{}, Cell> = types
 		x: types.number,
 		y: types.number,
 		isChained: types.optional(types.boolean, false),
-		sequenceIndex: types.number
+		glyph: types.optional(types.string, ''),
+		sequenceIndex: types.optional(types.number, -1)
 	})
 
 export enum BoardGeometryType {
@@ -48,7 +50,7 @@ export function isDirectionY(direction: Direction) {
 
 export interface Board {
 	geometry: BoardGeometryType
-	width: number
+	maxSequenceLength: number
 	movesCount: number
 	sequence: Sequence
 	cells: Cell[]
@@ -61,7 +63,7 @@ export interface Board {
 export const Board: IType<{}, Board> = types
 	.model('Board', {
 		geometry: types.union(types.literal(BoardGeometryType.Box), types.literal(BoardGeometryType.Spiral)),
-		width: types.number,
+		maxSequenceLength: types.number,
 		movesCount: types.number,
 		sequence: Sequence,
 		cells: types.array(Cell)
@@ -69,19 +71,22 @@ export const Board: IType<{}, Board> = types
 	.actions((self) => ({
 		generateCells(seq: Sequence, geometryType: BoardGeometryType) {
 			self.cells.splice(0)
+			const width = Math.ceil(Math.sqrt(self.maxSequenceLength))
+			const seqLen = self.sequence.values.length
 
 			if (geometryType === BoardGeometryType.Box) {
-				seq.values.forEach((_val, index) => {
-					const isNotFirstRow = (index + 1) > self.width
-					const fullRowsCount = Math.floor(index / self.width) * self.width
+				for (let i = 0; i < self.maxSequenceLength; i++) {
+					const isNotFirstRow = (i + 1) > width
+					const fullRowsCount = Math.floor(i / width) * width
 
 					self.cells.push({
-						x: isNotFirstRow ? index - fullRowsCount : index,
-						y: Math.ceil((index + 1) / self.width) - 1,
-						sequenceIndex: index,
+						x: isNotFirstRow ? i - fullRowsCount : i,
+						y: Math.ceil((i + 1) / width) - 1,
+						sequenceIndex: i,
+						glyph: seq.values[i] ? '' : 's',
 						isChained: false,
 					})
-				})
+				}
 			} else if (geometryType === BoardGeometryType.Spiral) {
 				let dims = {
 					x: 0,
@@ -93,7 +98,8 @@ export const Board: IType<{}, Board> = types
 					step: 0
 				}
 
-				seq.values.forEach((_val, index) => {
+				for (let i = 0; i < self.maxSequenceLength; i++) {
+					// seq.value[i] || undefined // #
 					let currentDirection = dims.dir
 
 					if (dims.step >= dims.len) {
@@ -131,15 +137,16 @@ export const Board: IType<{}, Board> = types
 						dims.y = isDirectionX(currentDirection) ? dims.y : dims.y + (1 * (currentDirection === Direction.South ? 1 : -1))
 					}
 
-					console.log(`index [${index}] coords: ${dims.x}x${dims.y} | dims: ${dims.w}x${dims.h} ${dims.step}of${dims.len} into ${dims.dir}`)
+					console.log(`index [${i}] | coords: ${dims.x}x${dims.y} | dims: ${dims.w}x${dims.h} | steps ${dims.step}of${dims.len} into ${dims.dir}`)
 
 					self.cells.push({
 						x: dims.x,
 						y: dims.y,
-						sequenceIndex: index,
+						sequenceIndex: i < seqLen ? i : -1,
+						glyph: i < seqLen ? '' : 's',
 						isChained: false
 					})
-				})
+				}
 			} else {
 				throw new Error(`Unknown geometry type for the board: ${geometryType}`)
 			}
