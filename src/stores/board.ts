@@ -51,14 +51,16 @@ export interface Board {
 	width: number
 	movesCount: number
 	sequence: Sequence
+	cells: Cell[]
 
 	generateCells: (seq: Sequence, geometryType: BoardGeometryType) => void
 	generate: (length: number) => void
+	nextRound: () => void
 }
 
 export const Board: IType<{}, Board> = types
 	.model('Board', {
-		geometry: types.string,
+		geometry: types.union(types.literal(BoardGeometryType.Box), types.literal(BoardGeometryType.Spiral)),
 		width: types.number,
 		movesCount: types.number,
 		sequence: Sequence,

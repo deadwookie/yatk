@@ -5,6 +5,7 @@ import * as style from './matrix.css'
 
 import autobind from '../../utils/autobind'
 import { StoreInjectedProps } from '../../stores'
+import { BoardGeometryType } from '../../stores/board'
 
 export namespace Matrix {
 	export interface Props extends StoreInjectedProps {}
@@ -25,18 +26,52 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 						<button onClick={this.onRestartClick}>Restart</button>
 						<button onClick={this.onNextRoundClick}>Next round</button>
 					</div>
-					<dl>
-						<dt>Sequence length</dt>
-						<dd>{this.props.store.board.sequence.values.length}</dd>
-						<dt>Moves</dt>
+					<dl className={style.info}>
+						<dt>Round:</dt>
+						<dd>0</dd>
+						<dt>Moves:</dt>
 						<dd>{this.props.store.board.movesCount}</dd>
+						<dt>Sequence length:</dt>
+						<dd>{this.props.store.board.sequence.values.length}</dd>
+						<dt>Size:</dt>
+						<dd>xx / yy</dd>
 					</dl>
 				</header>
-				<article>
-					<span className={style.logo}>Matrix: {this.props.store.board.sequence.values.join(', ')}</span>
-				</article>
+				<div className={style.board}>
+					{this.renderCells()}
+				</div>
 			</section>
 		)
+	}
+
+	renderCells() {
+		if (this.props.store.board.geometry === BoardGeometryType.Box) {
+			return this.renderCellsBox()
+		} else if (this.props.store.board.geometry === BoardGeometryType.Spiral) {
+			return this.renderCellsSpiral()
+		}
+
+		return null
+	}
+
+	renderCellsBox() {
+		return this.props.store.board.cells.map(cell => {
+			const positionStyle = {
+				left: cell.x * 50,
+				top: cell.y * 50,
+			}
+			return (
+				<div className={style.cell} key={cell.sequenceIndex} style={positionStyle}>{cell.sequenceIndex}</div>
+			)
+		})
+	}
+
+	renderCellsSpiral() {
+		const {x: minX, y: minY} = this.props.store.board.cells.reduce((acc, cell) => {
+
+		})
+
+		return null
 	}
 
 	@autobind
