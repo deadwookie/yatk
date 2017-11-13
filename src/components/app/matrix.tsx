@@ -45,10 +45,12 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 	}
 
 	renderCells() {
-		if (this.props.store.board.geometry === BoardGeometryType.Box) {
-			return this.renderCellsBox()
-		} else if (this.props.store.board.geometry === BoardGeometryType.Spiral) {
-			return this.renderCellsSpiral()
+		if (this.props.store.board.cells.length) {
+			if (this.props.store.board.geometry === BoardGeometryType.Box) {
+				return this.renderCellsBox()
+			} else if (this.props.store.board.geometry === BoardGeometryType.Spiral) {
+				return this.renderCellsSpiral()
+			}
 		}
 
 		return null
@@ -68,15 +70,29 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 
 	renderCellsSpiral() {
 		const {x: minX, y: minY} = this.props.store.board.cells.reduce((acc, cell) => {
+			if (!acc || ((cell.x < acc.x && cell.y <= acc.y) || (cell.y < acc.y && cell.x <= acc.x))) {
+				acc = cell
+			}
 
+			return acc
 		})
 
-		return null
+		console.log(minX, minY)
+
+		return this.props.store.board.cells.map(cell => {
+			const positionStyle = {
+				left: (cell.x - minX) * 50,
+				top: (cell.y - minY) * 50,
+			}
+			return (
+				<div className={style.cell} key={cell.sequenceIndex} style={positionStyle}>{cell.sequenceIndex}</div>
+			)
+		})
 	}
 
 	@autobind
 	onRestartClick() {
-		this.props.store.board.generate(16)
+		this.props.store.board.generate(32)
 	}
 
 	@autobind
