@@ -10,7 +10,7 @@ import { BoardGeometryType } from './stores/board'
 const store = Store.create({
 	appVersion: '0.0.1',
 	board: {
-		geometry: BoardGeometryType.Box,
+		geometry: BoardGeometryType.Spiral,
 		width: 4,
 		movesCount: 0,
 		cells: [],
