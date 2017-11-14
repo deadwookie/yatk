@@ -45,6 +45,9 @@
 }
 
 .board {
+    width: 800px;
+    height: 800px;
+    margin: 0 auto;
 	flex: 1 1 auto;
 	position: relative;
 }
