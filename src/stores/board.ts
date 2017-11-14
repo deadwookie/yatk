@@ -52,6 +52,7 @@ export interface Board {
 	geometry: BoardGeometryType
 	maxSequenceLength: number
 	movesCount: number
+	round: number
 	sequence: Sequence
 	cells: Cell[]
 
@@ -65,6 +66,7 @@ export const Board: IType<{}, Board> = types
 		geometry: types.union(types.literal(BoardGeometryType.Box), types.literal(BoardGeometryType.Spiral)),
 		maxSequenceLength: types.number,
 		movesCount: types.number,
+		round: types.number,
 		sequence: Sequence,
 		cells: types.array(Cell)
 	})
@@ -154,11 +156,13 @@ export const Board: IType<{}, Board> = types
 	}))
 	.actions((self) => ({
 		generate(length: number) {
+			self.round = 1
 			self.sequence.generate(length)
 			self.generateCells(self.sequence, BoardGeometryType.Spiral)
 		},
 
 		nextRound() {
+			self.round++
 			self.sequence.replicate()
 			self.generateCells(self.sequence, BoardGeometryType.Spiral)
 		},

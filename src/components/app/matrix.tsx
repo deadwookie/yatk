@@ -19,6 +19,8 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 	}
 
 	render() {
+		const { board } = this.props.store
+
 		return (
 			<section className={style.content}>
 				<header>
@@ -28,13 +30,11 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 					</div>
 					<dl className={style.info}>
 						<dt>Round:</dt>
-						<dd>0</dd>
+						<dd>{board.round}</dd>
 						<dt>Moves:</dt>
-						<dd>{this.props.store.board.movesCount}</dd>
+						<dd>{board.movesCount}</dd>
 						<dt>Sequence length:</dt>
-						<dd>{this.props.store.board.sequence.values.length}</dd>
-						<dt>Size:</dt>
-						<dd>xx / yy</dd>
+						<dd>{board.sequence.values.length}</dd>
 					</dl>
 				</header>
 				<div className={style.board}>
