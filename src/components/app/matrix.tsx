@@ -15,7 +15,7 @@ export namespace Matrix {
 @observer
 export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 	componentDidMount() {
-		this.props.store.board.generate(16)
+		this.props.store.board.generate()
 	}
 
 	render() {
@@ -29,7 +29,7 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 						<button onClick={this.onNextRoundClick}>Next round</button>
 					</div>
 					<dl className={style.info}>
-						<dt>Round:</dt>
+						<dt>Round #</dt>
 						<dd>{board.round}</dd>
 						<dt>Moves:</dt>
 						<dd>{board.movesCount}</dd>
@@ -57,13 +57,13 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 	}
 
 	renderCellsBox() {
-		return this.props.store.board.cells.map(cell => {
+		return this.props.store.board.cells.map((cell, idx) => {
 			const positionStyle = {
 				left: cell.x * 50,
 				top: cell.y * 50,
 			}
 			return (
-				<div className={style.cell} key={cell.sequenceIndex} style={positionStyle}>{cell.sequenceIndex}</div>
+				<div className={style.cell} key={'box-cell-' + idx} style={positionStyle}>{cell.glyph || cell.sequenceIndex}</div>
 			)
 		})
 	}
@@ -77,7 +77,7 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 			return acc
 		})
 
-		console.log(minX, minY)
+		// console.log(minX, minY)
 
 		return this.props.store.board.cells.map((cell, idx) => {
 			const positionStyle = {
@@ -85,7 +85,7 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 				top: (cell.y - minY) * 50,
 			}
 			return (
-				<div className={style.cell} key={idx} style={positionStyle}>{cell.glyph || cell.sequenceIndex}</div>
+				<div className={style.cell} key={'spiral-cell-' + idx} style={positionStyle}>{cell.glyph || cell.sequenceIndex}</div>
 			)
 		})
 	}

@@ -48,16 +48,38 @@ export function isDirectionY(direction: Direction) {
 	return direction === Direction.North || direction === Direction.South
 }
 
+export const glyphMap = [
+	["零", "癸", "虚"],
+	["壱", "壹", "一", "甲"],
+	["弐", "貳", "二", "乙"],
+	["参", "參", "三", "丙"],
+	["四", "肆", "丁"],
+	["五", "伍", "戊"],
+	["六", "陸", "己"],
+	["七", "柒", "庚"],
+	["八", "捌", "辛"],
+	["九", "玖", "壬"]
+]
+
+// TODO: keep glyphs per try/game
+export function buildGlyphFromIndex(index: number) {
+	const numFromIndex = Number(index.toString().charAt(0) || 0)
+	const numGlyphs = glyphMap[numFromIndex]
+
+	return numGlyphs[Math.floor(Math.random() * numGlyphs.length)]
+}
+
 export interface Board {
 	geometry: BoardGeometryType
 	maxSequenceLength: number
+	initialSequenceLength: number
 	movesCount: number
 	round: number
 	sequence: Sequence
 	cells: Cell[]
 
 	generateCells: (seq: Sequence, geometryType: BoardGeometryType) => void
-	generate: (length: number) => void
+	generate: (length?: number) => void
 	nextRound: () => void
 }
 
@@ -65,6 +87,7 @@ export const Board: IType<{}, Board> = types
 	.model('Board', {
 		geometry: types.union(types.literal(BoardGeometryType.Box), types.literal(BoardGeometryType.Spiral)),
 		maxSequenceLength: types.number,
+		initialSequenceLength: types.number,
 		movesCount: types.number,
 		round: types.number,
 		sequence: Sequence,
@@ -74,7 +97,7 @@ export const Board: IType<{}, Board> = types
 		generateCells(seq: Sequence, geometryType: BoardGeometryType) {
 			self.cells.splice(0)
 			const width = Math.ceil(Math.sqrt(self.maxSequenceLength))
-			const seqLen = self.sequence.values.length
+			const seqLen = seq.values.length
 
 			if (geometryType === BoardGeometryType.Box) {
 				for (let i = 0; i < self.maxSequenceLength; i++) {
@@ -84,8 +107,8 @@ export const Board: IType<{}, Board> = types
 					self.cells.push({
 						x: isNotFirstRow ? i - fullRowsCount : i,
 						y: Math.ceil((i + 1) / width) - 1,
-						sequenceIndex: i,
-						glyph: seq.values[i] ? '' : 's',
+						sequenceIndex: i < seqLen ? i : -1,
+						glyph: i < seqLen ? '' : buildGlyphFromIndex(i),
 						isChained: false,
 					})
 				}
@@ -139,13 +162,13 @@ export const Board: IType<{}, Board> = types
 						dims.y = isDirectionX(currentDirection) ? dims.y : dims.y + (1 * (currentDirection === Direction.South ? 1 : -1))
 					}
 
-					console.log(`index [${i}] | coords: ${dims.x}x${dims.y} | dims: ${dims.w}x${dims.h} | steps ${dims.step}of${dims.len} into ${dims.dir}`)
+					// console.log(`index [${i}] | coords: ${dims.x}x${dims.y} | dims: ${dims.w}x${dims.h} | steps ${dims.step}of${dims.len} into ${dims.dir}`)
 
 					self.cells.push({
 						x: dims.x,
 						y: dims.y,
 						sequenceIndex: i < seqLen ? i : -1,
-						glyph: i < seqLen ? '' : 's',
+						glyph: i < seqLen ? '' : buildGlyphFromIndex(i),
 						isChained: false
 					})
 				}
@@ -155,15 +178,17 @@ export const Board: IType<{}, Board> = types
 		}
 	}))
 	.actions((self) => ({
-		generate(length: number) {
+		generate(length?: number) {
 			self.round = 1
-			self.sequence.generate(length)
-			self.generateCells(self.sequence, BoardGeometryType.Spiral)
+			self.sequence.generate(length || self.initialSequenceLength)
+			self.generateCells(self.sequence, self.geometry)
 		},
 
 		nextRound() {
 			self.round++
 			self.sequence.replicate()
-			self.generateCells(self.sequence, BoardGeometryType.Spiral)
+			self.generateCells(self.sequence, self.geometry)
 		},
+
+		// TODO: switch geometry
 	}))

@@ -12,6 +12,7 @@ const store = Store.create({
 	board: {
 		geometry: BoardGeometryType.Spiral,
 		maxSequenceLength: 256,
+		initialSequenceLength: 16,
 		movesCount: 0,
 		round: 1,
 		cells: [],
