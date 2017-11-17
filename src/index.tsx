@@ -10,15 +10,16 @@ import { BoardGeometryType } from './stores/board'
 const store = Store.create({
 	appVersion: '0.0.1',
 	board: {
-		geometry: BoardGeometryType.Spiral,
-		maxSequenceLength: 256,
 		initialSequenceLength: 16,
+		width: 16,
+		height: 16,
+		geometryType: BoardGeometryType.Box,
+
 		movesCount: 0,
 		round: 1,
+
 		cells: [],
-		sequence: {
-			values: []
-		}
+		sequence: []
 	}
 })
 export function runApp() {

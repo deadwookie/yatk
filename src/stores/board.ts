@@ -1,23 +1,47 @@
 import { types, IType } from 'mobx-state-tree'
+import { charMap } from '../utils/charMap'
 
-import { Sequence } from './sequence'
+export function randomN(from = 0, upto = 10, asInt = true) {
+	const n = Math.random() * (upto - from) + from
+	return asInt ? Math.floor(n) : n
+}
+
+export interface SequenceValue {
+	key: number
+	value: number | null
+}
+
+export const SequenceValue: IType<{}, SequenceValue> = types
+	.model('SequenceValue', {
+		key: types.identifier(types.number),
+		value: types.union(types.number, types.null)
+	})
 
 export interface Cell {
+	key: string
+	index: number
 	x: number
 	y: number
-	isChained: boolean
+	isChained?: boolean
 	glyph?: string
-	sequenceIndex?: number
+	sequenceValue?: SequenceValue | null
 }
 
 export const Cell: IType<{}, Cell> = types
 	.model('Cell', {
+		key: types.identifier(types.string),
+		index: types.number,
 		x: types.number,
 		y: types.number,
 		isChained: types.optional(types.boolean, false),
 		glyph: types.optional(types.string, ''),
-		sequenceIndex: types.optional(types.number, -1)
+		sequenceValue: types.maybe(types.reference(SequenceValue))
 	})
+	.views((self) => ({
+		get isEmpty() {
+			return !self.sequenceValue
+		}
+	}))
 
 export enum BoardGeometryType {
 	Box = 'box',
@@ -48,72 +72,76 @@ export function isDirectionY(direction: Direction) {
 	return direction === Direction.North || direction === Direction.South
 }
 
-export const glyphMap = [
-	["零", "癸", "虚"],
-	["壱", "壹", "一", "甲"],
-	["弐", "貳", "二", "乙"],
-	["参", "參", "三", "丙"],
-	["四", "肆", "丁"],
-	["五", "伍", "戊"],
-	["六", "陸", "己"],
-	["七", "柒", "庚"],
-	["八", "捌", "辛"],
-	["九", "玖", "壬"]
-]
-
-// TODO: keep glyphs per try/game
-export function buildGlyphFromIndex(index: number) {
-	const numFromIndex = Number(index.toString().charAt(0) || 0)
-	const numGlyphs = glyphMap[numFromIndex]
-
-	return numGlyphs[Math.floor(Math.random() * numGlyphs.length)]
-}
-
 export interface Board {
-	geometry: BoardGeometryType
-	maxSequenceLength: number
 	initialSequenceLength: number
+	width: number
+	height: number
+	geometryType: BoardGeometryType
+
 	movesCount: number
 	round: number
-	sequence: Sequence
-	cells: Cell[]
 
-	generateCells: (seq: Sequence, geometryType: BoardGeometryType) => void
-	generate: (length?: number) => void
+	sequenceCounter: number
+	sequence: Array<SequenceValue>
+	cells: Array<Cell>
+	cursor?: Cell | null
+
+	generateCells: () => void
+	generate: (seqLength?: number) => void
 	nextRound: () => void
 }
 
 export const Board: IType<{}, Board> = types
 	.model('Board', {
-		geometry: types.union(types.literal(BoardGeometryType.Box), types.literal(BoardGeometryType.Spiral)),
-		maxSequenceLength: types.number,
 		initialSequenceLength: types.number,
+		width: types.number,
+		height: types.number,
+		geometryType: types.union(types.literal(BoardGeometryType.Box), types.literal(BoardGeometryType.Spiral)),
+
 		movesCount: types.number,
 		round: types.number,
-		sequence: Sequence,
-		cells: types.array(Cell)
+
+		sequenceCounter: types.optional(types.number, 0),
+		sequence: types.array(SequenceValue),
+		cells: types.array(Cell),
+		cursor: types.maybe(types.reference(Cell))
 	})
 	.actions((self) => ({
-		generateCells(seq: Sequence, geometryType: BoardGeometryType) {
+		generateCells() {
 			self.cells.splice(0)
-			const width = Math.ceil(Math.sqrt(self.maxSequenceLength))
-			const seqLen = seq.values.length
 
-			if (geometryType === BoardGeometryType.Box) {
-				for (let i = 0; i < self.maxSequenceLength; i++) {
-					const isNotFirstRow = (i + 1) > width
-					const fullRowsCount = Math.floor(i / width) * width
+			let cellIndex = -1
+			for (let y = 0; y < self.height; y++) {
+				self.cells.push(...Array.from(Array(self.width)).map((_, x) => {
+					const symbol = randomN()
+					const chars = charMap[symbol]
+					cellIndex++
 
-					self.cells.push({
-						x: isNotFirstRow ? i - fullRowsCount : i,
-						y: Math.ceil((i + 1) / width) - 1,
-						sequenceIndex: i < seqLen ? i : -1,
-						glyph: i < seqLen ? '' : buildGlyphFromIndex(i),
-						isChained: false,
-					})
-				}
-			} else if (geometryType === BoardGeometryType.Spiral) {
-				let dims = {
+					return {
+						key: `${x}_${y}`,
+						index: cellIndex,
+						x,
+						y,
+						glyph: chars[randomN(0, chars.length)],
+					}
+				}))
+			}
+
+			if (self.geometryType === BoardGeometryType.Box) {
+				self.cursor = self.cells[0]
+			} else if (self.geometryType === BoardGeometryType.Spiral) {
+				self.cursor = self.cells[Math.floor((self.height - 1) / 2) * self.width + Math.floor((self.width - 1) / 2)]
+			} else {
+				throw new Error(`Unknown geometry type for the board: ${self.geometryType}`)
+			}
+		},
+
+		moveCursor() {
+			if (self.geometryType === BoardGeometryType.Box) {
+				self.cursor = self.cells[self.cursor!.index + 1]
+			} else if (self.geometryType === BoardGeometryType.Spiral) {
+				
+				/*let dims = {
 					x: 0,
 					y: 0,
 					w: 0,
@@ -171,23 +199,65 @@ export const Board: IType<{}, Board> = types
 						glyph: i < seqLen ? '' : buildGlyphFromIndex(i),
 						isChained: false
 					})
-				}
+				}*/
 			} else {
-				throw new Error(`Unknown geometry type for the board: ${geometryType}`)
+				throw new Error(`Unknown geometry type for the board: ${self.geometryType}`)
 			}
+		},
+
+		clearSequence() {
+			self.sequence.splice(0)
+		},
+
+		appendSequence(fragment: Array<number | null>) {
+			let seqCounter = self.sequenceCounter
+			const sequenceFragment = fragment.map(v => {
+				seqCounter++
+				return {
+					key: seqCounter,
+					value: v
+				}
+			})
+			self.sequence.push(...sequenceFragment)
+			self.sequenceCounter = seqCounter
+
+			return self.sequence.slice(-1 * sequenceFragment.length)
 		}
 	}))
 	.actions((self) => ({
-		generate(length?: number) {
+		generateSequence(length: number) {
+			self.clearSequence()
+			self.sequenceCounter = -1
+			self.appendSequence(Array.from(Array(length)).map(_ => randomN()))
+		},
+
+		resetSequenceTo(sequence: Array<number | null>) {
+			self.clearSequence()
+			self.appendSequence(sequence)
+		},
+
+		replicateSequence() {
+			return self.appendSequence(self.sequence.filter(sv => sv.value !== null).map(sv => sv.value))
+		},
+
+		arrangeSequence(sequenceFragment: Array<SequenceValue>) {
+			sequenceFragment.forEach(sv => {
+				self.cursor!.sequenceValue = sv
+				self.moveCursor()
+			})
+		},
+	}))
+	.actions((self) => ({
+		generate(seqLength?: number) {
 			self.round = 1
-			self.sequence.generate(length || self.initialSequenceLength)
-			self.generateCells(self.sequence, self.geometry)
+			self.generateSequence(seqLength || self.initialSequenceLength)
+			self.generateCells()
+			self.arrangeSequence(self.sequence)
 		},
 
 		nextRound() {
 			self.round++
-			self.sequence.replicate()
-			self.generateCells(self.sequence, self.geometry)
+			self.arrangeSequence(self.replicateSequence())
 		},
 
 		// TODO: switch geometry

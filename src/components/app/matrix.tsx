@@ -5,7 +5,6 @@ import * as style from './matrix.css'
 
 import autobind from '../../utils/autobind'
 import { StoreInjectedProps } from '../../stores'
-import { BoardGeometryType } from '../../stores/board'
 
 export namespace Matrix {
 	export interface Props extends StoreInjectedProps {}
@@ -34,7 +33,7 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 						<dt>Moves:</dt>
 						<dd>{board.movesCount}</dd>
 						<dt>Sequence length:</dt>
-						<dd>{board.sequence.values.length}</dd>
+						<dd>{board.sequence.length}</dd>
 					</dl>
 				</header>
 				<div className={style.board}>
@@ -46,53 +45,25 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 
 	renderCells() {
 		if (this.props.store.board.cells.length) {
-			if (this.props.store.board.geometry === BoardGeometryType.Box) {
-				return this.renderCellsBox()
-			} else if (this.props.store.board.geometry === BoardGeometryType.Spiral) {
-				return this.renderCellsSpiral()
-			}
+			return this.props.store.board.cells.map((cell) => {
+				const positionStyle = {
+					left: cell.x * 50,
+					top: cell.y * 50,
+				}
+
+				const value = cell.sequenceValue ? cell.sequenceValue.value : cell.glyph
+				return (
+					<div className={style.cell} key={'box-cell-' + cell.key} style={positionStyle}>{value}</div>
+				)
+			})
 		}
 
 		return null
 	}
 
-	renderCellsBox() {
-		return this.props.store.board.cells.map((cell, idx) => {
-			const positionStyle = {
-				left: cell.x * 50,
-				top: cell.y * 50,
-			}
-			return (
-				<div className={style.cell} key={'box-cell-' + idx} style={positionStyle}>{cell.glyph || cell.sequenceIndex}</div>
-			)
-		})
-	}
-
-	renderCellsSpiral() {
-		const {x: minX, y: minY} = this.props.store.board.cells.reduce((acc, cell) => {
-			if (!acc || ((cell.x < acc.x && cell.y <= acc.y) || (cell.y < acc.y && cell.x <= acc.x))) {
-				acc = cell
-			}
-
-			return acc
-		})
-
-		// console.log(minX, minY)
-
-		return this.props.store.board.cells.map((cell, idx) => {
-			const positionStyle = {
-				left: (cell.x - minX) * 50,
-				top: (cell.y - minY) * 50,
-			}
-			return (
-				<div className={style.cell} key={'spiral-cell-' + idx} style={positionStyle}>{cell.glyph || cell.sequenceIndex}</div>
-			)
-		})
-	}
-
 	@autobind
 	onRestartClick() {
-		this.props.store.board.generate(32)
+		this.props.store.board.generate(this.props.store.board.initialSequenceLength)
 	}
 
 	@autobind
