@@ -25,6 +25,10 @@ export interface Cell {
 	isChained?: boolean
 	glyph?: string
 	sequenceValue?: SequenceValue | null
+
+	readonly isEmpty?: boolean
+	readonly isNullSequence?: boolean
+	readonly isValueSequence?: boolean
 }
 
 export const Cell: IType<{}, Cell> = types
@@ -40,6 +44,12 @@ export const Cell: IType<{}, Cell> = types
 	.views((self) => ({
 		get isEmpty() {
 			return !self.sequenceValue
+		},
+		get isNullSequence() {
+			return self.sequenceValue && self.sequenceValue.value === null
+		},
+		get isValueSequence() {
+			return self.sequenceValue && self.sequenceValue.value !== null
 		}
 	}))
 
@@ -55,21 +65,9 @@ export enum Direction {
 	West = 'w'
 }
 
-export function switchDirection(direction: Direction) {
-	if (direction === Direction.North) return Direction.East
-	if (direction === Direction.East) return Direction.South
-	if (direction === Direction.South) return Direction.West
-	if (direction === Direction.West) return Direction.North
-
-	return Direction.East
-}
-
-export function isDirectionX(direction: Direction) {
-	return direction === Direction.East || direction === Direction.West
-}
-
-export function isDirectionY(direction: Direction) {
-	return direction === Direction.North || direction === Direction.South
+export enum FinishResult {
+	Win = 'win',
+	Fail = 'fail'
 }
 
 export interface Board {
@@ -80,6 +78,7 @@ export interface Board {
 
 	movesCount: number
 	round: number
+	finishResult?: FinishResult | null
 
 	sequenceCounter: number
 	sequence: Array<SequenceValue>
@@ -89,6 +88,7 @@ export interface Board {
 	generateCells: () => void
 	generate: (seqLength?: number) => void
 	nextRound: () => void
+	getNextCursor: () => Cell | null
 }
 
 export const Board: IType<{}, Board> = types
@@ -100,6 +100,7 @@ export const Board: IType<{}, Board> = types
 
 		movesCount: types.number,
 		round: types.number,
+		finishResult: types.maybe(types.union(types.literal(FinishResult.Win), types.literal(FinishResult.Fail))),
 
 		sequenceCounter: types.optional(types.number, 0),
 		sequence: types.array(SequenceValue),
@@ -136,70 +137,51 @@ export const Board: IType<{}, Board> = types
 			}
 		},
 
-		moveCursor() {
+		getNextCursor() {
 			if (self.geometryType === BoardGeometryType.Box) {
-				self.cursor = self.cells[self.cursor!.index + 1]
-			} else if (self.geometryType === BoardGeometryType.Spiral) {
-				
-				/*let dims = {
-					x: 0,
-					y: 0,
-					w: 0,
-					h: 0,
-					dir: Direction.East,
-					len: 0,
-					step: 0
+				const nextIndex = self.cursor!.index + 1
+
+				if (nextIndex >= self.cells.length) {
+					return null
 				}
 
-				for (let i = 0; i < self.maxSequenceLength; i++) {
-					// seq.value[i] || undefined // #
-					let currentDirection = dims.dir
+				return self.cells[self.cursor!.index + 1]
+			} else if (self.geometryType === BoardGeometryType.Spiral) {
+				const hasAbove = (self.cursor!.y > 0) && !self.cells[self.cursor!.index - self.width].isEmpty!
+				const hasBelow = (self.cursor!.y < self.height - 1) && !self.cells[self.cursor!.index + self.width].isEmpty!
+				const hasLeft = (self.cursor!.x > 0) && !self.cells[self.cursor!.index - 1].isEmpty!
+				const hasRight = (self.cursor!.x < self.width - 1) && !self.cells[self.cursor!.index + 1].isEmpty!
 
-					if (dims.step >= dims.len) {
-						dims.step = 0
-						dims.len = 0
+				let nextIndex = null
+
+				if (hasAbove && !hasLeft) {
+					// Try to move left
+					if (self.cursor!.x > 0) {
+						nextIndex = self.cursor!.index - 1
 					}
-
-					// FIXME: start first step in better way
-					if (!dims.w && !dims.h) {
-						dims.x = 0
-						dims.y = 0
-						dims.w = 1
-						dims.h = 1
-					} else {
-						if (dims.w <= dims.h) {
-							if (dims.step) {
-								// just "stepping" into direction: no dims update + calc coord only
-							} else {
-								dims.w += 1
-								dims.len = dims.h
-								dims.dir = switchDirection(dims.dir)
-							}
-						} else {
-							if (dims.step) {
-								// just "stepping" into direction: no dims update + calc coord only
-							} else {
-								dims.h += 1
-								dims.len = dims.h
-								dims.dir = switchDirection(dims.dir)
-							}
-						}
-
-						dims.step += 1
-						dims.x = isDirectionY(currentDirection) ? dims.x : dims.x + (1 * (currentDirection === Direction.East ? 1 : -1))
-						dims.y = isDirectionX(currentDirection) ? dims.y : dims.y + (1 * (currentDirection === Direction.South ? 1 : -1))
+				} else if (hasBelow && !hasRight) {
+					// Try to move right
+					if (self.cursor!.x < self.width - 1) {
+						nextIndex = self.cursor!.index + 1
 					}
+				} else if (hasLeft && !hasBelow) {
+					// Try to move down
+					if (self.cursor!.y < self.height - 1) {
+						nextIndex = self.cursor!.index + self.width
+					}
+				} else if (hasRight && !hasAbove) {
+					// Try to move up
+					if (self.cursor!.y > 0) {
+						nextIndex = self.cursor!.index - self.width
+					}
+				} else if (!hasBelow && !hasAbove && !hasLeft && !hasRight) {
+					// By default try to move right
+					if (self.cursor!.x < self.width - 1) {
+						nextIndex = self.cursor!.index + 1
+					}
+				}
 
-					// console.log(`index [${i}] | coords: ${dims.x}x${dims.y} | dims: ${dims.w}x${dims.h} | steps ${dims.step}of${dims.len} into ${dims.dir}`)
-
-					self.cells.push({
-						x: dims.x,
-						y: dims.y,
-						sequenceIndex: i < seqLen ? i : -1,
-						glyph: i < seqLen ? '' : buildGlyphFromIndex(i),
-						isChained: false
-					})
-				}*/
+				return nextIndex === null ? null : self.cells[nextIndex]
 			} else {
 				throw new Error(`Unknown geometry type for the board: ${self.geometryType}`)
 			}
@@ -222,6 +204,10 @@ export const Board: IType<{}, Board> = types
 			self.sequenceCounter = seqCounter
 
 			return self.sequence.slice(-1 * sequenceFragment.length)
+		},
+
+		finish(result: FinishResult) {
+			self.finishResult = result
 		}
 	}))
 	.actions((self) => ({
@@ -241,10 +227,14 @@ export const Board: IType<{}, Board> = types
 		},
 
 		arrangeSequence(sequenceFragment: Array<SequenceValue>) {
-			sequenceFragment.forEach(sv => {
+			for (const sv of sequenceFragment) {
+				if (!self.cursor) {
+					self.finish(FinishResult.Fail)
+					break
+				}
 				self.cursor!.sequenceValue = sv
-				self.moveCursor()
-			})
+				self.cursor = self.getNextCursor()
+			}
 		},
 	}))
 	.actions((self) => ({
