@@ -1,4 +1,6 @@
 import { types, IType } from 'mobx-state-tree'
+
+import { Rules } from './rules'
 import { charMap } from '../utils/charMap'
 
 export function randomN(from = 0, upto = 10, asInt = true) {
@@ -58,13 +60,6 @@ export enum BoardGeometryType {
 	Spiral = 'spiral'
 }
 
-export enum Direction {
-	North = 'n',
-	East = 'e',
-	South = 's',
-	West = 'w'
-}
-
 export enum FinishResult {
 	Win = 'win',
 	Fail = 'fail'
@@ -84,11 +79,21 @@ export interface Board {
 	sequence: Array<SequenceValue>
 	cells: Array<Cell>
 	cursor?: Cell | null
+	rules: Rules
 
 	generateCells: () => void
-	generate: (seqLength?: number) => void
-	nextRound: () => void
 	getNextCursor: () => Cell | null
+	clearSequence: () => void
+	appendSequence: (fragment: Array<number | null>) => Array<SequenceValue>
+
+	finish: (result: FinishResult) => void
+	generateSequence: (lenth: number) => void
+	resetSequenceTo: (sequence: Array<number | null>) => void
+	replicateSequence: () => void
+	arrangeSequence: (sequence: Array<SequenceValue>) => void
+	generate: (seqLength?: number) => void
+	newGame: (seqLength?: number) => void
+	nextRound: () => void
 }
 
 export const Board: IType<{}, Board> = types
@@ -105,7 +110,8 @@ export const Board: IType<{}, Board> = types
 		sequenceCounter: types.optional(types.number, 0),
 		sequence: types.array(SequenceValue),
 		cells: types.array(Cell),
-		cursor: types.maybe(types.reference(Cell))
+		cursor: types.maybe(types.reference(Cell)),
+		rules: Rules
 	})
 	.actions((self) => ({
 		generateCells() {
@@ -239,16 +245,19 @@ export const Board: IType<{}, Board> = types
 	}))
 	.actions((self) => ({
 		generate(seqLength?: number) {
-			self.round = 1
 			self.generateSequence(seqLength || self.initialSequenceLength)
 			self.generateCells()
 			self.arrangeSequence(self.sequence)
-		},
-
+		}
+	}))
+	.actions((self) => ({
 		nextRound() {
 			self.round++
 			self.arrangeSequence(self.replicateSequence())
 		},
 
-		// TODO: switch geometry
+		newGame(seqLength?: number) {
+			self.round = 1
+			self.generate(seqLength)
+		}
 	}))

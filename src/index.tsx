@@ -19,7 +19,11 @@ const store = Store.create({
 		round: 1,
 
 		cells: [],
-		sequence: []
+		sequence: [],
+		rules: {
+			targetSum: 10,
+			targetLength: 2
+		}
 	}
 })
 export function runApp() {
