@@ -1,6 +1,6 @@
 import { types, IType } from 'mobx-state-tree'
 
-import { Rules, isTargetLength } from './rules'
+import { Rules } from './rules'
 import { charMap } from '../utils/charMap'
 
 export function randomN(from = 0, upto = 10, asInt = true) {
@@ -254,7 +254,12 @@ export const Board: IType<{}, Board> = types
 		},
 
 		clearChain() {
-			// TODO: cell.isChained = false, seq.value = null, chain = []
+			self.chain.forEach((cell: Cell) => {
+				cell.isChained = false
+				cell.sequenceValue!.value = null
+			})
+
+			self.chain.splice(0)
 		}
 	}))
 	.actions((self) => ({

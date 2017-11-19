@@ -23,7 +23,6 @@ export function isColumn(cells: Cell[], ...chain: Cell[]): boolean {
 	const sortedChain = chain.sort((a, b) => a.y - b.y)
 	const first = sortedChain[0]
 
-
 	if (chain.length < 2 || chain.some(cell => cell.x !== first.x)) {
 		return false
 	}
@@ -33,7 +32,7 @@ export function isColumn(cells: Cell[], ...chain: Cell[]): boolean {
 	const width = Math.floor((second.index - first.index) / (second.y - first.y))
 
 	for (let i = 1; i < sortedChain.length; i++) {
-		for (let j = sortedChain[i - 1].index + 1; j < sortedChain[i].index; j + width) {
+		for (let j = sortedChain[i - 1].index + width; j < sortedChain[i].index; j + width) {
 			indexesBetween.push(j)
 		}
 	}

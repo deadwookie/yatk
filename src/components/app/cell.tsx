@@ -26,7 +26,9 @@ export class CellElement extends React.Component<CellElement.Props, CellElement.
 			color: cell.isChained ? 'red' : 'black'
 		}
 
-		const value = cell.sequenceValue ? cell.sequenceValue.value : cell.glyph
+		const value = cell.sequenceValue
+			? (cell.sequenceValue.value === null ? '•' : cell.sequenceValue.value)
+			: cell.glyph
 		return (
 			<div
 				className={style.cell}
