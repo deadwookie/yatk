@@ -274,6 +274,10 @@ export const Board: IType<{}, Board> = types
 		},
 
 		addToChain(cell: Cell) {
+			if (cell.isEmpty) {
+				return
+			}
+
 			if (self.chain.length && self.rules.isMatchRules(cell, ...self.chain) && self.rules.isMatchGeometry(self.cells, cell, ...self.chain)) {
 				self.chain.push(cell)
 			} else {
