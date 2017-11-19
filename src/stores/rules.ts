@@ -2,35 +2,42 @@ import { types, IType } from 'mobx-state-tree'
 import { Cell } from './board'
 
 export function isRow(cells: Cell[], ...chain: Cell[]): boolean {
-	if (chain.length < 2) {
-		return false
-	}
 	const sortedChain = chain.sort((a, b) => a.x - b.x)
 	const first = sortedChain[0]
-	const indexesBetween: number[] = []
-	for (let i = 1; i < sortedChain.length; i++) {
-		for (let j = sortedChain[i - 1].index; j < sortedChain[i].index; j++) {
-			indexesBetween.push(j)
-		}
-	}
-	return chain.every(cell => cell.x === first.x)
-		&& indexesBetween.every(ind => cells[ind].isEmpty! || cells[ind].isNullSequence!)
-}
 
-export function isColumn(width: number, cells: Cell[], ...chain: Cell[]): boolean {
-	if (chain.length < 2) {
+	if (chain.length < 2 || chain.some(cell => cell.y !== first.y)) {
 		return false
 	}
-	const sortedChain = chain.sort((a, b) => a.y - b.y)
-	const first = sortedChain[0]
+
 	const indexesBetween: number[] = []
+
 	for (let i = 1; i < sortedChain.length; i++) {
-		for (let j = sortedChain[i - 1].index; j < sortedChain[i].index; j + width) {
+		for (let j = sortedChain[i - 1].index + 1; j < sortedChain[i].index; j++) {
 			indexesBetween.push(j)
 		}
 	}
-	return chain.every(cell => cell.y === first.y)
-		&& indexesBetween.every(ind => cells[ind].isEmpty! || cells[ind].isNullSequence!)
+	return indexesBetween.every(ind => cells[ind].isEmpty! || cells[ind].isNullSequence!)
+}
+
+export function isColumn(cells: Cell[], ...chain: Cell[]): boolean {
+	const sortedChain = chain.sort((a, b) => a.y - b.y)
+	const first = sortedChain[0]
+
+
+	if (chain.length < 2 || chain.some(cell => cell.x !== first.x)) {
+		return false
+	}
+
+	const second = sortedChain[1]
+	const indexesBetween: number[] = []
+	const width = Math.floor((second.index - first.index) / (second.y - first.y))
+
+	for (let i = 1; i < sortedChain.length; i++) {
+		for (let j = sortedChain[i - 1].index + 1; j < sortedChain[i].index; j + width) {
+			indexesBetween.push(j)
+		}
+	}
+	return indexesBetween.every(ind => cells[ind].isEmpty! || cells[ind].isNullSequence!)
 }
 
 export function isDiagonal(_cells: Cell[], ...chain: Cell[]): boolean {
@@ -68,6 +75,9 @@ export function isUniqueValues(...chain: Cell[]): boolean {
 export interface Rules {
 	targetSum: number
 	targetLength: number
+	isMatchRules: (...cell: Cell[]) => boolean
+	isMatchGeometry: (cells: Cell[], ...chain: Cell[]) => boolean
+	isMatchApplyRule: (...cell: Cell[]) => boolean
 }
 
 export const Rules: IType<{}, Rules> = types
@@ -75,3 +85,16 @@ export const Rules: IType<{}, Rules> = types
 		targetSum: types.number,
 		targetLength: types.number
 	})
+	.actions((self) => ({
+		isMatchRules(...chain: Cell[]) {
+			return isTargetSum(self.targetSum, ...chain) || isSameValue(...chain)
+		},
+
+		isMatchGeometry(cells: Cell[], ...chain: Cell[]) {
+			return isRow(cells, ...chain) || isColumn(cells, ...chain) || isDiagonal(cells, ...chain)
+		},
+
+		isMatchApplyRule(...chain: Cell[]) {
+			return isTargetLength(self.targetLength, ...chain)
+		}
+	}))

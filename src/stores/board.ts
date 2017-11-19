@@ -1,6 +1,6 @@
 import { types, IType } from 'mobx-state-tree'
 
-import { Rules } from './rules'
+import { Rules, isTargetLength } from './rules'
 import { charMap } from '../utils/charMap'
 
 export function randomN(from = 0, upto = 10, asInt = true) {
@@ -95,7 +95,7 @@ export interface Board {
 	generate: (seqLength?: number) => void
 	newGame: (seqLength?: number) => void
 	nextRound: () => void
-	addToChain: (cell: Cell) => boolean
+	addToChain: (cell: Cell) => void
 }
 
 export const Board: IType<{}, Board> = types
@@ -251,6 +251,10 @@ export const Board: IType<{}, Board> = types
 			self.generateSequence(seqLength || self.initialSequenceLength)
 			self.generateCells()
 			self.arrangeSequence(self.sequence)
+		},
+
+		clearChain() {
+			// TODO: cell.isChained = false, seq.value = null, chain = []
 		}
 	}))
 	.actions((self) => ({
@@ -264,11 +268,21 @@ export const Board: IType<{}, Board> = types
 			self.generate(seqLength)
 		},
 
-		addToChain(cell: Cell): boolean {
-			let success = false
+		addToChain(cell: Cell) {
+			if (self.chain.length && self.rules.isMatchRules(cell, ...self.chain) && self.rules.isMatchGeometry(self.cells, cell, ...self.chain)) {
+				self.chain.push(cell)
+			} else {
+				self.chain.forEach((cell: Cell) => {
+					cell.isChained = false
+				})
+				self.chain.splice(0)
+				self.chain.push(cell)
+			}
 
-			console.log(cell)
+			cell.isChained = true
 
-			return success
+			if (self.rules.isMatchApplyRule(...self.chain)) {
+				self.clearChain()
+			}
 		}
 	}))

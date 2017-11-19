@@ -23,13 +23,13 @@ export class CellElement extends React.Component<CellElement.Props, CellElement.
 		const positionStyle = {
 			left: cell.x * 50,
 			top: cell.y * 50,
+			color: cell.isChained ? 'red' : 'black'
 		}
 
 		const value = cell.sequenceValue ? cell.sequenceValue.value : cell.glyph
 		return (
 			<div
 				className={style.cell}
-				key={'box-cell-' + cell.key}
 				style={positionStyle}
 				onClick={this.onCellClick}>
 				{value}

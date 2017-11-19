@@ -52,6 +52,7 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 			return store.board.cells.map((cell: Cell) => {
 				return (
 					<CellElement
+						key={'box-cell-' + cell.key}
 						store={store}
 						cell={cell}
 					/>
