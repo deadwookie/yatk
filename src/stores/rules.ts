@@ -61,14 +61,31 @@ export function isEmptyColumn(cells: Cell[], width: number, height: number, x: n
 	return isEmpty
 }
 
-export function isDiagonal(_cells: Cell[], ...chain: Cell[]): boolean {
+export function isDiagonal(cells: Cell[], ...chain: Cell[]): boolean {
 	if (chain.length < 2) {
 		return false
 	}
+
 	const sortedChain = chain.sort((a, b) => a.x - b.x)
 	const first = sortedChain[0]
+	const second = sortedChain[1]
+	const direction = second.y < first.y ? -1 : 1
 
-	return chain.every(cell => Math.abs(first.x - cell.x) === Math.abs(first.y - cell.y))
+	if (chain.some(cell => Math.abs(first.x - cell.x) !== Math.abs(first.y - cell.y))) {
+		return false
+	}
+
+	const width = Math.abs(Math.floor((second.index - first.index - direction * (second.y - first.y))) / (second.y - first.y))
+	const indexesBetween: number[] = []
+
+	for (let i = 1; i < sortedChain.length; i++) {
+		const step = width * direction + 1
+		for (let j = sortedChain[i - 1].index + step; j !== sortedChain[i].index; j += step) {
+			indexesBetween.push(j)
+		}
+	}
+
+	return indexesBetween.every(ind => cells[ind].isEmpty! || cells[ind].isNullSequence!)
 }
 
 export function isTargetSum(targetSum: number, ...chain: Cell[]): boolean {
