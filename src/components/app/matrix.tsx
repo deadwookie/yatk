@@ -30,6 +30,8 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 						<button onClick={this.onNextRoundClick}>Next round</button>
 					</div>
 					<dl className={style.info}>
+						<dt>Score: </dt>
+						<dd>{board.score} points</dd>
 						<dt>Round #</dt>
 						<dd>{board.round}</dd>
 						<dt>Moves:</dt>
@@ -65,7 +67,7 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 
 	@autobind
 	onRestartClick() {
-		this.props.store.board.generate(this.props.store.board.initialSequenceLength)
+		this.props.store.board.newGame(this.props.store.board.initialSequenceLength)
 	}
 
 	@autobind

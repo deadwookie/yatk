@@ -73,6 +73,7 @@ export interface Board {
 
 	movesCount: number
 	round: number
+	score: number
 	finishResult?: FinishResult | null
 
 	sequenceCounter: number
@@ -107,6 +108,7 @@ export const Board: IType<{}, Board> = types
 
 		movesCount: types.number,
 		round: types.number,
+		score: types.number,
 		finishResult: types.maybe(types.union(types.literal(FinishResult.Win), types.literal(FinishResult.Fail))),
 
 		sequenceCounter: types.optional(types.number, 0),
@@ -337,21 +339,34 @@ export const Board: IType<{}, Board> = types
 			self.collapseChain(self.chain)
 
 			self.chain.splice(0)
+		},
+
+		updateScore() {
+			const sortedChain = self.chain.sort((a, b) => a.x - b.x)
+			const first = sortedChain[0]
+			const last = sortedChain[sortedChain.length - 1]
+			const dist = [Math.abs(first.x - last.x), Math.abs(first.y - last.y)]
+
+			self.score += 10 + dist[0] + dist[1]
 		}
 	}))
 	.actions((self) => ({
 		nextRound() {
 			self.round++
+			self.score -= 100
+			self.chain.splice(0)
 			self.arrangeSequence(self.replicateSequence())
 		},
 
 		newGame(seqLength?: number) {
 			self.round = 1
+			self.score = 1000
+			self.chain.splice(0)
 			self.generate(seqLength)
 		},
 
 		addToChain(cell: Cell) {
-			if (cell.isEmpty) {
+			if (cell.isEmpty || cell.isNullSequence || self.chain.indexOf(cell) !== -1) {
 				return
 			}
 
@@ -368,6 +383,7 @@ export const Board: IType<{}, Board> = types
 			cell.isChained = true
 
 			if (self.rules.isMatchApplyRule(...self.chain)) {
+				self.updateScore()
 				self.clearChain()
 			}
 		}

@@ -17,6 +17,7 @@ const store = Store.create({
 
 		movesCount: 0,
 		round: 1,
+		score: 1000,
 
 		cells: [],
 		chain: [],

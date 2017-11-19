@@ -43,7 +43,7 @@ export function isColumn(cells: Cell[], ...chain: Cell[]): boolean {
 	const width = Math.floor((second.index - first.index) / (second.y - first.y))
 
 	for (let i = 1; i < sortedChain.length; i++) {
-		for (let j = sortedChain[i - 1].index + width; j < sortedChain[i].index; j + width) {
+		for (let j = sortedChain[i - 1].index + width; j < sortedChain[i].index; j += width) {
 			indexesBetween.push(j)
 		}
 	}
