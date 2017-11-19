@@ -1,17 +1,23 @@
-:global(html, body) {
-	height: 100vh;
-	margin: 0;
-	padding: 0;
-	background: lightgrey;
+:global(html) {
+  font-size: 10px;
 }
 
-:global(body) {
-	display: flex;
-}
+:global(.theme-matrix) {
+  --color: #999;
+  --bg-color: #333;
 
-:global #main {
-	display: flex;
-	flex: 1 1 auto;
-	margin: 0 auto;
-	background: white;
+  --accent-color: #090;
+  --accent-bg-color: var(--bg-color);
+
+  --hover-color: #6f9;
+  --hover-bg-color: transparent;
+  --hover-shadow-blur: .5em;
+  --hover-shadow-color: #f00;
+  --hover-text-shadow: 0 0 var(--hover-shadow-blur) var(--hover-shadow-color);
+
+  --active-color: #fff;
+  --active-bg-color: var(--hover-bg-color);
+  --active-shadow-blur: 2em;
+  --active-shadow-color: var(--hover-shadow-color);
+  --active-text-shadow: 0 0 .1em var(--active-shadow-color), 0 0 var(--active-shadow-blur) var(--active-shadow-color);
 }

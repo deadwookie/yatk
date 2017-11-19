@@ -14,9 +14,11 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "@types/classnames": "^2.2.3",
     "@types/react": "^15.0.22",
     "@types/react-dom": "^15.5.0",
     "awesome-typescript-loader": "^3.3.0",
+    "classnames": "^2.2.5",
     "css-loader": "^0.28.7",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.5",

@@ -15,8 +15,8 @@ export namespace Footer {
 export class Footer extends React.Component<Footer.Props, Footer.State> {
 	render() {
 		return (
-			<footer className={style.footer}>
-				<p>{this.props.store.appVersion}</p>
+			<footer className={style.main}>
+				<p>v{this.props.store.appVersion}</p>
 			</footer>
 		)
 	}

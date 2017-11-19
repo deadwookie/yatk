@@ -1,16 +1,22 @@
-.header {
 
-}
+/* .main {} */
 
 .logo {
-	font-size: 2.5rem;
-	font-weight: 700;
-	font-family: Lucida Sans,Lucida Sans Regular,Lucida Grande,Lucida Sans Unicode,Verdana,sans-serif;
-	color: #006400;
+  font-size: 4.5rem;
+  font-weight: bold;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;
+  color: var(--accent-color);
+  animation: glow 9s cubic-bezier(0.6, 0.04, 0.9, 0.335) infinite alternate;
 }
 
 .title {
-	font-size: 1.2rem;
-	margin-top: -0.5rem;
-	font-weight: 400;
+  margin-top: -1rem;
+  font-weight: normal;
+}
+
+@keyframes glow {
+  100% {
+    color: var(--active-color);
+    text-shadow: var(--active-text-shadow);
+  }
 }
