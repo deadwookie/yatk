@@ -67,7 +67,8 @@ export function isDiagonal(_cells: Cell[], ...chain: Cell[]): boolean {
 	}
 	const sortedChain = chain.sort((a, b) => a.x - b.x)
 	const first = sortedChain[0]
-	return chain.every(cell => cell.x > first.x && cell.y > first.y)
+
+	return chain.every(cell => Math.abs(first.x - cell.x) === Math.abs(first.y - cell.y))
 }
 
 export function isTargetSum(targetSum: number, ...chain: Cell[]): boolean {
