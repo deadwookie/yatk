@@ -1,23 +1,30 @@
 :global(html) {
-  font-size: 10px;
+	font-size: 10px;
+	height: 100%;
+}
+:global(body) {
+	margin: 0;
+	padding: 0;
+	color: #999;
+	background: #333;
 }
 
 :global(.theme-matrix) {
-  --color: #999;
-  --bg-color: #333;
+	--color: #999;
+	--bg-color: #333;
 
-  --accent-color: #090;
-  --accent-bg-color: var(--bg-color);
+	--accent-color: #090;
+	--accent-bg-color: var(--bg-color);
 
-  --hover-color: #6f9;
-  --hover-bg-color: transparent;
-  --hover-shadow-blur: .5em;
-  --hover-shadow-color: #f00;
-  --hover-text-shadow: 0 0 var(--hover-shadow-blur) var(--hover-shadow-color);
+	--hover-color: #6f9;
+	--hover-bg-color: transparent;
+	--hover-shadow-blur: .5em;
+	--hover-shadow-color: #f00;
+	--hover-text-shadow: 0 0 var(--hover-shadow-blur) var(--hover-shadow-color);
 
-  --active-color: #fff;
-  --active-bg-color: var(--hover-bg-color);
-  --active-shadow-blur: 2em;
-  --active-shadow-color: var(--hover-shadow-color);
-  --active-text-shadow: 0 0 .1em var(--active-shadow-color), 0 0 var(--active-shadow-blur) var(--active-shadow-color);
+	--active-color: #fff;
+	--active-bg-color: var(--hover-bg-color);
+	--active-shadow-blur: 2em;
+	--active-shadow-color: var(--hover-shadow-color);
+	--active-text-shadow: 0 0 .1em var(--active-shadow-color), 0 0 var(--active-shadow-blur) var(--active-shadow-color);
 }

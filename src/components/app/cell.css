@@ -1,10 +1,113 @@
-.cell {
-	display: block;
+.main {
 	position: absolute;
-	width: 50px;
-	height: 50px;
+	margin: 0;
+	padding: 0;
+	width: var(--cell-size);
+	height: var(--cell-size);
+	line-height: var(--cell-size);
 	vertical-align: middle;
-	font-size: 1.5rem;
-	font-weight: bold;
+	text-align: center;
+	border-bottom: var(--border);
+	border-right: var(--border);
+
+	font-family: var(--char-font-family), Tahoma, sans-serif;
+	font-weight: var(--char-font-weight);
+	font-size: var(--char-font-size);
 	cursor: default;
+}
+
+.isEmpty {
+	opacity: .15;
+	border: none;
+}
+.isCursor {
+	opacity: .5;
+	animation: siren 4s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes siren {
+	100% {
+	text-shadow: 0 0 .1em var(--hover-shadow-color), var(--hover-text-shadow);
+	}
+}
+
+.isChar, .isClear {
+	background: var(--bg-color);
+	color: var(--color);
+}
+
+.isClear {
+	opacity: .33;
+}
+
+.isChar .symbol {
+	animation: glow 4s ease-in-out infinite;
+}
+
+@keyframes glow {
+	50% {
+		text-shadow: 0 0 var(--glow-shadow-blur) var(--glow-shadow-color);
+		color: var(--glow-color);
+	}
+}
+
+.isChar:hover, .isCursor:hover {
+	cursor: pointer;
+	background: var(--hover-bg-color);
+	color: var(--active-color);
+	text-shadow: 0 0 .1em var(--hover-shadow-color), var(--hover-text-shadow);
+}
+
+.isActive, .isActive:hover {
+	background: var(--active-bg-color);
+	color: var(--active-color);
+	text-shadow: var(--active-text-shadow);
+	transform: scale(1.5);
+
+	transition: transform 3s, text-shadow 1s;
+}
+
+.isActive .symbol, .isChar:hover .symbol {
+	animation: none;
+}
+
+.isCursor:hover {
+	animation: vibrate .4s linear infinite both;
+	opacity: .8;
+}
+
+@keyframes vibrate {
+	0% {
+		transform: translate(0);
+	}
+	10% {
+		transform: translate(-2px, -2px);
+	}
+	20% {
+		transform: translate(2px, -2px);
+	}
+	30% {
+		transform: translate(-2px, 2px);
+	}
+	40% {
+		transform: translate(2px, 2px);
+	}
+	50% {
+		transform: translate(-2px, -2px);
+	}
+	60% {
+		transform: translate(2px, -2px);
+	}
+	70% {
+		transform: translate(-2px, 2px);
+	}
+	80% {
+		transform: translate(-2px, -2px);
+	}
+	90% {
+		transform: translate(2px, -2px);
+	}
+	100% {
+		transform: translate(0);
+	}
 }

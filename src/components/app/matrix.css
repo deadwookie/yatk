@@ -1,54 +1,112 @@
-.content {
-	border: 1px solid #999;
-	display: flex;
-	flex-direction: column;
-	flex: 1 1 auto;
+@import url('https://fonts.googleapis.com/css?family=PT+Sans+Caption:400,700|PT+Serif+Caption&subset=latin-ext');
+
+.main {
+	--cell-number: 16;
+	--cell-size: 5rem;
+	--matrix-size: calc(var(--cell-number) * var(--cell-size));
+
+	--border-width: 0;
+	--border-color: #999;
+	--border-style: solid;
 	--border: var(--border-width) var(--border-style) var(--border-color);
-	--color: #0f0;
-	--bg-color: #333;
-	--hover-color: var(--color);
-	--hover-bg-color: #666;
-	--active-color: var(--color);
-	--active-bg-color: var(--bg-color);
-	--blink-color: #6f6;
-	--blink-speed: 1s;
+	--color: #0b0;
+	--bg-color: transparent;
+
+	--glow-color: var(--hover-color);
+	--glow-shadow-blur: .2em;
+	--glow-shadow-color: var(--accent-color);
+
+	--char-font-family: 'PT Sans Caption';
+	--char-font-weight: 700;
+	--char-font-size: 4.4rem;
+
+	--msg-font-family: 'PT Serif Caption';
+	--msg-font-weight: 400;
+	--msg-font-size: 3.8rem;
 }
 
-.actions button {
-	padding: 5px 10px;
-	margin: 0 2px;
-	border: 2px solid #006400;
-	background: #fff;
-	color: #006400;
-	font-size: 1rem;
-	font-weight: 700;
+/* Action bar */
+/* .actions {} */
+.action {
+	padding: 8px 16px;
+	border: 1px solid var(--accent-color);
+	border-radius: 0;
+	background: var(--accent-bg-color);
+	color: var(--accent-color);
+	font-size: 1.5rem;
+	font-weight: bold;
+}
+.action + .action {
+	margin-left: 20px;
+}
+
+.action:enabled:hover, .action:enabled:focus, a.action:hover {
 	cursor: pointer;
-}
+	outline: none;
 
-.muted {
+	background: var(--hover-bg-color);
+	color: var(--hover-color);
+	border-color: var(--hover-color);
+	text-shadow: var(--hover-text-shadow);
+
+}
+.action:enabled:focus, a.action:active {
+	text-shadow: var(--active-text-shadow);
+	box-shadow: var(--hover-text-shadow);
+}
+.action:disabled {
 	opacity: .5;
 }
-.muted:hover {
-	opacity: 1;
-}
-.actions, .options {
-	margin: 20px;
-}
-.info dt, .info dd {
+
+/* Status bar */
+/* .info {} */
+.term, .desc {
 	display: inline;
 	margin: 0;
 	list-style: none;
+	font-size: 1.2rem;
 }
-.info dd + dt::before {
+.term + .desc {
+	margin-left: .2em;
+}
+.desc + .term::before {
 	content: "| ";
 	padding: 0 5px;
 }
 
+/* Playground */
 .board {
-    width: 800px;
-    height: 800px;
-    margin: 0 auto;
-	flex: 1 1 auto;
+	user-select: none;
+	width: 800px;
+	height: 800px;
+	margin: 0 auto;
 	position: relative;
 }
 
+.alert {
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+}
+.message {
+	z-index: 1;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	margin: 0;
+	padding: 0 1rem 0;
+
+	text-transform: uppercase;
+	font-family: var(--msg-font-family), Tahoma, sans-serif;
+	font-weight: var(--msg-font-weight);
+	font-size: var(--msg-font-size);
+	letter-spacing: .2rem;
+	text-shadow: 0 0 var(--glow-shadow-blur) var(--glow-shadow-color);
+	color: var(--glow-color);
+	background: var(--bg-color);
+	border: 3px solid var(--glow-color);
+	box-shadow: 0 0 calc(var(--glow-shadow-blur) * 2) var(--hover-color);
+}

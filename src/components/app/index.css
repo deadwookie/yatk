@@ -1,9 +1,9 @@
 .main {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  margin-top: 1rem;
-  text-align: center;
-  color: var(--color);
-  background: var(--bg-color);
+	font-family: 'Avenir', Helvetica, Arial, sans-serif;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	margin: 0;
+	text-align: center;
+	color: var(--color);
+	background: var(--bg-color);
 }

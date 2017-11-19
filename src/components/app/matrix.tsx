@@ -23,21 +23,21 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 		const { board } = this.props.store
 
 		return (
-			<section className={style.content}>
+			<section className={style.main}>
 				<header>
 					<div className={style.actions}>
-						<button onClick={this.onRestartClick}>Restart</button>
-						<button onClick={this.onNextRoundClick}>Next round</button>
+						<button className={style.action} onClick={this.onRestartClick}>Restart</button>
+						<button className={style.action} onClick={this.onNextRoundClick}>Next round</button>
 					</div>
 					<dl className={style.info}>
-						<dt>Score: </dt>
-						<dd>{board.score} points</dd>
-						<dt>Round #</dt>
-						<dd>{board.round}</dd>
-						<dt>Moves:</dt>
-						<dd>{board.movesCount}</dd>
-						<dt>Sequence length:</dt>
-						<dd>{board.sequence.length}</dd>
+						<dt className={style.term}>Score:</dt>
+						<dd className={style.desc}>{board.score} points</dd>
+						<dt className={style.term}>Round</dt>
+						<dd className={style.desc}>#{board.round}</dd>
+						<dt className={style.term}>Moves:</dt>
+						<dd className={style.desc}>{board.movesCount}</dd>
+						<dt className={style.term}>Sequence length:</dt>
+						<dd className={style.desc}>{board.sequence.length}</dd>
 					</dl>
 				</header>
 				<div className={style.board}>
