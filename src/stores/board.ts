@@ -1,6 +1,6 @@
 import { types, IType } from 'mobx-state-tree'
 
-import { Rules } from './rules'
+import { Rules, isEmptyColumn, isEmptyRow } from './rules'
 import { charMap } from '../utils/charMap'
 
 export function randomN(from = 0, upto = 10, asInt = true) {
@@ -217,13 +217,32 @@ export const Board: IType<{}, Board> = types
 
 		finish(result: FinishResult) {
 			self.finishResult = result
+		},
+
+		copyRow(srcY: number, dstY: number) {
+			const isClearDst = srcY < 0 || srcY >= self.height
+			for (let i = 0; i < self.width; i++) {
+				self.cells[dstY * self.width + i].sequenceValue = isClearDst
+					? null
+					: self.cells[srcY * self.width + i].sequenceValue
+			}
+		},
+
+		copyColumn(srcX: number, dstX: number) {
+			const isClearDst = srcX < 0 || srcX >= self.width
+			for (let i = 0; i < self.height; i++) {
+				self.cells[i * self.width + dstX].sequenceValue = isClearDst
+					? null
+					: self.cells[i * self.width + srcX].sequenceValue
+			}
 		}
 	}))
 	.actions((self) => ({
 		generateSequence(length: number) {
 			self.clearSequence()
 			self.sequenceCounter = -1
-			self.appendSequence(Array.from(Array(length)).map(_ => randomN()))
+			self.appendSequence(Array.from(Array(length)).map(_ => 8))
+			//self.appendSequence(Array.from(Array(length)).map(_ => randomN()))
 		},
 
 		resetSequenceTo(sequence: Array<number | null>) {
@@ -245,6 +264,62 @@ export const Board: IType<{}, Board> = types
 				self.cursor = self.getNextCursor()
 			}
 		},
+
+		collapseChain(chain: Cell[]) {
+			const yToCollapse: {[key: string]: number} = {}
+			const xToCollapse: {[key: string]: number} = {}
+			const isAboveMiddleFn = (y: number) => y < (self.height / 2)
+			const isLeftToMiddleFn = (x: number) => x < (self.width / 2)
+
+			chain.forEach(cell => {
+				if (isEmptyRow(self.cells, self.width, cell.y)) {
+					yToCollapse[cell.y.toString()] = cell.y
+				}
+				if (isEmptyColumn(self.cells, self.width, self.height, cell.x)) {
+					xToCollapse[cell.x.toString()] = cell.x
+				}
+			})
+
+			Object.keys(yToCollapse).forEach((initialY) => {
+				const y = yToCollapse[initialY]
+				const isAboveMiddle = isAboveMiddleFn(y)
+				const direction = isAboveMiddle ? -1 : 1
+
+				// Collapse row
+				for (let i = y; i > 0 && i < self.height; i += direction) {
+					self.copyRow(i + direction, i)
+				}
+
+				delete yToCollapse[initialY]
+				Object.keys(yToCollapse)
+					.filter(initialY => {
+						return isAboveMiddleFn(yToCollapse[initialY]) === isAboveMiddle
+					})
+					.forEach((initialY) => {
+						yToCollapse[initialY] -= direction
+					})
+			})
+
+			Object.keys(xToCollapse).forEach((initialX) => {
+				const x = xToCollapse[initialX]
+				const isLeftToMiddle = isLeftToMiddleFn(x)
+				const direction = isLeftToMiddle ? -1 : 1
+
+				// Collapse row
+				for (let i = x; i > 0 && i < self.height; i += direction) {
+					self.copyColumn(i + direction, i)
+				}
+
+				delete xToCollapse[initialX]
+				Object.keys(xToCollapse)
+					.filter(initialX => {
+						return isLeftToMiddleFn(xToCollapse[initialX]) === isLeftToMiddle
+					})
+					.forEach((initialX) => {
+						xToCollapse[initialX] -= direction
+					})
+			})
+		}
 	}))
 	.actions((self) => ({
 		generate(seqLength?: number) {
@@ -258,6 +333,8 @@ export const Board: IType<{}, Board> = types
 				cell.isChained = false
 				cell.sequenceValue!.value = null
 			})
+
+			self.collapseChain(self.chain)
 
 			self.chain.splice(0)
 		}

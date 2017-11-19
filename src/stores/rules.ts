@@ -19,6 +19,17 @@ export function isRow(cells: Cell[], ...chain: Cell[]): boolean {
 	return indexesBetween.every(ind => cells[ind].isEmpty! || cells[ind].isNullSequence!)
 }
 
+export function isEmptyRow(cells: Cell[], width: number, y: number) {
+	let isEmpty: boolean = true
+	for (let i = cells[y * width].index; i < ((y + 1) * width - 1); i++) {
+		if (cells[i].isValueSequence) {
+			isEmpty = false
+			break
+		}
+	}
+	return isEmpty
+}
+
 export function isColumn(cells: Cell[], ...chain: Cell[]): boolean {
 	const sortedChain = chain.sort((a, b) => a.y - b.y)
 	const first = sortedChain[0]
@@ -37,6 +48,17 @@ export function isColumn(cells: Cell[], ...chain: Cell[]): boolean {
 		}
 	}
 	return indexesBetween.every(ind => cells[ind].isEmpty! || cells[ind].isNullSequence!)
+}
+
+export function isEmptyColumn(cells: Cell[], width: number, height: number, x: number) {
+	let isEmpty: boolean = true
+	for (let i = 0; i < height; i++) {
+		if (cells[i * width + x].isValueSequence) {
+			isEmpty = false
+			break
+		}
+	}
+	return isEmpty
 }
 
 export function isDiagonal(_cells: Cell[], ...chain: Cell[]): boolean {
