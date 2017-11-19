@@ -19,6 +19,7 @@ const store = Store.create({
 		round: 1,
 
 		cells: [],
+		chain: [],
 		sequence: [],
 		rules: {
 			targetSum: 10,

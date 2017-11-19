@@ -5,6 +5,8 @@ import * as style from './matrix.css'
 
 import autobind from '../../utils/autobind'
 import { StoreInjectedProps } from '../../stores'
+import { Cell } from '../../stores/board'
+import { CellElement } from './cell'
 
 export namespace Matrix {
 	export interface Props extends StoreInjectedProps {}
@@ -44,16 +46,15 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 	}
 
 	renderCells() {
-		if (this.props.store.board.cells.length) {
-			return this.props.store.board.cells.map((cell) => {
-				const positionStyle = {
-					left: cell.x * 50,
-					top: cell.y * 50,
-				}
+		const { store } = this.props
 
-				const value = cell.sequenceValue ? cell.sequenceValue.value : cell.glyph
+		if (store.board.cells.length) {
+			return store.board.cells.map((cell: Cell) => {
 				return (
-					<div className={style.cell} key={'box-cell-' + cell.key} style={positionStyle}>{value}</div>
+					<CellElement
+						store={store}
+						cell={cell}
+					/>
 				)
 			})
 		}

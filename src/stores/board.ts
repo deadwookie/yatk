@@ -78,6 +78,7 @@ export interface Board {
 	sequenceCounter: number
 	sequence: Array<SequenceValue>
 	cells: Array<Cell>
+	chain: Array<Cell>
 	cursor?: Cell | null
 	rules: Rules
 
@@ -94,6 +95,7 @@ export interface Board {
 	generate: (seqLength?: number) => void
 	newGame: (seqLength?: number) => void
 	nextRound: () => void
+	addToChain: (cell: Cell) => boolean
 }
 
 export const Board: IType<{}, Board> = types
@@ -110,6 +112,7 @@ export const Board: IType<{}, Board> = types
 		sequenceCounter: types.optional(types.number, 0),
 		sequence: types.array(SequenceValue),
 		cells: types.array(Cell),
+		chain: types.array(types.reference(Cell)),
 		cursor: types.maybe(types.reference(Cell)),
 		rules: Rules
 	})
@@ -259,5 +262,13 @@ export const Board: IType<{}, Board> = types
 		newGame(seqLength?: number) {
 			self.round = 1
 			self.generate(seqLength)
+		},
+
+		addToChain(cell: Cell): boolean {
+			let success = false
+
+			console.log(cell)
+
+			return success
 		}
 	}))
