@@ -83,10 +83,16 @@ export interface Board {
 	cursor?: Cell | null
 	rules: Rules
 
-	generateCells: () => void
+	copyRow: (srcY: number, dstY: number) => void
+	copyColumn: (srcX: number, dstX: number) => void
+	getRow: (y: number) => Cell[] | null
+	getColumn: (x: number) => Cell[] | null
+ 	generateCells: () => void
 	getNextCursor: () => Cell | null
 	clearSequence: () => void
 	appendSequence: (fragment: Array<number | null>) => Array<SequenceValue>
+	removeFromSequence: (fragment: Array<SequenceValue>) => void
+	removeFromSequenceByIndexes: (indexes: Array<number>) => void
 
 	finish: (result: FinishResult) => void
 	generateSequence: (lenth: number) => void
@@ -217,6 +223,38 @@ export const Board: IType<{}, Board> = types
 			return self.sequence.slice(-1 * sequenceFragment.length)
 		},
 
+		removeFromSequence(fragment: Array<SequenceValue>) {
+			const keySet = new Set(fragment.map(sv => sv.key))
+			const indexes: Array<number> = []
+
+			self.sequence.forEach((sv, ind) => {
+				if (keySet.has(sv.key)) {
+					indexes.push(ind)
+				}
+			})
+
+			return indexes
+		},
+
+		removeFromSequenceByIndexes(indexes: Array<number>) {
+			const chains: Array<{index: number, count: number}> = indexes.sort((a, b) => a - b)
+				.reduce((acc, val, index) => {
+					if (index > 0 && (acc[acc.length - 1].index + acc[acc.length - 1].count) === val) {
+						acc[acc.length - 1].count++
+					} else {
+						acc.push({index: val, count: 1})
+					}
+
+					return acc
+				}, [] as Array<{index: number, count: number}>)
+
+			let removedCount = 0
+			for(const chain of chains) {
+				self.sequence.splice(chain.index - removedCount, chain.count)
+				removedCount += chain.count
+			}
+		},
+
 		finish(result: FinishResult) {
 			self.finishResult = result
 		},
@@ -237,13 +275,41 @@ export const Board: IType<{}, Board> = types
 					? null
 					: self.cells[i * self.width + srcX].sequenceValue
 			}
+		},
+
+		getRow(y: number): Cell[] | null {
+			const cells: Cell[] = []
+
+			if (y < 0 || y >= self.height) {
+				return null
+			}
+
+			for (let i = 0; i < self.width; i++) {
+				cells.push(self.cells[y * self.width + i])
+			}
+
+			return cells
+		},
+
+		getColumn(x: number): Cell[] | null {
+			const cells: Cell[] = []
+
+			if (x < 0 || x >= self.width) {
+				return null
+			}
+
+			for (let i = 0; i < self.height; i++) {
+				cells.push(self.cells[i * self.width + x])
+			}
+
+			return cells
 		}
 	}))
 	.actions((self) => ({
 		generateSequence(length: number) {
 			self.clearSequence()
 			self.sequenceCounter = -1
-			self.appendSequence(Array.from(Array(length)).map(_ => 8))
+			self.appendSequence(Array.from(Array(length)).map((_, ind) => ind % 2 === 0 ? 8 : 2))
 			//self.appendSequence(Array.from(Array(length)).map(_ => randomN()))
 		},
 
@@ -272,6 +338,7 @@ export const Board: IType<{}, Board> = types
 			const xToCollapse: {[key: string]: number} = {}
 			const isAboveMiddleFn = (y: number) => y < (self.height / 2)
 			const isLeftToMiddleFn = (x: number) => x < (self.width / 2)
+			const sequenceFragments: Array<SequenceValue> = []
 
 			chain.forEach(cell => {
 				if (isEmptyRow(self.cells, self.width, cell.y)) {
@@ -286,6 +353,14 @@ export const Board: IType<{}, Board> = types
 				const y = yToCollapse[initialY]
 				const isAboveMiddle = isAboveMiddleFn(y)
 				const direction = isAboveMiddle ? -1 : 1
+
+				// Collect values to remove from sequence
+				const row = self.getRow(y)
+				if (row) {
+					sequenceFragments.push(
+						...row.filter(cell => !cell.isEmpty).map(cell => cell.sequenceValue!)
+					)
+				}
 
 				// Collapse row
 				for (let i = y; i > 0 && i < self.height; i += direction) {
@@ -307,7 +382,15 @@ export const Board: IType<{}, Board> = types
 				const isLeftToMiddle = isLeftToMiddleFn(x)
 				const direction = isLeftToMiddle ? -1 : 1
 
-				// Collapse row
+				// Collect values to remove from sequence
+				const column = self.getColumn(x)
+				if (column) {
+					sequenceFragments.push(
+						...column.filter(cell => !cell.isEmpty).map(cell => cell.sequenceValue!)
+					)
+				}
+
+				// Collapse column
 				for (let i = x; i > 0 && i < self.height; i += direction) {
 					self.copyColumn(i + direction, i)
 				}
@@ -321,6 +404,10 @@ export const Board: IType<{}, Board> = types
 						xToCollapse[initialX] -= direction
 					})
 			})
+
+			if (sequenceFragments.length) {
+				self.removeFromSequence(sequenceFragments)
+			}
 		}
 	}))
 	.actions((self) => ({
