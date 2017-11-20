@@ -10,10 +10,10 @@ import { BoardGeometryType } from './stores/board'
 const store = Store.create({
 	appVersion: '0.0.1',
 	board: {
-		initialSequenceLength: 16,
+		initialSequenceLength: 36,
 		width: 16,
 		height: 16,
-		geometryType: BoardGeometryType.Box,
+		geometryType: BoardGeometryType.Spiral,
 
 		movesCount: 0,
 		round: 1,
@@ -25,8 +25,8 @@ const store = Store.create({
 		rules: {
 			targetSum: 10,
 			targetLength: 2,
-			isCollapseRows: false,
-			isCollapseColumns: false,
+			isCollapseRows: true,
+			isCollapseColumns: true,
 		}
 	}
 })

@@ -124,7 +124,9 @@ export interface Rules {
 export const Rules: IType<{}, Rules> = types
 	.model('Rules', {
 		targetSum: types.number,
-		targetLength: types.number
+		targetLength: types.number,
+		isCollapseRows: types.optional(types.boolean, true),
+		isCollapseColumns: types.optional(types.boolean, true)
 	})
 	.actions((self) => ({
 		isMatchRules(...chain: Cell[]) {

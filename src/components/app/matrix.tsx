@@ -68,7 +68,7 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 
 	@autobind
 	onRestartClick() {
-		this.props.store.board.newGame(this.props.store.board.initialSequenceLength)
+		this.props.store.board.newGame()
 	}
 
 	@autobind

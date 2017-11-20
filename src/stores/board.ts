@@ -214,7 +214,37 @@ export const Board: IType<{}, Board> = types
 
 				return self.cells[prevIndex]
 			} else if (self.geometryType === BoardGeometryType.Spiral) {
+				const hasAbove = self.cursor!.y > 0 && !self.cells[self.cursor!.index - self.width].isEmpty!
+				const hasBelow = (self.cursor!.y < self.height - 1) && !self.cells[self.cursor!.index + self.width].isEmpty!
+				const hasLeft = self.cursor!.x > 0 && !self.cells[self.cursor!.index - 1].isEmpty!
+				const hasRight = (self.cursor!.x < self.width - 1) && !self.cells[self.cursor!.index + 1].isEmpty!
 
+				const hasAboveRight = self.cursor!.y > 0 && (self.cursor!.x < self.width - 1)
+					&& !self.cells[self.cursor!.index - self.width + 1].isEmpty!
+				const hasAboveLeft = self.cursor!.y > 0 && self.cursor!.x > 0
+					&& !self.cells[self.cursor!.index - self.width - 1].isEmpty!
+				const hasBelowRight = (self.cursor!.y < self.height - 1) && (self.cursor!.x < self.width - 1)
+					&& !self.cells[self.cursor!.index + self.width + 1].isEmpty!
+				const hasBelowLeft = (self.cursor!.y < self.height - 1) && self.cursor!.x > 0
+					&& !self.cells[self.cursor!.index + self.width - 1].isEmpty!
+
+				let prevIndex = null
+
+				if (hasAboveRight && !hasRight) {
+					// Try to move right
+					prevIndex = self.cursor!.index + 1
+				} else if (hasBelowRight && !hasBelow) {
+					// Try to move down
+					prevIndex = self.cursor!.index + self.width
+				} else if (hasBelowLeft && !hasLeft) {
+					// Try to move left
+					prevIndex = self.cursor!.index - 1
+				} else if (hasAboveLeft && !hasAbove) {
+					// Try to move up
+					prevIndex = self.cursor!.index - self.width
+				}
+
+				return prevIndex === null ? null : self.cells[prevIndex]
 			} else {
 				throw new Error(`Unknown geometry type for the board: ${self.geometryType}`)
 			}
@@ -321,8 +351,8 @@ export const Board: IType<{}, Board> = types
 		generateSequence(length: number) {
 			self.clearSequence()
 			self.sequenceCounter = -1
-			self.appendSequence(Array.from(Array(length)).map((_, ind) => ind % 2 === 0 ? 8 : 2))
-			//self.appendSequence(Array.from(Array(length)).map(_ => randomN()))
+			//self.appendSequence(Array.from(Array(length)).map((_, ind) => ind % 2 === 0 ? 8 : 2))
+			self.appendSequence(Array.from(Array(length)).map(_ => randomN()))
 		},
 
 		resetSequenceTo(sequence: Array<number | null>) {
@@ -387,9 +417,21 @@ export const Board: IType<{}, Board> = types
 					// Move cursor
 					if (isCursorOnCollapsed) {
 						let prevCursor = self.getPrevCursor()
-						while (prevCursor) {
-							self.cursor = prevCursor
-							prevCursor = self.getPrevCursor()
+
+						if (!prevCursor) {
+							/**
+							 * We cannot move, so the not empty value from the prev row copied
+							 * to the cursor postition. Move cursor one step ahead
+							 */
+							prevCursor = self.getNextCursor()
+							if (prevCursor) {
+								self.cursor = prevCursor
+							}
+						} else {
+							while (prevCursor) {
+								self.cursor = prevCursor
+								prevCursor = self.getPrevCursor()
+							}
 						}
 					}
 
@@ -405,6 +447,7 @@ export const Board: IType<{}, Board> = types
 					const x = xToCollapse[iX]
 					const isLeftToMiddle = x < (self.width / 2)
 					const direction = isLeftToMiddle ? -1 : 1
+					const isCursorOnCollapsed = self.cursor && self.cursor.x === x
 
 					// Collect values to remove from sequence
 					const column = self.getColumn(x)
@@ -425,9 +468,24 @@ export const Board: IType<{}, Board> = types
 					}
 
 					// Move cursor
-					if (self.cursor && self.cursor.x === x) {
-						// Cursor is located on collapsed row try to move to any direction
+					if (isCursorOnCollapsed) {
+						let prevCursor = self.getPrevCursor()
 
+						if (!prevCursor) {
+							/**
+							 * We cannot move, so the not empty value from the prev row copied
+							 * to the cursor postition. Move cursor one step ahead
+							 */
+							prevCursor = self.getNextCursor()
+							if (prevCursor) {
+								self.cursor = prevCursor
+							}
+						} else {
+							while (prevCursor) {
+								self.cursor = prevCursor
+								prevCursor = self.getPrevCursor()
+							}
+						}
 					}
 
 					delete xToCollapse[iX]
