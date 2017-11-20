@@ -102,7 +102,10 @@ export interface Board {
 	generate: (seqLength?: number) => void
 	newGame: (seqLength?: number) => void
 	nextRound: () => void
+	processChain: () => void
+	clearChain: () => void
 	addToChain: (cell: Cell) => void
+	removeFromChain: (cell: Cell) => void
 }
 
 export const Board: IType<{}, Board> = types
@@ -506,6 +509,14 @@ export const Board: IType<{}, Board> = types
 			if (sequenceFragments.length) {
 				self.removeFromSequence(sequenceFragments)
 			}
+		},
+
+		clearChain() {
+			self.chain.forEach((cell: Cell) => {
+				cell.isChained = false
+			})
+
+			self.chain.splice(0)
 		}
 	}))
 	.actions((self) => ({
@@ -515,9 +526,8 @@ export const Board: IType<{}, Board> = types
 			self.arrangeSequence(self.sequence)
 		},
 
-		clearChain() {
+		processChain() {
 			self.chain.forEach((cell: Cell) => {
-				cell.isChained = false
 				cell.sequenceValue!.value = null
 			})
 
@@ -525,7 +535,7 @@ export const Board: IType<{}, Board> = types
 				self.collapseChain(self.chain)
 			}
 
-			self.chain.splice(0)
+			self.clearChain()
 			self.movesCount += 1
 
 			if (!self.sequence.length) {
@@ -578,7 +588,14 @@ export const Board: IType<{}, Board> = types
 
 			if (self.rules.isMatchApplyRule(...self.chain)) {
 				self.updateScore()
-				self.clearChain()
+				self.processChain()
+			}
+		},
+
+		removeFromChain(cell: Cell) {
+			if (cell.isChained) {
+				self.chain.splice(self.chain.indexOf(cell), 1)
+				cell.isChained = false
 			}
 		}
 	}))

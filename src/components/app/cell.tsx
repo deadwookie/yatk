@@ -59,7 +59,11 @@ export class CellElement extends React.Component<CellElement.Props, CellElement.
 		if (this.props.isCursor) {
 			this.props.store.board.nextRound()
 		} else {
-			this.props.store.board.addToChain(this.props.cell)
+			if (this.props.cell.isChained) {
+				this.props.store.board.removeFromChain(this.props.cell)
+			} else {
+				this.props.store.board.addToChain(this.props.cell)
+			}
 		}
 	}
 }
