@@ -89,6 +89,7 @@ export interface Board {
 	getColumn: (x: number) => Cell[] | null
  	generateCells: () => void
 	getNextCursor: () => Cell | null
+	getPrevCursor: () => Cell | null
 	clearSequence: () => void
 	appendSequence: (fragment: Array<number | null>) => Array<SequenceValue>
 	removeFromSequence: (fragment: Array<SequenceValue>) => void
@@ -153,7 +154,7 @@ export const Board: IType<{}, Board> = types
 			}
 		},
 
-		getNextCursor() {
+		getNextCursor(): Cell | null {
 			if (self.geometryType === BoardGeometryType.Box) {
 				const nextIndex = self.cursor!.index + 1
 
@@ -161,7 +162,7 @@ export const Board: IType<{}, Board> = types
 					return null
 				}
 
-				return self.cells[self.cursor!.index + 1]
+				return self.cells[nextIndex]
 			} else if (self.geometryType === BoardGeometryType.Spiral) {
 				const hasAbove = (self.cursor!.y > 0) && !self.cells[self.cursor!.index - self.width].isEmpty!
 				const hasBelow = (self.cursor!.y < self.height - 1) && !self.cells[self.cursor!.index + self.width].isEmpty!
@@ -198,6 +199,22 @@ export const Board: IType<{}, Board> = types
 				}
 
 				return nextIndex === null ? null : self.cells[nextIndex]
+			} else {
+				throw new Error(`Unknown geometry type for the board: ${self.geometryType}`)
+			}
+		},
+
+		getPrevCursor(): Cell | null {
+			if (self.geometryType === BoardGeometryType.Box) {
+				const prevIndex = self.cursor!.index - 1
+
+				if (prevIndex < 0 || !self.cells[prevIndex].isEmpty) {
+					return null
+				}
+
+				return self.cells[prevIndex]
+			} else if (self.geometryType === BoardGeometryType.Spiral) {
+
 			} else {
 				throw new Error(`Unknown geometry type for the board: ${self.geometryType}`)
 			}
@@ -342,53 +359,83 @@ export const Board: IType<{}, Board> = types
 				}
 			})
 
-			Object.keys(yToCollapse).forEach((iY) => {
-				const y = yToCollapse[iY]
-				const isAboveMiddle = y < (self.height / 2)
-				const direction = isAboveMiddle ? -1 : 1
+			if (self.rules.isCollapseRows) {
+				Object.keys(yToCollapse).forEach((iY) => {
+					const y = yToCollapse[iY]
+					const isAboveMiddle = y < (self.height / 2)
+					const direction = isAboveMiddle ? -1 : 1
+					const isCursorOnCollapsed = self.cursor && self.cursor.y === y
 
-				// Collect values to remove from sequence
-				const row = self.getRow(y)
-				if (row) {
-					sequenceFragments.push(
-						...row.filter(cell => !cell.isEmpty).map(cell => cell.sequenceValue!)
-					)
-				}
+					// Collect values to remove from sequence
+					const row = self.getRow(y)
+					if (row) {
+						sequenceFragments.push(
+							...row.filter(cell => !cell.isEmpty).map(cell => cell.sequenceValue!)
+						)
+					}
 
-				// Collapse row
-				for (let i = y; i > 0 && i < self.height; i += direction) {
-					self.copyRow(i + direction, i)
-				}
+					// Collapse row
+					for (let i = y; i > 0 && i < self.height; i += direction) {
+						self.copyRow(i + direction, i)
 
-				delete yToCollapse[iY]
-				Object.keys(yToCollapse)
-					.filter(iY => isAboveMiddle ? xToCollapse[iY] < y : xToCollapse[iY] > y)
-					.forEach(iY => yToCollapse[iY] -= direction)
-			})
+						if (self.cursor && self.cursor.y === (i + direction)) {
+							// Cursor is located on the source column
+							self.cursor = self.cells[self.cursor.index - direction * self.width]
+						}
+					}
 
-			Object.keys(xToCollapse).forEach((iX) => {
-				const x = xToCollapse[iX]
-				const isLeftToMiddle = x < (self.width / 2)
-				const direction = isLeftToMiddle ? -1 : 1
+					// Move cursor
+					if (isCursorOnCollapsed) {
+						let prevCursor = self.getPrevCursor()
+						while (prevCursor) {
+							self.cursor = prevCursor
+							prevCursor = self.getPrevCursor()
+						}
+					}
 
-				// Collect values to remove from sequence
-				const column = self.getColumn(x)
-				if (column) {
-					sequenceFragments.push(
-						...column.filter(cell => !cell.isEmpty).map(cell => cell.sequenceValue!)
-					)
-				}
+					delete yToCollapse[iY]
+					Object.keys(yToCollapse)
+						.filter(iY => isAboveMiddle ? xToCollapse[iY] < y : xToCollapse[iY] > y)
+						.forEach(iY => yToCollapse[iY] -= direction)
+				})
+			}
 
-				// Collapse column
-				for (let i = x; i > 0 && i < self.height; i += direction) {
-					self.copyColumn(i + direction, i)
-				}
+			if (self.rules.isCollapseColumns) {
+				Object.keys(xToCollapse).forEach((iX) => {
+					const x = xToCollapse[iX]
+					const isLeftToMiddle = x < (self.width / 2)
+					const direction = isLeftToMiddle ? -1 : 1
 
-				delete xToCollapse[iX]
-				Object.keys(xToCollapse)
-					.filter(iX => isLeftToMiddle ? xToCollapse[iX] < x : xToCollapse[iX] > x)
-					.forEach(iX => xToCollapse[iX] -= direction)
-			})
+					// Collect values to remove from sequence
+					const column = self.getColumn(x)
+					if (column) {
+						sequenceFragments.push(
+							...column.filter(cell => !cell.isEmpty).map(cell => cell.sequenceValue!)
+						)
+					}
+
+					// Collapse column
+					for (let i = x; i > 0 && i < self.height; i += direction) {
+						self.copyColumn(i + direction, i)
+
+						if (self.cursor && self.cursor.x === (i + direction)) {
+							// Cursor is located on the source column
+							self.cursor = self.cells[self.cursor.index - direction]
+						}
+					}
+
+					// Move cursor
+					if (self.cursor && self.cursor.x === x) {
+						// Cursor is located on collapsed row try to move to any direction
+
+					}
+
+					delete xToCollapse[iX]
+					Object.keys(xToCollapse)
+						.filter(iX => isLeftToMiddle ? xToCollapse[iX] < x : xToCollapse[iX] > x)
+						.forEach(iX => xToCollapse[iX] -= direction)
+				})
+			}
 
 			if (sequenceFragments.length) {
 				self.removeFromSequence(sequenceFragments)
@@ -408,7 +455,9 @@ export const Board: IType<{}, Board> = types
 				cell.sequenceValue!.value = null
 			})
 
-			self.collapseChain(self.chain)
+			if (self.rules.isCollapseRows || self.rules.isCollapseColumns) {
+				self.collapseChain(self.chain)
+			}
 
 			self.chain.splice(0)
 		},

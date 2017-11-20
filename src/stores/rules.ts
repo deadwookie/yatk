@@ -114,6 +114,8 @@ export function isUniqueValues(...chain: Cell[]): boolean {
 export interface Rules {
 	targetSum: number
 	targetLength: number
+	isCollapseRows: boolean
+	isCollapseColumns: boolean
 	isMatchRules: (...cell: Cell[]) => boolean
 	isMatchGeometry: (cells: Cell[], ...chain: Cell[]) => boolean
 	isMatchApplyRule: (...cell: Cell[]) => boolean

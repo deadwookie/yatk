@@ -13,7 +13,7 @@ const store = Store.create({
 		initialSequenceLength: 16,
 		width: 16,
 		height: 16,
-		geometryType: BoardGeometryType.Spiral,
+		geometryType: BoardGeometryType.Box,
 
 		movesCount: 0,
 		round: 1,
@@ -24,7 +24,9 @@ const store = Store.create({
 		sequence: [],
 		rules: {
 			targetSum: 10,
-			targetLength: 2
+			targetLength: 2,
+			isCollapseRows: false,
+			isCollapseColumns: false,
 		}
 	}
 })
