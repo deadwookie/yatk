@@ -25,10 +25,6 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 		return (
 			<section className={style.main}>
 				<header>
-					<div className={style.actions}>
-						<button className={style.action} onClick={this.onRestartClick}>Restart</button>
-						<button className={style.action} onClick={this.onNextRoundClick}>Next round</button>
-					</div>
 					<dl className={style.info}>
 						<dt className={style.term}>Score:</dt>
 						<dd className={style.desc}>{board.score} points</dd>
@@ -38,6 +34,7 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 						<dd className={style.desc}>{board.movesCount}</dd>
 						<dt className={style.term}>Sequence length:</dt>
 						<dd className={style.desc}>{board.sequence.length}</dd>
+						<dt className={style.term}><a onClick={this.onRestartClick}>New Game</a></dt>
 					</dl>
 				</header>
 				<div className={style.board}>

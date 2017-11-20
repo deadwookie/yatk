@@ -56,7 +56,11 @@ export class CellElement extends React.Component<CellElement.Props, CellElement.
 
 	@autobind
 	onCellClick() {
-		this.props.store.board.addToChain(this.props.cell)
+		if (this.props.isCursor) {
+			this.props.store.board.nextRound()
+		} else {
+			this.props.store.board.addToChain(this.props.cell)
+		}
 	}
 }
 

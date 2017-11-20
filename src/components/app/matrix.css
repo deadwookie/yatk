@@ -25,41 +25,13 @@
 	--msg-font-size: 3.8rem;
 }
 
-/* Action bar */
-/* .actions {} */
-.action {
-	padding: 8px 16px;
-	border: 1px solid var(--accent-color);
-	border-radius: 0;
-	background: var(--accent-bg-color);
-	color: var(--accent-color);
-	font-size: 1.5rem;
-	font-weight: bold;
-}
-.action + .action {
-	margin-left: 20px;
-}
-
-.action:enabled:hover, .action:enabled:focus, a.action:hover {
-	cursor: pointer;
-	outline: none;
-
-	background: var(--hover-bg-color);
-	color: var(--hover-color);
-	border-color: var(--hover-color);
-	text-shadow: var(--hover-text-shadow);
-
-}
-.action:enabled:focus, a.action:active {
-	text-shadow: var(--active-text-shadow);
-	box-shadow: var(--hover-text-shadow);
-}
-.action:disabled {
+/* Status bar */
+.info {
 	opacity: .5;
 }
-
-/* Status bar */
-/* .info {} */
+.info:hover {
+	opacity: 1;
+}
 .term, .desc {
 	display: inline;
 	margin: 0;

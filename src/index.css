@@ -28,3 +28,21 @@
 	--active-shadow-color: var(--hover-shadow-color);
 	--active-text-shadow: 0 0 .1em var(--active-shadow-color), 0 0 var(--active-shadow-blur) var(--active-shadow-color);
 }
+
+a, button {
+	background: var(--accent-bg-color);
+	color: var(--accent-color);
+}
+
+a {
+	border-bottom: 1px dotted var(--accent-color);
+}
+
+a:hover, button:enabled:focus, button:enabled:hover {
+	cursor: pointer;
+	outline: none;
+	background: var(--hover-bg-color);
+	color: var(--hover-color);
+	border-color: var(--hover-color);
+	text-shadow: var(--hover-text-shadow);
+}
