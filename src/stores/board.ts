@@ -92,7 +92,6 @@ export interface Board {
 	clearSequence: () => void
 	appendSequence: (fragment: Array<number | null>) => Array<SequenceValue>
 	removeFromSequence: (fragment: Array<SequenceValue>) => void
-	removeFromSequenceByIndexes: (indexes: Array<number>) => void
 
 	finish: (result: FinishResult) => void
 	generateSequence: (lenth: number) => void
@@ -233,10 +232,6 @@ export const Board: IType<{}, Board> = types
 				}
 			})
 
-			return indexes
-		},
-
-		removeFromSequenceByIndexes(indexes: Array<number>) {
 			const chains: Array<{index: number, count: number}> = indexes.sort((a, b) => a - b)
 				.reduce((acc, val, index) => {
 					if (index > 0 && (acc[acc.length - 1].index + acc[acc.length - 1].count) === val) {
@@ -336,8 +331,6 @@ export const Board: IType<{}, Board> = types
 		collapseChain(chain: Cell[]) {
 			const yToCollapse: {[key: string]: number} = {}
 			const xToCollapse: {[key: string]: number} = {}
-			const isAboveMiddleFn = (y: number) => y < (self.height / 2)
-			const isLeftToMiddleFn = (x: number) => x < (self.width / 2)
 			const sequenceFragments: Array<SequenceValue> = []
 
 			chain.forEach(cell => {
@@ -349,9 +342,9 @@ export const Board: IType<{}, Board> = types
 				}
 			})
 
-			Object.keys(yToCollapse).forEach((initialY) => {
-				const y = yToCollapse[initialY]
-				const isAboveMiddle = isAboveMiddleFn(y)
+			Object.keys(yToCollapse).forEach((iY) => {
+				const y = yToCollapse[iY]
+				const isAboveMiddle = y < (self.height / 2)
 				const direction = isAboveMiddle ? -1 : 1
 
 				// Collect values to remove from sequence
@@ -367,19 +360,15 @@ export const Board: IType<{}, Board> = types
 					self.copyRow(i + direction, i)
 				}
 
-				delete yToCollapse[initialY]
+				delete yToCollapse[iY]
 				Object.keys(yToCollapse)
-					.filter(initialY => {
-						return isAboveMiddleFn(yToCollapse[initialY]) === isAboveMiddle
-					})
-					.forEach((initialY) => {
-						yToCollapse[initialY] -= direction
-					})
+					.filter(iY => isAboveMiddle ? xToCollapse[iY] < y : xToCollapse[iY] > y)
+					.forEach(iY => yToCollapse[iY] -= direction)
 			})
 
-			Object.keys(xToCollapse).forEach((initialX) => {
-				const x = xToCollapse[initialX]
-				const isLeftToMiddle = isLeftToMiddleFn(x)
+			Object.keys(xToCollapse).forEach((iX) => {
+				const x = xToCollapse[iX]
+				const isLeftToMiddle = x < (self.width / 2)
 				const direction = isLeftToMiddle ? -1 : 1
 
 				// Collect values to remove from sequence
@@ -395,14 +384,10 @@ export const Board: IType<{}, Board> = types
 					self.copyColumn(i + direction, i)
 				}
 
-				delete xToCollapse[initialX]
+				delete xToCollapse[iX]
 				Object.keys(xToCollapse)
-					.filter(initialX => {
-						return isLeftToMiddleFn(xToCollapse[initialX]) === isLeftToMiddle
-					})
-					.forEach((initialX) => {
-						xToCollapse[initialX] -= direction
-					})
+					.filter(iX => isLeftToMiddle ? xToCollapse[iX] < x : xToCollapse[iX] > x)
+					.forEach(iX => xToCollapse[iX] -= direction)
 			})
 
 			if (sequenceFragments.length) {
