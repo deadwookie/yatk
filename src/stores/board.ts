@@ -128,9 +128,11 @@ export const Board: IType<{}, Board> = types
 		generateCells() {
 			self.cells.splice(0)
 
+			const cells: Cell[] = []
 			let cellIndex = -1
+
 			for (let y = 0; y < self.height; y++) {
-				self.cells.push(...Array.from(Array(self.width)).map((_, x) => {
+				cells.push(...Array.from(Array(self.width)).map((_, x) => {
 					const symbol = randomN()
 					const chars = charMap[symbol]
 					cellIndex++
@@ -144,6 +146,8 @@ export const Board: IType<{}, Board> = types
 					}
 				}))
 			}
+
+			self.cells.push(...cells)
 
 			if (self.geometryType === BoardGeometryType.Box) {
 				self.cursor = self.cells[0]
@@ -420,12 +424,14 @@ export const Board: IType<{}, Board> = types
 
 						if (!prevCursor) {
 							/**
-							 * We cannot move, so the not empty value from the prev row copied
-							 * to the cursor postition. Move cursor one step ahead
-							 */
-							prevCursor = self.getNextCursor()
-							if (prevCursor) {
-								self.cursor = prevCursor
+								* We cannot move, so check if the not empty value from the different was row copied
+								* to the cursor position in that case try to move cursor one step ahead
+								*/
+							if (self.cursor && !self.cursor.isEmpty) {
+								prevCursor = self.getNextCursor()
+								if (prevCursor) {
+									self.cursor = prevCursor
+								}
 							}
 						} else {
 							while (prevCursor) {
@@ -473,12 +479,14 @@ export const Board: IType<{}, Board> = types
 
 						if (!prevCursor) {
 							/**
-							 * We cannot move, so the not empty value from the prev row copied
-							 * to the cursor postition. Move cursor one step ahead
-							 */
-							prevCursor = self.getNextCursor()
-							if (prevCursor) {
-								self.cursor = prevCursor
+								* We cannot move, so check if the not empty value from the different was row copied
+								* to the cursor position in that case try to move cursor one step ahead
+								*/
+							if (self.cursor && !self.cursor.isEmpty) {
+								prevCursor = self.getNextCursor()
+								if (prevCursor) {
+									self.cursor = prevCursor
+								}
 							}
 						} else {
 							while (prevCursor) {
