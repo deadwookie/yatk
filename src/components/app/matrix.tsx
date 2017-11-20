@@ -57,6 +57,7 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 						key={'box-cell-' + cell.key}
 						store={store}
 						cell={cell}
+						isCursor={cell === store.board.cursor}
 					/>
 				)
 			})
