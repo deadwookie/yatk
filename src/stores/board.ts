@@ -518,6 +518,7 @@ export const Board: IType<{}, Board> = types
 			}
 
 			self.chain.splice(0)
+			self.movesCount += 1
 		},
 
 		updateScore() {
@@ -538,6 +539,7 @@ export const Board: IType<{}, Board> = types
 		},
 
 		newGame(seqLength?: number) {
+			self.movesCount = 0
 			self.round = 1
 			self.score = 1000
 			self.chain.splice(0)

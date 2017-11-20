@@ -39,6 +39,7 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 				</header>
 				<div className={style.board}>
 					{this.renderCells()}
+					{this.renderAlerts()}
 				</div>
 			</section>
 		)
@@ -61,6 +62,21 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 		}
 
 		return null
+	}
+
+	// TODO: support different alerts/messages
+	renderAlerts() {
+		const { board } = this.props.store
+
+		if (board.sequence.length) {
+			return null
+		}
+
+		return (
+			<aside className={style.alert}>
+				<p className={style.message}>You Win</p>
+			</aside>
+		)
 	}
 
 	@autobind
