@@ -556,7 +556,7 @@ export const Board: IType<{}, Board> = types
 		nextRound() {
 			self.round++
 			self.score -= 100
-			self.chain.splice(0)
+			self.clearChain()
 			self.arrangeSequence(self.replicateSequence())
 		},
 
@@ -565,7 +565,7 @@ export const Board: IType<{}, Board> = types
 			self.round = 1
 			self.score = 1000
 			self.finishResult = null
-			self.chain.splice(0)
+			self.clearChain()
 			self.generate(seqLength)
 		},
 
