@@ -5,7 +5,7 @@ import * as style from './matrix.css'
 
 import autobind from '../../utils/autobind'
 import { StoreInjectedProps } from '../../stores'
-import { Cell } from '../../stores/board'
+import { Cell, FinishResult } from '../../stores/board'
 import { CellElement } from './cell'
 
 export namespace Matrix {
@@ -68,13 +68,13 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 	renderAlerts() {
 		const { board } = this.props.store
 
-		if (board.sequence.length) {
+		if (!board.finishResult) {
 			return null
 		}
 
 		return (
 			<aside className={style.alert}>
-				<p className={style.message}>You Win</p>
+				<p className={style.message}>{board.finishResult === FinishResult.Win ? 'You Win' : 'You Lose'}</p>
 			</aside>
 		)
 	}

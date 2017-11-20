@@ -527,6 +527,10 @@ export const Board: IType<{}, Board> = types
 
 			self.chain.splice(0)
 			self.movesCount += 1
+
+			if (!self.sequence.length) {
+				self.finish(FinishResult.Win)
+			}
 		},
 
 		updateScore() {
@@ -550,6 +554,7 @@ export const Board: IType<{}, Board> = types
 			self.movesCount = 0
 			self.round = 1
 			self.score = 1000
+			self.finishResult = null
 			self.chain.splice(0)
 			self.generate(seqLength)
 		},
