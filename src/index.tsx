@@ -1,13 +1,15 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 
+import { AppContainer } from 'react-hot-loader'
+
 import './index.css'
 import App from './components/app'
 import { Store } from './stores'
 import { BoardGeometryType } from './stores/board'
 
 
-const store = Store.create({
+export const store = Store.create({
 	appVersion: '0.0.1',
 	board: {
 		initialSequenceLength: 36,
@@ -30,11 +32,19 @@ const store = Store.create({
 		}
 	}
 })
+
 export function runApp() {
 	ReactDOM.render(
-		<App store={store} />,
+		<AppContainer>
+			<App store={store} />
+		</AppContainer>,
 		document.getElementById('main')
 	)
 }
 
 document.addEventListener('DOMContentLoaded', runApp, false)
+
+// Hot Module Replacement API
+if (module.hot) {
+	module.hot.accept('./components/app', runApp);
+}

@@ -5,3 +5,5 @@ declare module '*.css' {
 	const styles: any
 	export = styles
 }
+
+declare const module = object
