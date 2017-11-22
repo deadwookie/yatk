@@ -19,14 +19,17 @@ export namespace CellElement {
 
 @observer
 export class CellElement extends React.Component<CellElement.Props, CellElement.State> {
-	private randomAnimationDelay: number | string = random(0, 5).toFixed(3)
+	private randomAnimationDelay: number | string = random(0, 5e3)
 
 	render() {
 		const { cell } = this.props
 
-		const positionStyle = {
+		const positionStyle: React.CSSProperties = {
 			left: cell.x * 50,
 			top: cell.y * 50,
+		}
+		const symbolStyle: React.CSSProperties = {
+			animationDelay: `${this.randomAnimationDelay}ms`,
 		}
 
 		const className = cls({
@@ -41,13 +44,14 @@ export class CellElement extends React.Component<CellElement.Props, CellElement.
 		const value = cell.sequenceValue
 			? (cell.sequenceValue.value === null ? '•' : cell.sequenceValue.value)
 			: cell.glyph
+
 		return (
 			<div
 				className={className}
 				style={positionStyle}
 				onClick={this.onCellClick}
 			>
-				<span className={style.symbol} style={{animationDelay: `${this.randomAnimationDelay}s`}}>
+				<span className={style.symbol} style={symbolStyle}>
 					{value}
 				</span>
 			</div>
