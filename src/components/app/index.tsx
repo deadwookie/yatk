@@ -5,6 +5,7 @@ import { HashRouter as Router, Route } from 'react-router-dom'
 import Header from './header'
 import Matrix from './matrix'
 import Footer from './footer'
+import Rain from '../rain'
 
 import { StoreInjectedProps } from '../../stores'
 
@@ -16,7 +17,9 @@ export namespace App {
 	export interface Props extends StoreInjectedProps {
 		theme?: Theme
 	}
-	export interface State {}
+	export interface State {
+		isRainPaused: boolean
+	}
 }
 
 export class App extends React.Component<App.Props, App.State> {
@@ -24,9 +27,16 @@ export class App extends React.Component<App.Props, App.State> {
 		theme: Theme.MatrixGreen,
 	}
 
+	state: App.State = {
+		isRainPaused: false
+	}
+
 	render() {
 		const {store, theme} = this.props
 
+		// <Header />
+		// <Matrix store={store} />
+		// <Footer store={store} />
 		return (
 			<div className={cls(style.main, `theme-${theme}`)}>
 				<Header />
@@ -37,6 +47,23 @@ export class App extends React.Component<App.Props, App.State> {
 						}}/>
 						<Route exact path='/faq' render={() => {
 							return <div>FAQ: TODO</div>
+						}}/>
+						<Route exact path='/rain' render={() => {
+							return (
+								<div>
+									<button onClick={() => this.setState(({ isRainPaused }) => ({ isRainPaused: !isRainPaused }))}>
+										{this.state.isRainPaused ? 'play' : 'pause'}
+									</button>
+									<Rain
+										key='same'
+										windowWidth={800}
+										windowHeight={600}
+										dropWidth={50}
+										dropHeight={50}
+										isPaused={this.state.isRainPaused}
+									/>
+								</div>
+							)
 						}}/>
 					</div>
 				</Router>
