@@ -1,7 +1,7 @@
 import { types, IType } from 'mobx-state-tree'
 
 import { Rules, isEmptyColumn, isEmptyRow } from './rules'
-import { charMap } from '../utils/charMap'
+import { CHARMAP } from '../utils/chars'
 
 export function randomN(from = 0, upto = 10, asInt = true) {
 	const n = Math.random() * (upto - from) + from
@@ -137,7 +137,7 @@ export const Board: IType<{}, Board> = types
 			for (let y = 0; y < self.height; y++) {
 				cells.push(...Array.from(Array(self.width)).map((_, x) => {
 					const symbol = randomN()
-					const chars = charMap[symbol]
+					const chars = CHARMAP[symbol]
 					cellIndex++
 
 					return {
