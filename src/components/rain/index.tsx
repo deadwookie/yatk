@@ -7,8 +7,7 @@ import { getGlyph } from '../../utils/chars'
 
 export namespace Rain {
 	export interface Drop {
-		x: number
-		y: number
+		idx: number
 		glyph: string
 		char: number
 	}
@@ -57,11 +56,10 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 		}))
 	}
 
-	protected generateDrops(x: number, minLength: number = 3, maxLength: number = 10): Rain.Drop[] {
+	protected generateDrops(_streamIdx: number, minLength: number = 3, maxLength: number = 10): Rain.Drop[] {
 		const length = random(minLength, maxLength + 1)
-		return generateNaturals(length).map((char, y) => ({
-			x,
-			y,
+		return generateNaturals(length).map((char, idx) => ({
+			idx,
 			char,
 			glyph: getGlyph(char, .3),
 		}))
@@ -134,12 +132,13 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 		const style = {
 			width: `${dropWidth}px`,
 			height: `${dropHeight}px`,
+			fontSize: `${Math.min(dropWidth, dropHeight)}px`,
 		}
 
-		return drops.map(drop => (
-			<li key={`${drop.x};${drop.y}`} className={cls.drop} style={style}>
+		return drops.map(({ idx, glyph }) => (
+			<li key={`drop-${idx}`} className={cls.drop} style={style}>
 				<span className={cls.symbol}>
-					{drop.glyph}
+					{glyph}
 				</span>
 			</li>
 		))
