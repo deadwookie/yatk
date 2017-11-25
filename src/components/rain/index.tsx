@@ -14,7 +14,10 @@ export namespace Rain {
 	}
 	export interface Stream {
 		idx: number
-		durationMs: number
+		delay: number
+		speed: number
+		top: number
+		isReversed?: boolean
 		dropsOdd: Drop[]
 		dropsEven: Drop[]
 	}
@@ -60,10 +63,13 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 		const cols = Math.ceil(windowWidth / dropWidth)
 		const min = 3
 		const half = rows > 7 ? Math.floor(rows / 2) : min
+		const fragments = 1e3
 
-		return Array.from(Array(cols)).map<Rain.Stream>((_, idx) => ({
+		return Array.from(Array(cols)).map((_, idx): Rain.Stream => ({
 			idx,
-			durationMs: random(1e3, 2.2e3) * 1 / pace,
+			delay: random(0, 1 * fragments),
+			speed: pace * random(.5 * fragments, 1.5 * fragments) / fragments,
+			top: -1,
 			dropsOdd: this.generateDrops(idx, idx % 2 ? min : half , rows - 1),
 			dropsEven: this.generateDrops(idx, idx % 2 ? half : min, rows - 1),
 		}))
@@ -140,7 +146,19 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 		this.raf = requestAnimationFrame(this.tick)
 	}
 
-	update(_dt: number) {
+	update(dt: number) {
+		return this.setState(prev => ({
+			streams: prev.streams.map(stream => {
+				let top = stream.top + dt * stream.speed
+				if (top >= 1) top = -1
+
+				return {
+					...stream,
+					top,
+					isReversed: top >= 0
+				}
+			})
+		}))
 	}
 
 	render() {
@@ -160,30 +178,23 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 
 	renderStreams() {
 		const { streams } = this.state
-		const { dropWidth, isPaused } = this.props
+		const { windowHeight, dropWidth } = this.props
 		const baseStyle = {
 			width: `${dropWidth}px`,
-			animationName: cls.fallThrough,
-			animationIterationCount: 'infinite',
-			animationTimingFunction: 'linear',
-			animationPlayState: isPaused ? 'paused' : 'running',
 		}
 
-		const res: React.ReactElement<any>[] = []
-
-		for (const { idx, dropsOdd, dropsEven, durationMs } of streams) {
+		return streams.reduce<React.ReactElement<any>[]>((res, { top, isReversed, dropsOdd, dropsEven }, idx) => {
 			const left = `${idx * dropWidth}px`
-			const animationDuration = `${durationMs}ms`
-			const delay = random(1e2, 2e3)
+			const offset = windowHeight * top
+			const evenCoeff = isReversed ? 1 : -1
 
-			res.push(
+			return res.concat(
 				<ul key={`odd-${idx}`}
 					className={join(cls.stream, cls.odd)}
 					style={{
 						...baseStyle,
 						left,
-						animationDuration,
-						animationDelay: `${delay}ms`,
+						transform: `translateY(${offset}px)`,
 					}}
 				>
 					{this.renderDrops(dropsOdd)}
@@ -193,16 +204,13 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 					style={{
 						...baseStyle,
 						left,
-						animationDuration,
-						animationDelay: `${delay + durationMs / 2}ms`,
+						transform: `translateY(${offset - evenCoeff * windowHeight}px)`,
 					}}
 				>
 					{this.renderDrops(dropsEven)}
 				</ul>,
 			)
-		}
-
-		return res
+		}, [])
 	}
 
 	renderDrops(drops: Rain.Drop[]) {
