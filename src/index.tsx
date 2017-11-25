@@ -29,7 +29,7 @@ export const store = Store.create({
 		rules: {
 			targetSum: 10,
 			targetLength: 2,
-			collapseDirection: CollapseDirection.ToEndCursor,
+			collapseDirection: CollapseDirection.ToDeadPoint,
 			isCollapseRows: true,
 			isCollapseColumns: true,
 		},

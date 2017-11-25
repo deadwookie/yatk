@@ -3,7 +3,7 @@ import { Cell } from './board'
 
 export enum CollapseDirection {
 	ToCenter = 'toCenter',
-	ToEndCursor = 'toEndCursor'
+	ToDeadPoint = 'toDeadPoint'
 }
 
 export function isRow(cells: Cell[], ...chain: Cell[]): boolean {
@@ -135,7 +135,7 @@ export const Rules: IType<{}, Rules> = types
 		targetLength: types.number,
 		collapseDirection: types.maybe(types.union(
 			types.literal(CollapseDirection.ToCenter),
-			types.literal(CollapseDirection.ToEndCursor)
+			types.literal(CollapseDirection.ToDeadPoint)
 		)),
 		isCollapseRows: types.optional(types.boolean, true),
 		isCollapseColumns: types.optional(types.boolean, true)

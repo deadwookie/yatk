@@ -83,7 +83,7 @@ export interface Board {
 	cells: Array<Cell>
 	chain: Array<Cell>
 	cursor?: Cell | null
-	endCursor?: Cell | null
+	deadPoint?: Cell | null
 	rules: Rules
 	behavior: Behavior
 
@@ -129,7 +129,7 @@ export const Board: IType<{}, Board> = types
 		cells: types.array(Cell),
 		chain: types.array(types.reference(Cell)),
 		cursor: types.maybe(types.reference(Cell)),
-		endCursor: types.maybe(types.reference(Cell)),
+		deadPoint: types.maybe(types.reference(Cell)),
 		rules: Rules,
 		behavior: Behavior
 	})
@@ -383,7 +383,7 @@ export const Board: IType<{}, Board> = types
 		arrangeSequence: flow(function* (sequenceFragment: Array<SequenceValue>) {
 			const delayTime = self.behavior.seqArrangeStepDelayMs
 			for (const sv of sequenceFragment) {
-				if (!self.cursor || self.cursor === self.endCursor) {
+				if (!self.cursor || self.cursor === self.deadPoint) {
 					self.finish(FinishResult.Fail)
 					break
 				}
@@ -393,8 +393,8 @@ export const Board: IType<{}, Board> = types
 			}
 		}),
 
-		arrangeEndCursor() {
-			self.endCursor = self.cells[30]
+		arrangeDeadPoint() {
+			self.deadPoint = self.cells[30]
 		},
 
 		collapseChain(chain: Cell[]) {
@@ -418,8 +418,8 @@ export const Board: IType<{}, Board> = types
 					case CollapseDirection.ToCenter:
 						targetY = (self.height / 2)
 						break
-					case CollapseDirection.ToEndCursor:
-						targetY = self.endCursor ? self.endCursor.y : 0
+					case CollapseDirection.ToDeadPoint:
+						targetY = self.deadPoint ? self.deadPoint.y : 0
 						break
 				}
 
@@ -484,8 +484,8 @@ export const Board: IType<{}, Board> = types
 					case CollapseDirection.ToCenter:
 						targetX = (self.width / 2)
 						break
-					case CollapseDirection.ToEndCursor:
-						targetX = self.endCursor ? self.endCursor.x : 0
+					case CollapseDirection.ToDeadPoint:
+						targetX = self.deadPoint ? self.deadPoint.x : 0
 						break
 				}
 
@@ -561,7 +561,7 @@ export const Board: IType<{}, Board> = types
 			self.generateSequence(seqLength || self.initialSequenceLength, isDummy)
 			self.generateCells()
 			self.arrangeSequence(self.sequence)
-			self.arrangeEndCursor()
+			self.arrangeDeadPoint()
 		},
 
 		processChain() {

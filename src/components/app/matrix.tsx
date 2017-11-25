@@ -59,7 +59,7 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 						store={store}
 						cell={cell}
 						isCursor={cell === store.board.cursor}
-						isEndCursor={cell === store.board.endCursor}
+						isDeadPoint={cell === store.board.deadPoint}
 					/>
 				)
 			})

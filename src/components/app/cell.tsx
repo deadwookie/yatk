@@ -13,7 +13,7 @@ export namespace CellElement {
 	export interface Props extends StoreInjectedProps {
 		cell: Cell
 		isCursor: boolean
-		isEndCursor: boolean
+		isDeadPoint: boolean
 	}
 	export interface State {}
 }
@@ -40,7 +40,7 @@ export class CellElement extends React.Component<CellElement.Props, CellElement.
 			[style.isEmpty]: cell.isEmpty,
 			[style.isActive]: cell.isChained,
 			[style.isCursor]: this.props.isCursor,
-			[style.isDeadPoint]: this.props.isEndCursor,
+			[style.isDeadPoint]: this.props.isDeadPoint,
 		})
 
 		const value = cell.sequenceValue
