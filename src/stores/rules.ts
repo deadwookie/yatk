@@ -119,6 +119,7 @@ export function isUniqueValues(...chain: Cell[]): boolean {
 export interface Rules {
 	targetSum: number
 	targetLength: number
+	deadPointIndex: number | null
 
 	isCollapseRows: boolean
 	isCollapseColumns: boolean
@@ -133,6 +134,7 @@ export const Rules: IType<{}, Rules> = types
 	.model('Rules', {
 		targetSum: types.number,
 		targetLength: types.number,
+		deadPointIndex: types.maybe(types.number),
 		collapseDirection: types.maybe(types.union(
 			types.literal(CollapseDirection.ToCenter),
 			types.literal(CollapseDirection.ToDeadPoint)

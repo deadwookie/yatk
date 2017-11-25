@@ -394,7 +394,9 @@ export const Board: IType<{}, Board> = types
 		}),
 
 		arrangeDeadPoint() {
-			self.deadPoint = self.cells[30]
+			if (self.rules.deadPointIndex !== null) {
+				self.deadPoint = self.cells[self.rules.deadPointIndex]
+			}
 		},
 
 		collapseChain(chain: Cell[]) {
