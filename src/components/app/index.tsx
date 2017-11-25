@@ -22,6 +22,7 @@ export namespace App {
 	}
 	export interface State extends Rain.Sizes {
 		isAppBlurred: boolean
+		isRainPausedOnBlur: boolean
 		isRainPaused: boolean
 		pace: Rain.Props['pace']
 	}
@@ -34,6 +35,7 @@ export class App extends React.Component<App.Props, App.State> {
 
 	state: App.State = {
 		isAppBlurred: false,
+		isRainPausedOnBlur: true,
 		isRainPaused: false,
 		pace: Rain.defaultProps.pace,
 		windowWidth: 800,
@@ -99,6 +101,11 @@ export class App extends React.Component<App.Props, App.State> {
 						label={this.isRaining() ? '⏸ Pause' : '▶️ Play'}
 						onClick={this.onToggleRain}
 					/>
+					<dis.Checkbox
+						label='Pause on Blur'
+						checked={this.state.isRainPausedOnBlur}
+						onChange={this.onToggleBlurMode}
+					/>
 					<dis.Number
 						label='Pace'
 						value={this.state.pace!}
@@ -160,12 +167,18 @@ export class App extends React.Component<App.Props, App.State> {
 	}
 
 	isRaining() {
-		return !this.state.isAppBlurred && !this.state.isRainPaused
+		const { isAppBlurred, isRainPausedOnBlur, isRainPaused } = this.state
+		return (isRainPausedOnBlur ? !isAppBlurred : true) && !isRainPaused
 	}
 
 	@autobind
 	onToggleRain() {
 		this.setState(({ isRainPaused }) => ({ isRainPaused: !isRainPaused }))
+	}
+
+	@autobind
+	onToggleBlurMode(isRainPausedOnBlur: boolean) {
+		this.setState({ isRainPausedOnBlur })
 	}
 
 	@autobind
