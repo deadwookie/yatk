@@ -25,6 +25,11 @@
 	animation: siren 4s ease-in-out infinite alternate-reverse;
 }
 
+.isEndCursor {
+	opacity: .5;
+	animation: siren 4s ease-in-out infinite alternate-reverse;
+}
+
 @keyframes siren {
 	100% {
 	text-shadow: 0 0 .1em var(--hover-shadow-color), var(--hover-text-shadow);

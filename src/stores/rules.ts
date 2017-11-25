@@ -1,6 +1,11 @@
 import { types, IType } from 'mobx-state-tree'
 import { Cell } from './board'
 
+export enum CollapseDirection {
+	ToCenter = 'toCenter',
+	ToEndCursor = 'toEndCursor'
+}
+
 export function isRow(cells: Cell[], ...chain: Cell[]): boolean {
 	const sortedChain = chain.sort((a, b) => a.x - b.x)
 	const first = sortedChain[0]
@@ -114,8 +119,11 @@ export function isUniqueValues(...chain: Cell[]): boolean {
 export interface Rules {
 	targetSum: number
 	targetLength: number
+
 	isCollapseRows: boolean
 	isCollapseColumns: boolean
+	collapseDirection?: CollapseDirection | null
+
 	isMatchRules: (...cell: Cell[]) => boolean
 	isMatchGeometry: (cells: Cell[], ...chain: Cell[]) => boolean
 	isMatchApplyRule: (...cell: Cell[]) => boolean
@@ -125,6 +133,10 @@ export const Rules: IType<{}, Rules> = types
 	.model('Rules', {
 		targetSum: types.number,
 		targetLength: types.number,
+		collapseDirection: types.maybe(types.union(
+			types.literal(CollapseDirection.ToCenter),
+			types.literal(CollapseDirection.ToEndCursor)
+		)),
 		isCollapseRows: types.optional(types.boolean, true),
 		isCollapseColumns: types.optional(types.boolean, true)
 	})

@@ -7,6 +7,7 @@ import './index.css'
 import App from './components/app'
 import { Store } from './stores'
 import { BoardGeometryType } from './stores/board'
+import { CollapseDirection } from './stores/rules'
 
 
 export const store = Store.create({
@@ -27,6 +28,7 @@ export const store = Store.create({
 		rules: {
 			targetSum: 10,
 			targetLength: 2,
+			collapseDirection: CollapseDirection.ToEndCursor,
 			isCollapseRows: true,
 			isCollapseColumns: true,
 		}

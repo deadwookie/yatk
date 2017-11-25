@@ -1,6 +1,6 @@
 import { types, IType } from 'mobx-state-tree'
 
-import { Rules, isEmptyColumn, isEmptyRow } from './rules'
+import { Rules, CollapseDirection, isEmptyColumn, isEmptyRow } from './rules'
 import { CHARMAP } from '../utils/chars'
 
 export function randomN(from = 0, upto = 10, asInt = true) {
@@ -81,6 +81,7 @@ export interface Board {
 	cells: Array<Cell>
 	chain: Array<Cell>
 	cursor?: Cell | null
+	endCursor?: Cell | null
 	rules: Rules
 
 	copyRow: (srcY: number, dstY: number) => void
@@ -125,6 +126,7 @@ export const Board: IType<{}, Board> = types
 		cells: types.array(Cell),
 		chain: types.array(types.reference(Cell)),
 		cursor: types.maybe(types.reference(Cell)),
+		endCursor: types.maybe(types.reference(Cell)),
 		rules: Rules
 	})
 	.actions((self) => ({
@@ -376,13 +378,17 @@ export const Board: IType<{}, Board> = types
 
 		arrangeSequence(sequenceFragment: Array<SequenceValue>) {
 			for (const sv of sequenceFragment) {
-				if (!self.cursor) {
+				if (!self.cursor || self.cursor === self.endCursor) {
 					self.finish(FinishResult.Fail)
 					break
 				}
 				self.cursor!.sequenceValue = sv
 				self.cursor = self.getNextCursor()
 			}
+		},
+
+		arrangeEndCursor() {
+			self.endCursor = self.cells[34]
 		},
 
 		collapseChain(chain: Cell[]) {
@@ -399,11 +405,22 @@ export const Board: IType<{}, Board> = types
 				}
 			})
 
-			if (self.rules.isCollapseRows) {
+			if (self.rules.isCollapseRows && self.rules.collapseDirection) {
+				let targetY = 0
+
+				switch (self.rules.collapseDirection) {
+					case CollapseDirection.ToCenter:
+						targetY = (self.height / 2)
+						break
+					case CollapseDirection.ToEndCursor:
+						targetY = self.endCursor ? self.endCursor.y : 0
+						break
+				}
+
 				Object.keys(yToCollapse).forEach((iY) => {
 					const y = yToCollapse[iY]
-					const isAboveMiddle = y < (self.height / 2)
-					const direction = isAboveMiddle ? -1 : 1
+					const isAboveTargetY = y < targetY
+					const direction = isAboveTargetY ? -1 : 1
 					const isCursorOnCollapsed = self.cursor && self.cursor.y === y
 
 					// Collect values to remove from sequence
@@ -449,16 +466,27 @@ export const Board: IType<{}, Board> = types
 
 					delete yToCollapse[iY]
 					Object.keys(yToCollapse)
-						.filter(iY => isAboveMiddle ? yToCollapse[iY] < y : yToCollapse[iY] > y)
+						.filter(iY => isAboveTargetY ? yToCollapse[iY] < y : yToCollapse[iY] > y)
 						.forEach(iY => yToCollapse[iY] -= direction)
 				})
 			}
 
-			if (self.rules.isCollapseColumns) {
+			if (self.rules.isCollapseColumns && self.rules.collapseDirection) {
+				let targetX = 0
+
+				switch (self.rules.collapseDirection) {
+					case CollapseDirection.ToCenter:
+						targetX = (self.width / 2)
+						break
+					case CollapseDirection.ToEndCursor:
+						targetX = self.endCursor ? self.endCursor.x : 0
+						break
+				}
+
 				Object.keys(xToCollapse).forEach((iX) => {
 					const x = xToCollapse[iX]
-					const isLeftToMiddle = x < (self.width / 2)
-					const direction = isLeftToMiddle ? -1 : 1
+					const isLeftToTargetX = x < targetX
+					const direction = isLeftToTargetX ? -1 : 1
 					const isCursorOnCollapsed = self.cursor && self.cursor.x === x
 
 					// Collect values to remove from sequence
@@ -504,7 +532,7 @@ export const Board: IType<{}, Board> = types
 
 					delete xToCollapse[iX]
 					Object.keys(xToCollapse)
-						.filter(iX => isLeftToMiddle ? xToCollapse[iX] < x : xToCollapse[iX] > x)
+						.filter(iX => isLeftToTargetX ? xToCollapse[iX] < x : xToCollapse[iX] > x)
 						.forEach(iX => xToCollapse[iX] -= direction)
 				})
 			}
@@ -527,6 +555,7 @@ export const Board: IType<{}, Board> = types
 			self.generateSequence(seqLength || self.initialSequenceLength, isDummy)
 			self.generateCells()
 			self.arrangeSequence(self.sequence)
+			self.arrangeEndCursor()
 		},
 
 		processChain() {
