@@ -2,6 +2,7 @@ import * as React from 'react'
 import * as join from 'classnames'
 import * as cls from './index.css'
 
+import autobind from '../../utils/autobind'
 import { generateNaturals, random } from '../../utils/numbers'
 import { getGlyph } from '../../utils/chars'
 
@@ -24,8 +25,14 @@ export namespace Rain {
 		dropHeight: number
 	}
 
-	export interface Props extends Sizes {
+	export interface Animation {
 		isPaused?: boolean
+		onBeforeUpdate?: AnimationCb
+		onAfterUpdate?: AnimationCb
+	}
+	export type AnimationCb = (dt: number) => void
+
+	export interface Props extends Sizes, Animation {
 	}
 	export interface State {
 		streams: Stream[]
@@ -40,6 +47,10 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 	state: Rain.State = {
 		streams: this.generateStreams(),
 	}
+
+	raf?: number | null
+	initTime?: number | null
+	prevTime?: number | null
 
 	generateStreams(props: Rain.Sizes = this.props): Rain.Stream[] {
 		const { windowWidth, windowHeight, dropWidth, dropHeight} = props
@@ -63,6 +74,58 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 			char,
 			glyph: getGlyph(char, .3),
 		}))
+	}
+
+	componentWillReceiveProps(props: Rain.Props) {
+		const { isPaused } = props
+
+		if (isPaused !== this.props.isPaused) {
+			isPaused ? this.stop() : this.play()
+		}
+	}
+
+	componentDidMount() {
+		this.play()
+	}
+
+	componentWillUnmount() {
+		this.stop()
+	}
+
+	play() {
+		if (!this.raf) {
+			this.raf = requestAnimationFrame(this.tick)
+		}
+	}
+
+	stop() {
+		if (this.raf) {
+			cancelAnimationFrame(this.raf)
+			this.raf = null
+			this.prevTime = null
+		}
+	}
+
+	@autobind
+	async tick(time: number) {
+		const { onBeforeUpdate, onAfterUpdate } = this.props
+
+		// console.log(time)
+		if (!this.initTime) this.initTime = time
+
+		const dt = this.prevTime ? (time - this.prevTime) / 1e3 : 0
+
+		if (onBeforeUpdate) await onBeforeUpdate(dt)
+
+		await this.update(dt)
+
+		if (onAfterUpdate) await onAfterUpdate(dt)
+
+		this.prevTime = time
+		this.raf = requestAnimationFrame(this.tick)
+	}
+
+	update(_dt: number) {
 	}
 
 	render() {
