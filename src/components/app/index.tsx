@@ -23,6 +23,7 @@ export namespace App {
 	export interface State extends Rain.Sizes {
 		isAppBlurred: boolean
 		isRainPaused: boolean
+		pace: Rain.Props['pace']
 	}
 }
 
@@ -34,6 +35,7 @@ export class App extends React.Component<App.Props, App.State> {
 	state: App.State = {
 		isAppBlurred: false,
 		isRainPaused: false,
+		pace: Rain.defaultProps.pace,
 		windowWidth: 800,
 		windowHeight: 600,
 		dropWidth: 50,
@@ -62,6 +64,7 @@ export class App extends React.Component<App.Props, App.State> {
 									<div className={style.rain}>
 										<Rain
 											isPaused={!this.isRaining()}
+											pace={this.state.pace}
 											windowWidth={this.state.windowWidth}
 											windowHeight={this.state.windowHeight}
 											dropWidth={this.state.dropWidth}
@@ -96,7 +99,16 @@ export class App extends React.Component<App.Props, App.State> {
 						label={this.isRaining() ? '⏸ Pause' : '▶️ Play'}
 						onClick={this.onToggleRain}
 					/>
-					<dis.Folder label='Window' expanded>
+					<dis.Number
+						label='Pace'
+						value={this.state.pace!}
+						min={.01}
+						max={5}
+						step={.25}
+						decimals={2}
+						onFinishChange={this.onPaceChange}
+					/>
+					<dis.Folder label='Window'>
 						<dis.Number
 							label='Window Width'
 							value={this.state.windowWidth}
@@ -114,7 +126,7 @@ export class App extends React.Component<App.Props, App.State> {
 							onFinishChange={this.onWindowHeightChange}
 						/>
 					</dis.Folder>
-					<dis.Folder label='Drop' expanded>
+					<dis.Folder label='Drop'>
 						<dis.Number
 							label='Drop Width'
 							value={this.state.dropWidth}
@@ -154,6 +166,11 @@ export class App extends React.Component<App.Props, App.State> {
 	@autobind
 	onToggleRain() {
 		this.setState(({ isRainPaused }) => ({ isRainPaused: !isRainPaused }))
+	}
+
+	@autobind
+	onPaceChange(pace: number) {
+		this.setState({ pace })
 	}
 
 	@autobind

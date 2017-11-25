@@ -26,6 +26,7 @@ export namespace Rain {
 	}
 
 	export interface Animation {
+		pace?: number
 		isPaused?: boolean
 		onBeforeUpdate?: AnimationCb
 		onAfterUpdate?: AnimationCb
@@ -41,6 +42,7 @@ export namespace Rain {
 
 export class Rain extends React.Component<Rain.Props, Rain.State> {
 	static defaultProps: Partial<Rain.Props> = {
+		pace: 1,
 		isPaused: false,
 	}
 
@@ -52,8 +54,8 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 	initTime?: number | null
 	prevTime?: number | null
 
-	generateStreams(props: Rain.Sizes = this.props): Rain.Stream[] {
-		const { windowWidth, windowHeight, dropWidth, dropHeight } = props
+	generateStreams(props: Rain.Props = this.props): Rain.Stream[] {
+		const { windowWidth, windowHeight, dropWidth, dropHeight, pace = 1 } = props
 		const rows = Math.ceil(windowHeight / dropHeight)
 		const cols = Math.ceil(windowWidth / dropWidth)
 		const min = 3
@@ -61,7 +63,7 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 
 		return Array.from(Array(cols)).map<Rain.Stream>((_, idx) => ({
 			idx,
-			durationMs: random(1e3, 2.2e3),
+			durationMs: random(1e3, 2.2e3) * 1 / pace,
 			dropsOdd: this.generateDrops(idx, idx % 2 ? min : half , rows - 1),
 			dropsEven: this.generateDrops(idx, idx % 2 ? half : min, rows - 1),
 		}))
@@ -83,7 +85,13 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 			isPaused ? this.stop() : this.play()
 		}
 
-		const sizeProps = ['windowWidth', 'windowHeight', 'dropWidth', 'dropHeight']
+		const sizeProps = [
+			'windowWidth',
+			'windowHeight',
+			'dropWidth',
+			'dropHeight',
+			'pace',
+		]
 		if (sizeProps.some((key: keyof Rain.Props) => props[key] !== this.props[key])) {
 			this.setState({
 				streams: this.generateStreams(props),
