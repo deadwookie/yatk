@@ -147,7 +147,7 @@ export class App extends React.Component<App.Props, App.State> {
 							value={this.state.dropHeight}
 							min={10}
 							max={100}
-							step={10}
+							step={5}
 							onFinishChange={this.onDropHeightChange}
 						/>
 					</dis.Folder>

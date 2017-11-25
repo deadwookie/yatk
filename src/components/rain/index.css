@@ -7,6 +7,21 @@
 	user-select: none;
 }
 
+.paused {
+	filter: blur(10px);
+	transition: filter .1s ease-in;
+}
+.paused::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: #fff;
+	opacity: .1;
+}
+
 /* https://stackoverflow.com/questions/18529381/what-does-webkit-transform-translate3d0-0-0-exactly-do-apply-to-body */
 /* .main * {
 	transform: translate3d(0, 0, 0);

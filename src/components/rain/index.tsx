@@ -144,7 +144,7 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 	}
 
 	render() {
-		const { windowWidth, windowHeight} = this.props
+		const { windowWidth, windowHeight, isPaused } = this.props
 
 		const windowStyle = {
 			width: `${windowWidth}px`,
@@ -152,7 +152,7 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 		}
 
 		return (
-			<article className={cls.main} style={windowStyle}>
+			<article className={join(cls.main, isPaused && cls.paused)} style={windowStyle}>
 				{this.renderStreams()}
 			</article>
 		)
