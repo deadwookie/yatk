@@ -7,6 +7,16 @@ import { generateNaturals, random } from '../../utils/numbers'
 import { getGlyph } from '../../utils/chars'
 
 export namespace Rain {
+	export interface StreamPos {
+		idx: number
+		top: number
+		// isReversed?: boolean
+		$odd: Element | null
+		$even: Element | null
+	}
+
+	export type StreamPositions = StreamPos[]
+
 	export interface Drop {
 		idx: number
 		glyph: string
@@ -16,8 +26,6 @@ export namespace Rain {
 		idx: number
 		delay: number
 		speed: number
-		top: number
-		isReversed?: boolean
 		dropsOdd: Drop[]
 		dropsEven: Drop[]
 	}
@@ -56,6 +64,7 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 	raf?: number | null
 	initTime?: number | null
 	prevTime?: number | null
+	positions: Rain.StreamPositions = []
 
 	generateStreams(props: Rain.Props = this.props): Rain.Stream[] {
 		const { windowWidth, windowHeight, dropWidth, dropHeight, pace = 1 } = props
@@ -69,7 +78,6 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 			idx,
 			delay: random(0, 1 * fragments),
 			speed: pace * random(.5 * fragments, 1.5 * fragments) / fragments,
-			top: -1,
 			dropsOdd: this.generateDrops(idx, idx % 2 ? min : half , rows - 1),
 			dropsEven: this.generateDrops(idx, idx % 2 ? half : min, rows - 1),
 		}))
@@ -147,18 +155,31 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 	}
 
 	update(dt: number) {
-		return this.setState(prev => ({
-			streams: prev.streams.map(stream => {
-				let top = stream.top + dt * stream.speed
-				if (top >= 1) top = -1
+		const { windowHeight } = this.props
+		const { streams } = this.state
 
-				return {
-					...stream,
-					top,
-					isReversed: top >= 0
-				}
-			})
-		}))
+		for (const { idx, $even, $odd, top: prevTop } of this.positions) {
+			const stream = streams[idx]
+			if (!stream) continue
+
+			let top = prevTop + dt * stream.speed
+			if (top >= 1) top = -1
+
+			// const isReversed = top >= 0
+			const evenCoeff = top >= 0 ? 1 : -1
+			const yOdd = windowHeight * top
+			const yEven = yOdd - evenCoeff * windowHeight
+
+			if ($odd) {
+				(($odd as any).style as React.CSSProperties).transform = `translateY(${yOdd}px)`
+			}
+			if ($even) {
+				(($even as any).style as React.CSSProperties).transform = `translateY(${yEven}px)`
+			}
+
+			// keep the actual position
+			this.positions[idx].top = top
+		}
 	}
 
 	render() {
@@ -178,33 +199,31 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 
 	renderStreams() {
 		const { streams } = this.state
-		const { windowHeight, dropWidth } = this.props
+		const { dropWidth } = this.props
 		const baseStyle = {
 			width: `${dropWidth}px`,
 		}
 
-		return streams.reduce<React.ReactElement<any>[]>((res, { top, isReversed, dropsOdd, dropsEven }, idx) => {
+		return streams.reduce<React.ReactElement<any>[]>((res, { dropsOdd, dropsEven }, idx) => {
 			const left = `${idx * dropWidth}px`
-			const offset = windowHeight * top
-			const evenCoeff = isReversed ? 1 : -1
 
 			return res.concat(
 				<ul key={`odd-${idx}`}
+					ref={$el => this.refStream(idx, 'odd', $el)}
 					className={join(cls.stream, cls.odd)}
 					style={{
 						...baseStyle,
 						left,
-						transform: `translateY(${offset}px)`,
 					}}
 				>
 					{this.renderDrops(dropsOdd)}
 				</ul>,
 				<ul key={`even-${idx}`}
+					ref={$el => this.refStream(idx, 'even', $el)}
 					className={join(cls.stream, cls.even)}
 					style={{
 						...baseStyle,
 						left,
-						transform: `translateY(${offset - evenCoeff * windowHeight}px)`,
 					}}
 				>
 					{this.renderDrops(dropsEven)}
@@ -228,6 +247,20 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 				</span>
 			</li>
 		))
+	}
+
+	@autobind
+	refStream(idx: number, dir: 'odd' | 'even', $el: Element | null) {
+		if (!this.positions[idx]) {
+			this.positions[idx] = {
+				idx,
+				top: -1,
+				$odd: null,
+				$even: null,
+			}
+		}
+
+		this.positions[idx][dir === 'odd' ? '$odd' : '$even'] = $el
 	}
 }
 
