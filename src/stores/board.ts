@@ -95,12 +95,12 @@ export interface Board {
 	removeFromSequence: (fragment: Array<SequenceValue>) => void
 
 	finish: (result: FinishResult) => void
-	generateSequence: (lenth: number) => void
+	generateSequence: (lenth: number, isDummy?: boolean) => void
 	resetSequenceTo: (sequence: Array<number | null>) => void
 	replicateSequence: () => void
 	arrangeSequence: (sequence: Array<SequenceValue>) => void
-	generate: (seqLength?: number) => void
-	newGame: (seqLength?: number) => void
+	generate: (seqLength?: number, isDummy?: boolean) => void
+	newGame: (seqLength?: number, isDummy?: boolean) => void
 	nextRound: () => void
 	processChain: () => void
 	clearChain: () => void
@@ -355,11 +355,14 @@ export const Board: IType<{}, Board> = types
 		}
 	}))
 	.actions((self) => ({
-		generateSequence(length: number) {
+		generateSequence(length: number, isDummy?: boolean) {
 			self.clearSequence()
 			self.sequenceCounter = -1
-			//self.appendSequence(Array.from(Array(length)).map((_, ind) => ind % 2 === 0 ? 8 : 2))
-			self.appendSequence(Array.from(Array(length)).map(_ => randomN()))
+			if (isDummy) {
+				self.appendSequence(Array.from(Array(length)).map((_, ind) => ind % 2 === 0 ? 8 : 2))
+			} else {
+				self.appendSequence(Array.from(Array(length)).map(_ => randomN()))
+			}
 		},
 
 		resetSequenceTo(sequence: Array<number | null>) {
@@ -520,8 +523,8 @@ export const Board: IType<{}, Board> = types
 		}
 	}))
 	.actions((self) => ({
-		generate(seqLength?: number) {
-			self.generateSequence(seqLength || self.initialSequenceLength)
+		generate(seqLength?: number, isDummy?: boolean) {
+			self.generateSequence(seqLength || self.initialSequenceLength, isDummy)
 			self.generateCells()
 			self.arrangeSequence(self.sequence)
 		},
@@ -560,13 +563,13 @@ export const Board: IType<{}, Board> = types
 			self.arrangeSequence(self.replicateSequence())
 		},
 
-		newGame(seqLength?: number) {
+		newGame(seqLength?: number, isDummy?: boolean) {
 			self.movesCount = 0
 			self.round = 1
 			self.score = 1000
 			self.finishResult = null
 			self.clearChain()
-			self.generate(seqLength)
+			self.generate(seqLength, isDummy)
 		},
 
 		addToChain(cell: Cell) {
