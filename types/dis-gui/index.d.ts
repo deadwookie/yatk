@@ -1,6 +1,6 @@
 // https://github.com/wwwtyro/dis-gui
 
-import { PureComponent } from 'react'
+import { PureComponent as Component } from 'react'
 
 export namespace GUI {
 	export interface Expandable {
@@ -14,13 +14,13 @@ export namespace GUI {
 	export interface Props {
 	}
 }
-export class GUI extends PureComponent<GUI.Props, object> { }
+export class GUI extends Component<GUI.Props, object> { }
 
 export namespace Folder {
 	export interface Props extends GUI.Element, GUI.Expandable {
 	}
 }
-export class Folder extends PureComponent<Folder.Props, object> { }
+export class Folder extends Component<Folder.Props, object> { }
 
 export namespace Number {
 	export interface Props extends GUI.Element {
@@ -34,13 +34,13 @@ export namespace Number {
 		onFinishChange?: ChangeCb<number>
 	}
 }
-export class Number extends PureComponent<Number.Props, object> { }
+export class Number extends Component<Number.Props, object> { }
 
 export namespace Button {
 	export interface Props extends GUI.Element {
 		onClick?: () => void
 	}
 }
-export class Button extends PureComponent<Button.Props, object> { }
+export class Button extends Component<Button.Props, object> { }
 
 
