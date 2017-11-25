@@ -1,6 +1,7 @@
 import * as React from 'react'
 import * as cls from 'classnames'
 import * as style from './index.css'
+import { HashRouter as Router, Route } from 'react-router-dom'
 import Header from './header'
 import Matrix from './matrix'
 import Footer from './footer'
@@ -29,7 +30,17 @@ export class App extends React.Component<App.Props, App.State> {
 		return (
 			<div className={cls(style.main, `theme-${theme}`)}>
 				<Header />
-				<Matrix store={store} />
+				<Router>
+					<div>
+						<Route exact path='/' render={() => {
+							return <Matrix store={store} />
+						}}/>
+						<Route exact path='/faq' render={() => {
+							return <div>FAQ: TODO</div>
+						}}/>
+					</div>
+				</Router>
+
 				<Footer store={store} />
 			</div>
 		)

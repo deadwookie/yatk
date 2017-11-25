@@ -2,6 +2,7 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 
 import { AppContainer } from 'react-hot-loader'
+import { HashRouter } from 'react-router-dom'
 
 import './index.css'
 import App from './components/app'
@@ -38,7 +39,9 @@ export const store = Store.create({
 export function runApp() {
 	ReactDOM.render(
 		<AppContainer>
-			<App store={store} />
+			<HashRouter>
+				<App store={store} />
+			</HashRouter>
 		</AppContainer>,
 		document.getElementById('main')
 	)
