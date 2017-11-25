@@ -53,7 +53,7 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 	prevTime?: number | null
 
 	generateStreams(props: Rain.Sizes = this.props): Rain.Stream[] {
-		const { windowWidth, windowHeight, dropWidth, dropHeight} = props
+		const { windowWidth, windowHeight, dropWidth, dropHeight } = props
 		const rows = Math.ceil(windowHeight / dropHeight)
 		const cols = Math.ceil(windowWidth / dropWidth)
 		const min = 3
@@ -81,6 +81,13 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 
 		if (isPaused !== this.props.isPaused) {
 			isPaused ? this.stop() : this.play()
+		}
+
+		const sizeProps = ['windowWidth', 'windowHeight', 'dropWidth', 'dropHeight']
+		if (sizeProps.some((key: keyof Rain.Props) => props[key] !== this.props[key])) {
+			this.setState({
+				streams: this.generateStreams(props),
+			})
 		}
 	}
 
