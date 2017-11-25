@@ -25,7 +25,14 @@
         //"configFile": "../tslint.json",
         //"disableNoUnusedVariableRule": false
       }
-    ]
+    ],
+
+    "baseUrl": "src/",
+    "paths": {
+      "stats.js": [
+        "../types/stats.js"
+      ]
+    }
   },
   "include": [
     "src/**/*"
