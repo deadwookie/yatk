@@ -40,7 +40,7 @@ export class CellElement extends React.Component<CellElement.Props, CellElement.
 			[style.isEmpty]: cell.isEmpty,
 			[style.isActive]: cell.isChained,
 			[style.isCursor]: this.props.isCursor,
-			[style.isEndCursor]: this.props.isEndCursor,
+			[style.isDeadPoint]: this.props.isEndCursor,
 		})
 
 		const value = cell.sequenceValue

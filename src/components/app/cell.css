@@ -25,14 +25,9 @@
 	animation: siren 4s ease-in-out infinite alternate-reverse;
 }
 
-.isEndCursor {
-	opacity: .5;
-	animation: siren 4s ease-in-out infinite alternate-reverse;
-}
-
 @keyframes siren {
 	100% {
-	text-shadow: 0 0 .1em var(--hover-shadow-color), var(--hover-text-shadow);
+		text-shadow: 0 0 .1em var(--hover-shadow-color), var(--hover-text-shadow);
 	}
 }
 
@@ -45,12 +40,28 @@
 	opacity: .33;
 }
 
+.isDeadPoint {
+	opacity: .66;
+	color: var(--hover-color);
+}
+
+.isDeadPoint .symbol {
+	text-shadow: var(--glow-text-shadow);
+	animation: shine 2s ease-in-out infinite alternate;
+}
+
+@keyframes shine {
+	100% {
+		text-shadow: var(--glow-text-shadow), 0 0 1em #fff;
+	}
+}
+
 .isChar .symbol {
-	animation: glow 4s ease-in-out infinite;
+	animation: glow 2s ease-in-out infinite alternate;
 }
 
 @keyframes glow {
-	50% {
+	100% {
 		text-shadow: 0 0 var(--glow-shadow-blur) var(--glow-shadow-color);
 		color: var(--glow-color);
 	}

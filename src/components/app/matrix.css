@@ -15,6 +15,7 @@
 	--glow-color: var(--hover-color);
 	--glow-shadow-blur: .2em;
 	--glow-shadow-color: var(--accent-color);
+	--glow-text-shadow: 0 0 var(--glow-shadow-blur) var(--glow-shadow-color);
 
 	--char-font-family: 'PT Sans Caption';
 	--char-font-weight: 700;
