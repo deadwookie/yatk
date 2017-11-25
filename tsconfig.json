@@ -29,6 +29,9 @@
 
     "baseUrl": "src/",
     "paths": {
+      "dis-gui": [
+        "../types/dis-gui"
+      ],
       "stats.js": [
         "../types/stats.js"
       ]
