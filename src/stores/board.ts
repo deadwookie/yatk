@@ -446,7 +446,7 @@ export const Board: IType<{}, Board> = types
 
 					delete yToCollapse[iY]
 					Object.keys(yToCollapse)
-						.filter(iY => isAboveMiddle ? xToCollapse[iY] < y : xToCollapse[iY] > y)
+						.filter(iY => isAboveMiddle ? yToCollapse[iY] < y : yToCollapse[iY] > y)
 						.forEach(iY => yToCollapse[iY] -= direction)
 				})
 			}
