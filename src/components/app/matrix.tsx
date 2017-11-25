@@ -34,7 +34,7 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 						<dt className={style.term}>Moves:</dt>
 						<dd className={style.desc}>{board.movesCount}</dd>
 						<dt className={style.term}>Sequence length:</dt>
-						<dd className={style.desc}>{board.sequence.filter(v => !!v.value).length}</dd>
+						<dd className={style.desc}>{board.sequence.filter(v => v.value !== null).length}</dd>
 						<dt className={style.term}><a onClick={this.onRestartClick}>New Game</a></dt>
 						<dd className={style.desc}></dd>
 						<dt className={style.term}><Link to='/faq'>FAQ</Link></dt>
