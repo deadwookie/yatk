@@ -22,7 +22,11 @@
 }
 .isCursor {
 	opacity: .5;
-	animation: siren 4s ease-in-out infinite alternate-reverse;
+}
+
+.isCursor .symbol {
+	text-shadow: 0 0 .1em var(--hover-shadow-color);
+	animation: siren 4s ease-in-out infinite alternate;
 }
 
 @keyframes siren {
@@ -41,18 +45,18 @@
 }
 
 .isDeadPoint {
-	opacity: .66;
-	color: var(--hover-color);
+	opacity: .5;
+	color: var(--active-color);
 }
 
 .isDeadPoint .symbol {
 	text-shadow: var(--glow-text-shadow);
-	animation: shine 2s ease-in-out infinite alternate;
+	animation: shine 4s ease-in-out infinite alternate;
 }
 
 @keyframes shine {
 	100% {
-		text-shadow: var(--glow-text-shadow), 0 0 1em #fff;
+		text-shadow: var(--glow-text-shadow), 0 0 1em var(--glow-color);
 	}
 }
 
