@@ -32,6 +32,9 @@ export const store = Store.create({
 			collapseDirection: CollapseDirection.ToEndCursor,
 			isCollapseRows: true,
 			isCollapseColumns: true,
+		},
+		behavior: {
+			seqArrangeStepDelayMs: 15
 		}
 	}
 })

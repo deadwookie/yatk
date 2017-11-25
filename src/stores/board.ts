@@ -1,7 +1,9 @@
-import { types, IType } from 'mobx-state-tree'
+import { types, IType, flow } from 'mobx-state-tree'
 
 import { Rules, CollapseDirection, isEmptyColumn, isEmptyRow } from './rules'
+import { Behavior } from './behavior'
 import { CHARMAP } from '../utils/chars'
+import { delay } from '../utils/times'
 
 export function randomN(from = 0, upto = 10, asInt = true) {
 	const n = Math.random() * (upto - from) + from
@@ -83,6 +85,7 @@ export interface Board {
 	cursor?: Cell | null
 	endCursor?: Cell | null
 	rules: Rules
+	behavior: Behavior
 
 	copyRow: (srcY: number, dstY: number) => void
 	copyColumn: (srcX: number, dstX: number) => void
@@ -127,7 +130,8 @@ export const Board: IType<{}, Board> = types
 		chain: types.array(types.reference(Cell)),
 		cursor: types.maybe(types.reference(Cell)),
 		endCursor: types.maybe(types.reference(Cell)),
-		rules: Rules
+		rules: Rules,
+		behavior: Behavior
 	})
 	.actions((self) => ({
 		generateCells() {
@@ -376,19 +380,21 @@ export const Board: IType<{}, Board> = types
 			return self.appendSequence(self.sequence.filter(sv => sv.value !== null).map(sv => sv.value))
 		},
 
-		arrangeSequence(sequenceFragment: Array<SequenceValue>) {
+		arrangeSequence: flow(function* (sequenceFragment: Array<SequenceValue>) {
+			const delayTime = self.behavior.seqArrangeStepDelayMs
 			for (const sv of sequenceFragment) {
 				if (!self.cursor || self.cursor === self.endCursor) {
 					self.finish(FinishResult.Fail)
 					break
 				}
 				self.cursor!.sequenceValue = sv
+				yield delay(delayTime)
 				self.cursor = self.getNextCursor()
 			}
-		},
+		}),
 
 		arrangeEndCursor() {
-			self.endCursor = self.cells[34]
+			self.endCursor = self.cells[30]
 		},
 
 		collapseChain(chain: Cell[]) {
