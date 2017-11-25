@@ -56,6 +56,7 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 						store={store}
 						cell={cell}
 						isCursor={cell === store.board.cursor}
+						isEndCursor={cell === store.board.endCursor}
 					/>
 				)
 			})
@@ -74,7 +75,7 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 
 		return (
 			<aside className={style.alert}>
-				<p className={style.message}>{board.finishResult === FinishResult.Win ? 'You Win' : 'You Lose'}</p>
+				<p className={style.message}>{board.finishResult === FinishResult.Win ? 'You Win' : 'Game Over'}</p>
 			</aside>
 		)
 	}
