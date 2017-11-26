@@ -4,6 +4,7 @@ import { Rules, CollapseDirection, isEmptyColumn, isEmptyRow } from './rules'
 import { Behavior } from './behavior'
 import { CHARMAP } from '../utils/chars'
 import { delay } from '../utils/times'
+import { Direction, getNextIndex, canMove, isHorizontal, isVertical } from '../utils/navigation'
 
 export function randomN(from = 0, upto = 10, asInt = true) {
 	const n = Math.random() * (upto - from) + from
@@ -94,12 +95,14 @@ export interface Board {
  	generateCells: () => void
 	getNextCursor: () => Cell | null
 	getPrevCursor: () => Cell | null
+	getNextCursorDir: () => Direction | null
+	getPrevCursorDir: () => Direction | null
 	clearSequence: () => void
 	appendSequence: (fragment: Array<number | null>) => Array<SequenceValue>
 	removeFromSequence: (fragment: Array<SequenceValue>) => void
 
 	finish: (result: FinishResult) => void
-	generateSequence: (lenth: number, isDummy?: boolean) => void
+	generateSequence: (length: number, isDummy?: boolean) => void
 	resetSequenceTo: (sequence: Array<number | null>) => void
 	replicateSequence: () => void
 	arrangeSequence: (sequence: Array<SequenceValue>) => void
@@ -133,6 +136,118 @@ export const Board: IType<{}, Board> = types
 		rules: Rules,
 		behavior: Behavior
 	})
+	.actions((self) => ({
+		getNextCursorDir(): Direction | null {
+			const next = getNextIndex.bind(null, self.cursor!.index, self.width)
+			const can = canMove.bind(null, self.cursor!, self)
+
+			if (self.geometryType === BoardGeometryType.Box) {
+				const nextIndex = next(Direction.Right)
+
+				if (nextIndex >= self.cells.length) {
+					return null
+				}
+
+				return Direction.Right
+			} else if (self.geometryType === BoardGeometryType.Spiral) {
+				const canUp = can(Direction.Up)
+				const canRight = can(Direction.Right)
+				const canDown = can(Direction.Down)
+				const canLeft = can(Direction.Left)
+				const hasAbove = canUp && !self.cells[next(Direction.Up)].isEmpty!
+				const hasBelow = canDown && !self.cells[next(Direction.Down)].isEmpty!
+				const hasLeft = canLeft && !self.cells[next(Direction.Left)].isEmpty!
+				const hasRight = canRight && !self.cells[next(Direction.Right)].isEmpty!
+
+				let direction = null
+
+				if (hasAbove && !hasLeft) {
+					// Try to move left
+					if (canLeft) {
+						direction = Direction.Left
+					}
+				} else if (hasBelow && !hasRight) {
+					// Try to move right
+					if (canRight) {
+						direction = Direction.Right
+					}
+				} else if (hasLeft && !hasBelow) {
+					// Try to move down
+					if (canDown) {
+						direction = Direction.Down
+					}
+				} else if (hasRight && !hasAbove) {
+					// Try to move up
+					if (canUp) {
+						direction = Direction.Up
+					}
+				} else if (!hasBelow && !hasAbove && !hasLeft && !hasRight) {
+					// By default try to move right
+					if (canRight) {
+						direction = Direction.Right
+					}
+				}
+
+				return direction
+			} else {
+				throw new Error(`Unknown geometry type for the board: ${self.geometryType}`)
+			}
+		},
+
+		getPrevCursorDir(): Direction | null {
+			const next = getNextIndex.bind(null, self.cursor!.index, self.width)
+			const can = canMove.bind(null, self.cursor!, self)
+
+			if (self.geometryType === BoardGeometryType.Box) {
+				const prevIndex = next(Direction.Left)
+
+				if (prevIndex < 0 || !self.cells[prevIndex].isEmpty) {
+					return null
+				}
+
+				return Direction.Left
+			} else if (self.geometryType === BoardGeometryType.Spiral) {
+				const canUp = can(Direction.Up)
+				const canRight = can(Direction.Right)
+				const canDown = can(Direction.Down)
+				const canLeft = can(Direction.Left)
+				const canUpRight = can(Direction.UpRight)
+				const canUpLeft = can(Direction.UpLeft)
+				const canDownRight = can(Direction.DownRight)
+				const canDownLeft = can(Direction.DownLeft)
+
+				const hasAbove = canUp && !self.cells[next(Direction.Up)].isEmpty!
+				const hasBelow = canDown && !self.cells[next(Direction.Down)].isEmpty!
+				const hasLeft = canLeft && !self.cells[next(Direction.Left)].isEmpty!
+				const hasRight = canRight && !self.cells[next(Direction.Right)].isEmpty!
+
+				const hasAboveRight = canUpRight && !self.cells[next(Direction.UpRight)].isEmpty!
+				const hasAboveLeft = canUpLeft && !self.cells[next(Direction.UpLeft)].isEmpty!
+				const hasBelowRight = canDownRight && !self.cells[next(Direction.DownRight)].isEmpty!
+				const hasBelowLeft = canDownLeft && !self.cells[next(Direction.DownLeft)].isEmpty!
+
+				let direction = null
+
+				if (hasAboveRight && !hasRight) {
+					// Move right
+					direction = Direction.Right
+				} else if (hasBelowRight && !hasBelow) {
+					// Move down
+					direction = Direction.Down
+				} else if (hasBelowLeft && !hasLeft) {
+					// Move left
+					direction = Direction.Left
+				} else if (hasAboveLeft && !hasAbove) {
+					// Move up
+					direction = Direction.Up
+				}
+
+				return direction
+			} else {
+				throw new Error(`Unknown geometry type for the board: ${self.geometryType}`)
+			}
+		}
+	}))
 	.actions((self) => ({
 		generateCells() {
 			self.cells.splice(0)
@@ -168,99 +283,13 @@ export const Board: IType<{}, Board> = types
 		},
 
 		getNextCursor(): Cell | null {
-			if (self.geometryType === BoardGeometryType.Box) {
-				const nextIndex = self.cursor!.index + 1
-
-				if (nextIndex >= self.cells.length) {
-					return null
-				}
-
-				return self.cells[nextIndex]
-			} else if (self.geometryType === BoardGeometryType.Spiral) {
-				const hasAbove = (self.cursor!.y > 0) && !self.cells[self.cursor!.index - self.width].isEmpty!
-				const hasBelow = (self.cursor!.y < self.height - 1) && !self.cells[self.cursor!.index + self.width].isEmpty!
-				const hasLeft = (self.cursor!.x > 0) && !self.cells[self.cursor!.index - 1].isEmpty!
-				const hasRight = (self.cursor!.x < self.width - 1) && !self.cells[self.cursor!.index + 1].isEmpty!
-
-				let nextIndex = null
-
-				if (hasAbove && !hasLeft) {
-					// Try to move left
-					if (self.cursor!.x > 0) {
-						nextIndex = self.cursor!.index - 1
-					}
-				} else if (hasBelow && !hasRight) {
-					// Try to move right
-					if (self.cursor!.x < self.width - 1) {
-						nextIndex = self.cursor!.index + 1
-					}
-				} else if (hasLeft && !hasBelow) {
-					// Try to move down
-					if (self.cursor!.y < self.height - 1) {
-						nextIndex = self.cursor!.index + self.width
-					}
-				} else if (hasRight && !hasAbove) {
-					// Try to move up
-					if (self.cursor!.y > 0) {
-						nextIndex = self.cursor!.index - self.width
-					}
-				} else if (!hasBelow && !hasAbove && !hasLeft && !hasRight) {
-					// By default try to move right
-					if (self.cursor!.x < self.width - 1) {
-						nextIndex = self.cursor!.index + 1
-					}
-				}
-
-				return nextIndex === null ? null : self.cells[nextIndex]
-			} else {
-				throw new Error(`Unknown geometry type for the board: ${self.geometryType}`)
-			}
+			const nextIndex = getNextIndex(self.cursor!.index, self.width, self.getNextCursorDir())
+			return nextIndex === null ? null : self.cells[nextIndex]
 		},
 
 		getPrevCursor(): Cell | null {
-			if (self.geometryType === BoardGeometryType.Box) {
-				const prevIndex = self.cursor!.index - 1
-
-				if (prevIndex < 0 || !self.cells[prevIndex].isEmpty) {
-					return null
-				}
-
-				return self.cells[prevIndex]
-			} else if (self.geometryType === BoardGeometryType.Spiral) {
-				const hasAbove = self.cursor!.y > 0 && !self.cells[self.cursor!.index - self.width].isEmpty!
-				const hasBelow = (self.cursor!.y < self.height - 1) && !self.cells[self.cursor!.index + self.width].isEmpty!
-				const hasLeft = self.cursor!.x > 0 && !self.cells[self.cursor!.index - 1].isEmpty!
-				const hasRight = (self.cursor!.x < self.width - 1) && !self.cells[self.cursor!.index + 1].isEmpty!
-
-				const hasAboveRight = self.cursor!.y > 0 && (self.cursor!.x < self.width - 1)
-					&& !self.cells[self.cursor!.index - self.width + 1].isEmpty!
-				const hasAboveLeft = self.cursor!.y > 0 && self.cursor!.x > 0
-					&& !self.cells[self.cursor!.index - self.width - 1].isEmpty!
-				const hasBelowRight = (self.cursor!.y < self.height - 1) && (self.cursor!.x < self.width - 1)
-					&& !self.cells[self.cursor!.index + self.width + 1].isEmpty!
-				const hasBelowLeft = (self.cursor!.y < self.height - 1) && self.cursor!.x > 0
-					&& !self.cells[self.cursor!.index + self.width - 1].isEmpty!
-
-				let prevIndex = null
-
-				if (hasAboveRight && !hasRight) {
-					// Try to move right
-					prevIndex = self.cursor!.index + 1
-				} else if (hasBelowRight && !hasBelow) {
-					// Try to move down
-					prevIndex = self.cursor!.index + self.width
-				} else if (hasBelowLeft && !hasLeft) {
-					// Try to move left
-					prevIndex = self.cursor!.index - 1
-				} else if (hasAboveLeft && !hasAbove) {
-					// Try to move up
-					prevIndex = self.cursor!.index - self.width
-				}
-
-				return prevIndex === null ? null : self.cells[prevIndex]
-			} else {
-				throw new Error(`Unknown geometry type for the board: ${self.geometryType}`)
-			}
+			const prevIndex = getNextIndex(self.cursor!.index, self.width, self.getPrevCursorDir())
+			return prevIndex === null ? null : self.cells[prevIndex]
 		},
 
 		clearSequence() {
@@ -361,6 +390,159 @@ export const Board: IType<{}, Board> = types
 		}
 	}))
 	.actions((self) => ({
+		collapseRows(yToCollapse: {[key: string]: number}): Array<SequenceValue> {
+			const isCollapsePartialRows = self.rules.isCollapsePartialRows
+			const sequenceFragments: Array<SequenceValue> = []
+			let collapseToY = 0
+
+			switch (self.rules.collapseDirection) {
+				case CollapseDirection.ToCenter:
+					collapseToY = (self.height / 2)
+					break
+				case CollapseDirection.ToDeadPoint:
+					collapseToY = self.deadPoint ? self.deadPoint.y : 0
+					break
+			}
+
+			Object.keys(yToCollapse).forEach((iY) => {
+				const y = yToCollapse[iY]
+				const isAboveCollapseY = y < collapseToY
+				const collapseDir = isAboveCollapseY ? -1 : 1
+				const isCursorOnCollapsed = self.cursor && self.cursor.y === y
+				const isSkipCollapse = isCursorOnCollapsed && isHorizontal(self.getNextCursorDir())
+					&& !isCollapsePartialRows
+
+				if (isSkipCollapse) {
+					delete yToCollapse[iY]
+				} else {
+					// Collect values to remove from sequence
+					const row = self.getRow(y)
+					if (row) {
+						sequenceFragments.push(
+							...row.filter(cell => !cell.isEmpty).map(cell => cell.sequenceValue!)
+						)
+					}
+
+					// Collapse row
+					for (let i = y; i > 0 && i < self.height; i += collapseDir) {
+						self.copyRow(i + collapseDir, i)
+
+						if (self.cursor && self.cursor.y === (i + collapseDir)) {
+							// Cursor is located on the source column
+							self.cursor = self.cells[self.cursor.index - collapseDir * self.width]
+						}
+					}
+
+					// Move cursor
+					if (isCursorOnCollapsed) {
+						let prevCursor = self.getPrevCursor()
+
+						if (!prevCursor) {
+							/**
+							 * We cannot move, so check if the not empty value from the different was row copied
+							 * to the cursor position in that case try to move cursor one step ahead
+							 */
+							if (self.cursor && !self.cursor.isEmpty) {
+								prevCursor = self.getNextCursor()
+								if (prevCursor) {
+									self.cursor = prevCursor
+								}
+							}
+						} else {
+							while (prevCursor) {
+								self.cursor = prevCursor
+								prevCursor = self.getPrevCursor()
+							}
+						}
+					}
+
+					delete yToCollapse[iY]
+					Object.keys(yToCollapse)
+						.filter(iY => isAboveCollapseY ? yToCollapse[iY] < y : yToCollapse[iY] > y)
+						.forEach(iY => yToCollapse[iY] -= collapseDir)
+				}
+			})
+
+			return sequenceFragments
+		},
+
+		collapseColumns(xToCollapse: {[key: string]: number}): Array<SequenceValue> {
+			const isCollapsePartialColumns = self.rules.isCollapsePartialColumns
+			const sequenceFragments: Array<SequenceValue> = []
+			let collapseToX = 0
+
+			switch (self.rules.collapseDirection) {
+				case CollapseDirection.ToCenter:
+					collapseToX = (self.width / 2)
+					break
+				case CollapseDirection.ToDeadPoint:
+					collapseToX = self.deadPoint ? self.deadPoint.x : 0
+					break
+			}
+
+			Object.keys(xToCollapse).forEach((iX) => {
+				const x = xToCollapse[iX]
+				const isLeftToCollapseX = x < collapseToX
+				const collapseDir = isLeftToCollapseX ? -1 : 1
+				const isCursorOnCollapsed = self.cursor && self.cursor.x === x
+				const isSkipCollapse = isCursorOnCollapsed && isVertical(self.getNextCursorDir())
+					&& !isCollapsePartialColumns
+
+				if (isSkipCollapse) {
+					delete xToCollapse[iX]
+				} else {
+					// Collect values to remove from sequence
+					const column = self.getColumn(x)
+					if (column) {
+						sequenceFragments.push(
+							...column.filter(cell => !cell.isEmpty).map(cell => cell.sequenceValue!)
+						)
+					}
+
+					// Collapse column
+					for (let i = x; i > 0 && i < self.height; i += collapseDir) {
+						self.copyColumn(i + collapseDir, i)
+
+						if (self.cursor && self.cursor.x === (i + collapseDir)) {
+							// Cursor is located on the source column
+							self.cursor = self.cells[self.cursor.index - collapseDir]
+						}
+					}
+
+					// Move cursor
+					if (isCursorOnCollapsed) {
+						let prevCursor = self.getPrevCursor()
+
+						if (!prevCursor) {
+							/**
+							 * We cannot move, so check if the not empty value from the different was row copied
+							 * to the cursor position in that case try to move cursor one step ahead
+							 */
+							if (self.cursor && !self.cursor.isEmpty) {
+								prevCursor = self.getNextCursor()
+								if (prevCursor) {
+									self.cursor = prevCursor
+								}
+							}
+						} else {
+							while (prevCursor) {
+								self.cursor = prevCursor
+								prevCursor = self.getPrevCursor()
+							}
+						}
+					}
+
+					delete xToCollapse[iX]
+					Object.keys(xToCollapse)
+						.filter(iX => isLeftToCollapseX ? xToCollapse[iX] < x : xToCollapse[iX] > x)
+						.forEach(iX => xToCollapse[iX] -= collapseDir)
+				}
+			})
+
+			return sequenceFragments
+		},
+	}))
+	.actions((self) => ({
 		generateSequence(length: number, isDummy?: boolean) {
 			self.clearSequence()
 			self.sequenceCounter = -1
@@ -414,135 +596,11 @@ export const Board: IType<{}, Board> = types
 			})
 
 			if (self.rules.isCollapseRows && self.rules.collapseDirection) {
-				let targetY = 0
-
-				switch (self.rules.collapseDirection) {
-					case CollapseDirection.ToCenter:
-						targetY = (self.height / 2)
-						break
-					case CollapseDirection.ToDeadPoint:
-						targetY = self.deadPoint ? self.deadPoint.y : 0
-						break
-				}
-
-				Object.keys(yToCollapse).forEach((iY) => {
-					const y = yToCollapse[iY]
-					const isAboveTargetY = y < targetY
-					const direction = isAboveTargetY ? -1 : 1
-					const isCursorOnCollapsed = self.cursor && self.cursor.y === y
-
-					// Collect values to remove from sequence
-					const row = self.getRow(y)
-					if (row) {
-						sequenceFragments.push(
-							...row.filter(cell => !cell.isEmpty).map(cell => cell.sequenceValue!)
-						)
-					}
-
-					// Collapse row
-					for (let i = y; i > 0 && i < self.height; i += direction) {
-						self.copyRow(i + direction, i)
-
-						if (self.cursor && self.cursor.y === (i + direction)) {
-							// Cursor is located on the source column
-							self.cursor = self.cells[self.cursor.index - direction * self.width]
-						}
-					}
-
-					// Move cursor
-					if (isCursorOnCollapsed) {
-						let prevCursor = self.getPrevCursor()
-
-						if (!prevCursor) {
-							/**
-								* We cannot move, so check if the not empty value from the different was row copied
-								* to the cursor position in that case try to move cursor one step ahead
-								*/
-							if (self.cursor && !self.cursor.isEmpty) {
-								prevCursor = self.getNextCursor()
-								if (prevCursor) {
-									self.cursor = prevCursor
-								}
-							}
-						} else {
-							while (prevCursor) {
-								self.cursor = prevCursor
-								prevCursor = self.getPrevCursor()
-							}
-						}
-					}
-
-					delete yToCollapse[iY]
-					Object.keys(yToCollapse)
-						.filter(iY => isAboveTargetY ? yToCollapse[iY] < y : yToCollapse[iY] > y)
-						.forEach(iY => yToCollapse[iY] -= direction)
-				})
+				sequenceFragments.push(...self.collapseRows(yToCollapse))
 			}
 
 			if (self.rules.isCollapseColumns && self.rules.collapseDirection) {
-				let targetX = 0
-
-				switch (self.rules.collapseDirection) {
-					case CollapseDirection.ToCenter:
-						targetX = (self.width / 2)
-						break
-					case CollapseDirection.ToDeadPoint:
-						targetX = self.deadPoint ? self.deadPoint.x : 0
-						break
-				}
-
-				Object.keys(xToCollapse).forEach((iX) => {
-					const x = xToCollapse[iX]
-					const isLeftToTargetX = x < targetX
-					const direction = isLeftToTargetX ? -1 : 1
-					const isCursorOnCollapsed = self.cursor && self.cursor.x === x
-
-					// Collect values to remove from sequence
-					const column = self.getColumn(x)
-					if (column) {
-						sequenceFragments.push(
-							...column.filter(cell => !cell.isEmpty).map(cell => cell.sequenceValue!)
-						)
-					}
-
-					// Collapse column
-					for (let i = x; i > 0 && i < self.height; i += direction) {
-						self.copyColumn(i + direction, i)
-
-						if (self.cursor && self.cursor.x === (i + direction)) {
-							// Cursor is located on the source column
-							self.cursor = self.cells[self.cursor.index - direction]
-						}
-					}
-
-					// Move cursor
-					if (isCursorOnCollapsed) {
-						let prevCursor = self.getPrevCursor()
-
-						if (!prevCursor) {
-							/**
-								* We cannot move, so check if the not empty value from the different was row copied
-								* to the cursor position in that case try to move cursor one step ahead
-								*/
-							if (self.cursor && !self.cursor.isEmpty) {
-								prevCursor = self.getNextCursor()
-								if (prevCursor) {
-									self.cursor = prevCursor
-								}
-							}
-						} else {
-							while (prevCursor) {
-								self.cursor = prevCursor
-								prevCursor = self.getPrevCursor()
-							}
-						}
-					}
-
-					delete xToCollapse[iX]
-					Object.keys(xToCollapse)
-						.filter(iX => isLeftToTargetX ? xToCollapse[iX] < x : xToCollapse[iX] > x)
-						.forEach(iX => xToCollapse[iX] -= direction)
-				})
+				sequenceFragments.push(...self.collapseColumns(xToCollapse))
 			}
 
 			if (sequenceFragments.length) {
@@ -600,7 +658,6 @@ export const Board: IType<{}, Board> = types
 			self.arrangeSequence(self.replicateSequence())
 		},
 
-		newGame(seqLength?: number, isDummy?: boolean) {
 			self.movesCount = 0
 			self.round = 1
 			self.score = 1000

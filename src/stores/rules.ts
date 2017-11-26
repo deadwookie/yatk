@@ -122,7 +122,9 @@ export interface Rules {
 	deadPointIndex: number | null
 
 	isCollapseRows: boolean
+	isCollapsePartialRows: boolean
 	isCollapseColumns: boolean
+	isCollapsePartialColumns: boolean
 	collapseDirection?: CollapseDirection | null
 
 	isMatchRules: (...cell: Cell[]) => boolean
@@ -140,7 +142,9 @@ export const Rules: IType<{}, Rules> = types
 			types.literal(CollapseDirection.ToDeadPoint)
 		)),
 		isCollapseRows: types.optional(types.boolean, true),
-		isCollapseColumns: types.optional(types.boolean, true)
+		isCollapsePartialRows: types.optional(types.boolean, false),
+		isCollapseColumns: types.optional(types.boolean, true),
+		isCollapsePartialColumns: types.optional(types.boolean, false),
 	})
 	.actions((self) => ({
 		isMatchRules(...chain: Cell[]) {
