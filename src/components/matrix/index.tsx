@@ -2,7 +2,7 @@ import * as React from 'react'
 import { observer } from 'mobx-react'
 import { Link } from 'react-router-dom'
 
-import * as style from './matrix.css'
+import * as style from './index.css'
 
 import autobind from '../../utils/autobind'
 import { StoreInjectedProps } from '../../stores'
