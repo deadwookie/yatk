@@ -6,20 +6,25 @@
 	overflow: hidden;
 	user-select: none;
 }
-
-.paused {
-	filter: blur(10px);
-	transition: filter .1s ease-in;
-}
-.paused::after {
-	content: '';
+.main::after {
+	display: none;
+	opacity: 0;
+	background: #111;
 	position: absolute;
 	top: 0;
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: #fff;
-	opacity: .1;
+	content: '';
+}
+
+.paused {
+	filter: blur(7px);
+}
+.paused::after {
+	display: block;
+	opacity: .5;
+	transition: opacity .1s ease-in;
 }
 
 /* https://stackoverflow.com/questions/18529381/what-does-webkit-transform-translate3d0-0-0-exactly-do-apply-to-body */
