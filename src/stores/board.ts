@@ -658,6 +658,7 @@ export const Board: IType<{}, Board> = types
 			self.arrangeSequence(self.replicateSequence())
 		},
 
+		newGame(seqLength?: number, isDummy: boolean) {
 			self.movesCount = 0
 			self.round = 1
 			self.score = 1000
