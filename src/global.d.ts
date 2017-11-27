@@ -7,3 +7,4 @@ declare module '*.css' {
 }
 
 declare const module = object
+declare const process = object

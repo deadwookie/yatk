@@ -34,6 +34,9 @@
       ],
       "stats.js": [
         "../types/stats.js"
+      ],
+      "gameanalytics": [
+        "../types/gameanalytics"
       ]
     }
   },

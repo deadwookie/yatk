@@ -17,7 +17,7 @@ export namespace Matrix {
 @observer
 export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 	componentDidMount() {
-		this.props.store.board.generate()
+		this.props.store.board.newGame()
 	}
 
 	render() {
