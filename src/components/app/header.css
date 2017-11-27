@@ -2,11 +2,27 @@
 /* .main {} */
 
 .logo {
+	position: relative;
 	font-size: 4.5rem;
 	font-weight: bold;
 	font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;
 	color: var(--accent-color);
-	animation: glow 9s cubic-bezier(0.6, 0.04, 0.9, 0.335) infinite alternate;
+}
+
+.logo::after {
+	position: absolute;
+	left: 0;
+	top: 0;
+	font: inherit;
+	line-height: 1.2em;
+
+	content: attr(title);
+	color: var(--active-color);
+	text-shadow: var(--active-text-shadow);
+
+	will-change: opacity;
+	opacity: 0;
+	animation: switch 9s cubic-bezier(0.6, 0.04, 0.9, 0.335) infinite alternate;
 }
 
 .title {
@@ -14,9 +30,8 @@
 	font-weight: normal;
 }
 
-@keyframes glow {
+@keyframes switch {
 	100% {
-		color: var(--active-color);
-		text-shadow: var(--active-text-shadow);
+		opacity: 1;
 	}
 }

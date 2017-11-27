@@ -1,5 +1,5 @@
 import * as React from 'react'
-import * as style from './header.css'
+import * as cls from './header.css'
 
 export namespace Header {
 	export interface Props {}
@@ -8,10 +8,13 @@ export namespace Header {
 
 export class Header extends React.Component<Header.Props, Header.State> {
 	render() {
+		const title = '√1Ⓡи$'
+		const slogan = 'Virus: The Game'
+
 		return (
-			<header className={style.main}>
-				<span className={style.logo}>√1Ⓡи$</span>
-				<h1 className={style.title}>Virus: The Game</h1>
+			<header className={cls.main}>
+				<span className={cls.logo} title={title}>{title}</span>
+				<h1 className={cls.title}>{slogan}</h1>
 			</header>
 		)
 	}
