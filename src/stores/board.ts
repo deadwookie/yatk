@@ -70,6 +70,9 @@ export enum FinishResult {
 }
 
 export interface Board {
+	worldKey: string
+	levelKey: string
+
 	initialSequenceLength: number
 	width: number
 	height: number
@@ -118,6 +121,9 @@ export interface Board {
 
 export const Board: IType<{}, Board> = types
 	.model('Board', {
+		worldKey: types.string,
+		levelKey: types.string,
+
 		initialSequenceLength: types.number,
 		width: types.number,
 		height: types.number,
@@ -343,7 +349,11 @@ export const Board: IType<{}, Board> = types
 		finish(result: FinishResult) {
 			self.finishResult = result
 
-			GameAnalytics.addProgressionEvent(result === FinishResult.Fail ? EGAProgressionStatus.Fail : EGAProgressionStatus.Complete, self.geometryType, self.round)
+			const statusEvent = result === FinishResult.Fail
+				? EGAProgressionStatus.Fail
+				: EGAProgressionStatus.Complete
+
+			GameAnalytics.addProgressionEvent(statusEvent, self.worldKey, self.levelKey, self.round)
 		},
 
 		copyRow(srcY: number, dstY: number) {
@@ -655,14 +665,14 @@ export const Board: IType<{}, Board> = types
 	}))
 	.actions((self) => ({
 		nextRound() {
-			GameAnalytics.addProgressionEvent(EGAProgressionStatus.Complete, self.geometryType, self.round)
+			GameAnalytics.addProgressionEvent(EGAProgressionStatus.Complete, self.worldKey, self.levelKey, self.round)
 
 			self.round++
 			self.score -= 100
 			self.clearChain()
 
 			// we have to trigger start event before arrange seq because you can fail there. see arrangeSequence method
-			GameAnalytics.addProgressionEvent(EGAProgressionStatus.Start, self.geometryType, self.round)
+			GameAnalytics.addProgressionEvent(EGAProgressionStatus.Start, self.worldKey, self.levelKey, self.round)
 
 			self.arrangeSequence(self.replicateSequence())
 		},
@@ -675,7 +685,7 @@ export const Board: IType<{}, Board> = types
 			self.clearChain()
 			self.generate(seqLength, isDummy)
 
-			GameAnalytics.addProgressionEvent(EGAProgressionStatus.Start, self.geometryType, self.round)
+			GameAnalytics.addProgressionEvent(EGAProgressionStatus.Start, self.worldKey, self.levelKey, self.round)
 		},
 
 		addToChain(cell: Cell) {

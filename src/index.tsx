@@ -16,6 +16,8 @@ import { CollapseDirection } from './stores/rules'
 export const store = Store.create({
 	appVersion: '0.0.1',
 	board: {
+		worldKey: 'spiral',
+		levelKey: 'intro',
 		initialSequenceLength: 36,
 		width: 16,
 		height: 16,
