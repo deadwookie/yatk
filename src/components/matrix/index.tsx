@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { observer } from 'mobx-react'
-import { Link } from 'react-router-dom'
 
 import * as style from './index.css'
 
@@ -36,8 +35,6 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 						<dt className={style.term}>Sequence length:</dt>
 						<dd className={style.desc}>{board.sequence.filter(v => v.value !== null).length}</dd>
 						<dt className={style.term}><a onClick={this.onRestartClick}>New Game</a></dt>
-						<dd className={style.desc}></dd>
-						<dt className={style.term}><Link to='/faq'>FAQ</Link></dt>
 					</dl>
 				</header>
 				<div className={style.board}>
