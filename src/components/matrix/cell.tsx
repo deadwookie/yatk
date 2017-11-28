@@ -1,8 +1,8 @@
 import * as React from 'react'
-import * as cls from 'classnames'
+import * as join from 'classnames'
 import { observer } from 'mobx-react'
 
-import * as style from './cell.css'
+import * as cls from './cell.css'
 
 import autobind from '../../utils/autobind'
 import { random } from '../../utils/numbers'
@@ -20,8 +20,6 @@ export namespace CellElement {
 
 @observer
 export class CellElement extends React.Component<CellElement.Props, CellElement.State> {
-	private randomAnimationDelay: number | string = random(0, 5e3)
-
 	render() {
 		const { cell } = this.props
 
@@ -29,18 +27,15 @@ export class CellElement extends React.Component<CellElement.Props, CellElement.
 			left: cell.x * 50,
 			top: cell.y * 50,
 		}
-		const symbolStyle: React.CSSProperties = {
-			animationDelay: `${this.randomAnimationDelay}ms`,
-		}
 
-		const className = cls({
-			[style.main]: true,
-			[style.isChar]: cell.isValueSequence,
-			[style.isClear]: cell.isNullSequence,
-			[style.isEmpty]: cell.isEmpty,
-			[style.isActive]: cell.isChained,
-			[style.isCursor]: this.props.isCursor,
-			[style.isDeadPoint]: this.props.isDeadPoint,
+		const className = join({
+			[cls.main]: true,
+			[cls.isChar]: cell.isValueSequence,
+			[cls.isClear]: cell.isNullSequence,
+			[cls.isEmpty]: cell.isEmpty,
+			[cls.isActive]: cell.isChained,
+			[cls.isCursor]: this.props.isCursor,
+			[cls.isDeadPoint]: this.props.isDeadPoint,
 		})
 
 		const value = cell.sequenceValue
@@ -53,7 +48,7 @@ export class CellElement extends React.Component<CellElement.Props, CellElement.
 				style={positionStyle}
 				onClick={this.onCellClick}
 			>
-				<span className={style.symbol} style={symbolStyle}>
+				<span className={cls.symbol} data-value={value}>
 					{value}
 				</span>
 			</div>

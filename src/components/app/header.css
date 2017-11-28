@@ -10,19 +10,21 @@
 }
 
 .logo::after {
+	content: attr(title);
 	position: absolute;
+	width: 100%;
+	height: 100%;
 	left: 0;
 	top: 0;
 	font: inherit;
 	line-height: 1.2em;
 
-	content: attr(title);
 	color: var(--active-color);
 	text-shadow: var(--active-text-shadow);
 
 	will-change: opacity;
 	opacity: 0;
-	animation: switch 9s cubic-bezier(0.6, 0.04, 0.9, 0.335) infinite alternate;
+	animation: appear 9s cubic-bezier(0.6, 0.04, 0.9, 0.335) infinite alternate;
 }
 
 .title {
@@ -30,7 +32,7 @@
 	font-weight: normal;
 }
 
-@keyframes switch {
+@keyframes appear {
 	100% {
 		opacity: 1;
 	}

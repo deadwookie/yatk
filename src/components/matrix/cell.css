@@ -1,99 +1,112 @@
 .main {
+	display: block;
 	position: absolute;
 	margin: 0;
 	padding: 0;
 	width: var(--cell-size);
 	height: var(--cell-size);
 	line-height: var(--cell-size);
-	vertical-align: middle;
 	text-align: center;
-	border-bottom: var(--border);
-	border-right: var(--border);
 
 	font-family: var(--char-font-family), Tahoma, sans-serif;
 	font-weight: var(--char-font-weight);
 	font-size: var(--char-font-size);
+	background: var(--bg-color);
 	cursor: default;
 }
 
 .isEmpty {
 	opacity: .15;
-	border: none;
 }
-.isCursor {
-	opacity: .5;
-}
-
-.isCursor .symbol {
-	text-shadow: 0 0 .1em var(--hover-shadow-color);
-	animation: siren 4s ease-in-out infinite alternate;
-}
-
-@keyframes siren {
-	100% {
-		text-shadow: 0 0 .1em var(--hover-shadow-color), var(--hover-text-shadow);
-	}
-}
-
-.isChar, .isClear {
-	background: var(--bg-color);
-	color: var(--color);
-}
-
 .isClear {
 	opacity: .33;
 }
-
 .isDeadPoint {
 	opacity: .5;
 	color: var(--active-color);
 }
+.isCursor {
+	opacity: .5;
+}
+.isCursor:hover {
+	opacity: .8;
+	animation: vibrate .4s linear infinite both;
+}
+.isChar, .isClear {
+	color: var(--color);
+}
+
+.symbol {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.symbol::after {
+	content: attr(data-value);
+	color: #fff;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+	font: inherit;
+	line-height: 1.2em;
+
+	will-change: opacity;
+	opacity: 0;
+}
 
 .isDeadPoint .symbol {
 	text-shadow: var(--glow-text-shadow);
-	animation: shine 4s ease-in-out infinite alternate;
+}
+.isDeadPoint .symbol::after {
+	text-shadow: var(--glow-text-shadow), 0 0 1em var(--glow-color);
+	animation: appear 4s ease-in-out infinite alternate;
 }
 
-@keyframes shine {
-	100% {
-		text-shadow: var(--glow-text-shadow), 0 0 1em var(--glow-color);
-	}
+.isCursor .symbol {
+	text-shadow: 0 0 .1em var(--hover-shadow-color);
+}
+.isCursor .symbol::after {
+	text-shadow: 0 0 .1em var(--hover-shadow-color), var(--hover-text-shadow);
+	animation: appear 4s ease-in-out infinite alternate;
 }
 
-.isChar .symbol {
-	animation: glow 2s ease-in-out infinite alternate;
+.isChar .symbol::after {
+	text-shadow: 0 0 var(--glow-shadow-blur) var(--glow-shadow-color);
+	color: var(--glow-color);
+	/* opacity: 1; */
+	animation: appear 2.2s ease-in-out infinite alternate;
 }
 
-@keyframes glow {
-	100% {
-		text-shadow: 0 0 var(--glow-shadow-blur) var(--glow-shadow-color);
-		color: var(--glow-color);
-	}
-}
-
-.isChar:hover, .isCursor:hover {
+.isChar:hover .symbol, .isCursor:hover .symbol {
 	cursor: pointer;
-	background: var(--hover-bg-color);
 	color: var(--active-color);
 	text-shadow: 0 0 .1em var(--hover-shadow-color), var(--hover-text-shadow);
 }
+.isChar:hover .symbol::after, .isCursor:hover .symbol::after {
+	animation: none;
+	opacity: 0;
+}
 
-.isActive, .isActive:hover {
-	background: var(--active-bg-color);
+.isActive .symbol, .isActive:hover .symbol {
+	color: var(--active-color);
+	transform: scale(1.5);
+	transition: transform 2s;
+}
+.isActive .symbol::after, .isActive:hover .symbol::after {
 	color: var(--active-color);
 	text-shadow: var(--active-text-shadow);
-	transform: scale(1.5);
-
-	transition: transform 3s, text-shadow 1s;
+	animation: appear 2.2s ease-in-out infinite alternate;
+	animation-delay: 0 !important;
 }
 
-.isActive .symbol, .isChar:hover .symbol {
-	animation: none;
-}
 
-.isCursor:hover {
-	animation: vibrate .4s linear infinite both;
-	opacity: .8;
+@keyframes appear {
+	100% {
+		opacity: 1;
+	}
 }
 
 @keyframes vibrate {
@@ -131,3 +144,266 @@
 		transform: translate(0);
 	}
 }
+
+
+/*
+TODO: omg!
+r = _ => (Math.random() * 5e3).toFixed(0),
+Array.from(Array(256)).map((_, i) => `.isChar:nth-child(${i+1}) .symbol::after { animation-delay: ${r()}ms; }`).join('\n')
+*/
+.isChar:nth-child(1) .symbol::after { animation-delay: 4814ms; }
+.isChar:nth-child(2) .symbol::after { animation-delay: 4426ms; }
+.isChar:nth-child(3) .symbol::after { animation-delay: 537ms; }
+.isChar:nth-child(4) .symbol::after { animation-delay: 4077ms; }
+.isChar:nth-child(5) .symbol::after { animation-delay: 4046ms; }
+.isChar:nth-child(6) .symbol::after { animation-delay: 4511ms; }
+.isChar:nth-child(7) .symbol::after { animation-delay: 1578ms; }
+.isChar:nth-child(8) .symbol::after { animation-delay: 912ms; }
+.isChar:nth-child(9) .symbol::after { animation-delay: 3059ms; }
+.isChar:nth-child(10) .symbol::after { animation-delay: 4904ms; }
+.isChar:nth-child(11) .symbol::after { animation-delay: 143ms; }
+.isChar:nth-child(12) .symbol::after { animation-delay: 4299ms; }
+.isChar:nth-child(13) .symbol::after { animation-delay: 884ms; }
+.isChar:nth-child(14) .symbol::after { animation-delay: 1509ms; }
+.isChar:nth-child(15) .symbol::after { animation-delay: 110ms; }
+.isChar:nth-child(16) .symbol::after { animation-delay: 4922ms; }
+.isChar:nth-child(17) .symbol::after { animation-delay: 4822ms; }
+.isChar:nth-child(18) .symbol::after { animation-delay: 2736ms; }
+.isChar:nth-child(19) .symbol::after { animation-delay: 165ms; }
+.isChar:nth-child(20) .symbol::after { animation-delay: 4957ms; }
+.isChar:nth-child(21) .symbol::after { animation-delay: 2709ms; }
+.isChar:nth-child(22) .symbol::after { animation-delay: 1787ms; }
+.isChar:nth-child(23) .symbol::after { animation-delay: 3291ms; }
+.isChar:nth-child(24) .symbol::after { animation-delay: 3108ms; }
+.isChar:nth-child(25) .symbol::after { animation-delay: 827ms; }
+.isChar:nth-child(26) .symbol::after { animation-delay: 2723ms; }
+.isChar:nth-child(27) .symbol::after { animation-delay: 314ms; }
+.isChar:nth-child(28) .symbol::after { animation-delay: 30ms; }
+.isChar:nth-child(29) .symbol::after { animation-delay: 22ms; }
+.isChar:nth-child(30) .symbol::after { animation-delay: 2475ms; }
+.isChar:nth-child(31) .symbol::after { animation-delay: 3544ms; }
+.isChar:nth-child(32) .symbol::after { animation-delay: 3274ms; }
+.isChar:nth-child(33) .symbol::after { animation-delay: 4376ms; }
+.isChar:nth-child(34) .symbol::after { animation-delay: 1611ms; }
+.isChar:nth-child(35) .symbol::after { animation-delay: 2608ms; }
+.isChar:nth-child(36) .symbol::after { animation-delay: 3738ms; }
+.isChar:nth-child(37) .symbol::after { animation-delay: 655ms; }
+.isChar:nth-child(38) .symbol::after { animation-delay: 4098ms; }
+.isChar:nth-child(39) .symbol::after { animation-delay: 3135ms; }
+.isChar:nth-child(40) .symbol::after { animation-delay: 217ms; }
+.isChar:nth-child(41) .symbol::after { animation-delay: 454ms; }
+.isChar:nth-child(42) .symbol::after { animation-delay: 3929ms; }
+.isChar:nth-child(43) .symbol::after { animation-delay: 3998ms; }
+.isChar:nth-child(44) .symbol::after { animation-delay: 261ms; }
+.isChar:nth-child(45) .symbol::after { animation-delay: 4903ms; }
+.isChar:nth-child(46) .symbol::after { animation-delay: 441ms; }
+.isChar:nth-child(47) .symbol::after { animation-delay: 369ms; }
+.isChar:nth-child(48) .symbol::after { animation-delay: 1085ms; }
+.isChar:nth-child(49) .symbol::after { animation-delay: 2564ms; }
+.isChar:nth-child(50) .symbol::after { animation-delay: 4775ms; }
+.isChar:nth-child(51) .symbol::after { animation-delay: 1936ms; }
+.isChar:nth-child(52) .symbol::after { animation-delay: 3231ms; }
+.isChar:nth-child(53) .symbol::after { animation-delay: 2197ms; }
+.isChar:nth-child(54) .symbol::after { animation-delay: 2860ms; }
+.isChar:nth-child(55) .symbol::after { animation-delay: 1764ms; }
+.isChar:nth-child(56) .symbol::after { animation-delay: 2128ms; }
+.isChar:nth-child(57) .symbol::after { animation-delay: 4290ms; }
+.isChar:nth-child(58) .symbol::after { animation-delay: 82ms; }
+.isChar:nth-child(59) .symbol::after { animation-delay: 862ms; }
+.isChar:nth-child(60) .symbol::after { animation-delay: 2438ms; }
+.isChar:nth-child(61) .symbol::after { animation-delay: 3549ms; }
+.isChar:nth-child(62) .symbol::after { animation-delay: 4212ms; }
+.isChar:nth-child(63) .symbol::after { animation-delay: 1839ms; }
+.isChar:nth-child(64) .symbol::after { animation-delay: 4968ms; }
+.isChar:nth-child(65) .symbol::after { animation-delay: 4956ms; }
+.isChar:nth-child(66) .symbol::after { animation-delay: 2348ms; }
+.isChar:nth-child(67) .symbol::after { animation-delay: 1897ms; }
+.isChar:nth-child(68) .symbol::after { animation-delay: 3489ms; }
+.isChar:nth-child(69) .symbol::after { animation-delay: 1237ms; }
+.isChar:nth-child(70) .symbol::after { animation-delay: 660ms; }
+.isChar:nth-child(71) .symbol::after { animation-delay: 4822ms; }
+.isChar:nth-child(72) .symbol::after { animation-delay: 3919ms; }
+.isChar:nth-child(73) .symbol::after { animation-delay: 2198ms; }
+.isChar:nth-child(74) .symbol::after { animation-delay: 4109ms; }
+.isChar:nth-child(75) .symbol::after { animation-delay: 2729ms; }
+.isChar:nth-child(76) .symbol::after { animation-delay: 990ms; }
+.isChar:nth-child(77) .symbol::after { animation-delay: 398ms; }
+.isChar:nth-child(78) .symbol::after { animation-delay: 2182ms; }
+.isChar:nth-child(79) .symbol::after { animation-delay: 2706ms; }
+.isChar:nth-child(80) .symbol::after { animation-delay: 599ms; }
+.isChar:nth-child(81) .symbol::after { animation-delay: 3278ms; }
+.isChar:nth-child(82) .symbol::after { animation-delay: 1993ms; }
+.isChar:nth-child(83) .symbol::after { animation-delay: 3181ms; }
+.isChar:nth-child(84) .symbol::after { animation-delay: 2412ms; }
+.isChar:nth-child(85) .symbol::after { animation-delay: 2938ms; }
+.isChar:nth-child(86) .symbol::after { animation-delay: 4815ms; }
+.isChar:nth-child(87) .symbol::after { animation-delay: 1909ms; }
+.isChar:nth-child(88) .symbol::after { animation-delay: 2489ms; }
+.isChar:nth-child(89) .symbol::after { animation-delay: 4953ms; }
+.isChar:nth-child(90) .symbol::after { animation-delay: 120ms; }
+.isChar:nth-child(91) .symbol::after { animation-delay: 3337ms; }
+.isChar:nth-child(92) .symbol::after { animation-delay: 694ms; }
+.isChar:nth-child(93) .symbol::after { animation-delay: 1025ms; }
+.isChar:nth-child(94) .symbol::after { animation-delay: 1372ms; }
+.isChar:nth-child(95) .symbol::after { animation-delay: 4518ms; }
+.isChar:nth-child(96) .symbol::after { animation-delay: 2176ms; }
+.isChar:nth-child(97) .symbol::after { animation-delay: 4409ms; }
+.isChar:nth-child(98) .symbol::after { animation-delay: 3333ms; }
+.isChar:nth-child(99) .symbol::after { animation-delay: 2657ms; }
+.isChar:nth-child(100) .symbol::after { animation-delay: 429ms; }
+.isChar:nth-child(101) .symbol::after { animation-delay: 2352ms; }
+.isChar:nth-child(102) .symbol::after { animation-delay: 2040ms; }
+.isChar:nth-child(103) .symbol::after { animation-delay: 3397ms; }
+.isChar:nth-child(104) .symbol::after { animation-delay: 4407ms; }
+.isChar:nth-child(105) .symbol::after { animation-delay: 3385ms; }
+.isChar:nth-child(106) .symbol::after { animation-delay: 4628ms; }
+.isChar:nth-child(107) .symbol::after { animation-delay: 798ms; }
+.isChar:nth-child(108) .symbol::after { animation-delay: 2913ms; }
+.isChar:nth-child(109) .symbol::after { animation-delay: 1797ms; }
+.isChar:nth-child(110) .symbol::after { animation-delay: 4656ms; }
+.isChar:nth-child(111) .symbol::after { animation-delay: 4633ms; }
+.isChar:nth-child(112) .symbol::after { animation-delay: 497ms; }
+.isChar:nth-child(113) .symbol::after { animation-delay: 553ms; }
+.isChar:nth-child(114) .symbol::after { animation-delay: 3055ms; }
+.isChar:nth-child(115) .symbol::after { animation-delay: 4583ms; }
+.isChar:nth-child(116) .symbol::after { animation-delay: 2118ms; }
+.isChar:nth-child(117) .symbol::after { animation-delay: 1117ms; }
+.isChar:nth-child(118) .symbol::after { animation-delay: 4777ms; }
+.isChar:nth-child(119) .symbol::after { animation-delay: 2315ms; }
+.isChar:nth-child(120) .symbol::after { animation-delay: 3510ms; }
+.isChar:nth-child(121) .symbol::after { animation-delay: 3428ms; }
+.isChar:nth-child(122) .symbol::after { animation-delay: 1827ms; }
+.isChar:nth-child(123) .symbol::after { animation-delay: 1099ms; }
+.isChar:nth-child(124) .symbol::after { animation-delay: 4588ms; }
+.isChar:nth-child(125) .symbol::after { animation-delay: 3163ms; }
+.isChar:nth-child(126) .symbol::after { animation-delay: 729ms; }
+.isChar:nth-child(127) .symbol::after { animation-delay: 2699ms; }
+.isChar:nth-child(128) .symbol::after { animation-delay: 3107ms; }
+.isChar:nth-child(129) .symbol::after { animation-delay: 726ms; }
+.isChar:nth-child(130) .symbol::after { animation-delay: 2990ms; }
+.isChar:nth-child(131) .symbol::after { animation-delay: 4908ms; }
+.isChar:nth-child(132) .symbol::after { animation-delay: 181ms; }
+.isChar:nth-child(133) .symbol::after { animation-delay: 3135ms; }
+.isChar:nth-child(134) .symbol::after { animation-delay: 1733ms; }
+.isChar:nth-child(135) .symbol::after { animation-delay: 1567ms; }
+.isChar:nth-child(136) .symbol::after { animation-delay: 630ms; }
+.isChar:nth-child(137) .symbol::after { animation-delay: 1384ms; }
+.isChar:nth-child(138) .symbol::after { animation-delay: 56ms; }
+.isChar:nth-child(139) .symbol::after { animation-delay: 2768ms; }
+.isChar:nth-child(140) .symbol::after { animation-delay: 3840ms; }
+.isChar:nth-child(141) .symbol::after { animation-delay: 3317ms; }
+.isChar:nth-child(142) .symbol::after { animation-delay: 3203ms; }
+.isChar:nth-child(143) .symbol::after { animation-delay: 4466ms; }
+.isChar:nth-child(144) .symbol::after { animation-delay: 1783ms; }
+.isChar:nth-child(145) .symbol::after { animation-delay: 3277ms; }
+.isChar:nth-child(146) .symbol::after { animation-delay: 78ms; }
+.isChar:nth-child(147) .symbol::after { animation-delay: 4070ms; }
+.isChar:nth-child(148) .symbol::after { animation-delay: 3191ms; }
+.isChar:nth-child(149) .symbol::after { animation-delay: 2797ms; }
+.isChar:nth-child(150) .symbol::after { animation-delay: 1127ms; }
+.isChar:nth-child(151) .symbol::after { animation-delay: 1565ms; }
+.isChar:nth-child(152) .symbol::after { animation-delay: 1175ms; }
+.isChar:nth-child(153) .symbol::after { animation-delay: 3894ms; }
+.isChar:nth-child(154) .symbol::after { animation-delay: 3915ms; }
+.isChar:nth-child(155) .symbol::after { animation-delay: 4424ms; }
+.isChar:nth-child(156) .symbol::after { animation-delay: 4817ms; }
+.isChar:nth-child(157) .symbol::after { animation-delay: 2575ms; }
+.isChar:nth-child(158) .symbol::after { animation-delay: 2044ms; }
+.isChar:nth-child(159) .symbol::after { animation-delay: 4537ms; }
+.isChar:nth-child(160) .symbol::after { animation-delay: 3919ms; }
+.isChar:nth-child(161) .symbol::after { animation-delay: 3257ms; }
+.isChar:nth-child(162) .symbol::after { animation-delay: 4084ms; }
+.isChar:nth-child(163) .symbol::after { animation-delay: 1877ms; }
+.isChar:nth-child(164) .symbol::after { animation-delay: 1937ms; }
+.isChar:nth-child(165) .symbol::after { animation-delay: 405ms; }
+.isChar:nth-child(166) .symbol::after { animation-delay: 400ms; }
+.isChar:nth-child(167) .symbol::after { animation-delay: 2401ms; }
+.isChar:nth-child(168) .symbol::after { animation-delay: 2652ms; }
+.isChar:nth-child(169) .symbol::after { animation-delay: 2050ms; }
+.isChar:nth-child(170) .symbol::after { animation-delay: 3772ms; }
+.isChar:nth-child(171) .symbol::after { animation-delay: 2577ms; }
+.isChar:nth-child(172) .symbol::after { animation-delay: 4770ms; }
+.isChar:nth-child(173) .symbol::after { animation-delay: 3574ms; }
+.isChar:nth-child(174) .symbol::after { animation-delay: 1537ms; }
+.isChar:nth-child(175) .symbol::after { animation-delay: 681ms; }
+.isChar:nth-child(176) .symbol::after { animation-delay: 3018ms; }
+.isChar:nth-child(177) .symbol::after { animation-delay: 3846ms; }
+.isChar:nth-child(178) .symbol::after { animation-delay: 13ms; }
+.isChar:nth-child(179) .symbol::after { animation-delay: 2989ms; }
+.isChar:nth-child(180) .symbol::after { animation-delay: 962ms; }
+.isChar:nth-child(181) .symbol::after { animation-delay: 4901ms; }
+.isChar:nth-child(182) .symbol::after { animation-delay: 1952ms; }
+.isChar:nth-child(183) .symbol::after { animation-delay: 369ms; }
+.isChar:nth-child(184) .symbol::after { animation-delay: 1048ms; }
+.isChar:nth-child(185) .symbol::after { animation-delay: 2020ms; }
+.isChar:nth-child(186) .symbol::after { animation-delay: 764ms; }
+.isChar:nth-child(187) .symbol::after { animation-delay: 733ms; }
+.isChar:nth-child(188) .symbol::after { animation-delay: 281ms; }
+.isChar:nth-child(189) .symbol::after { animation-delay: 2981ms; }
+.isChar:nth-child(190) .symbol::after { animation-delay: 1361ms; }
+.isChar:nth-child(191) .symbol::after { animation-delay: 80ms; }
+.isChar:nth-child(192) .symbol::after { animation-delay: 4672ms; }
+.isChar:nth-child(193) .symbol::after { animation-delay: 2994ms; }
+.isChar:nth-child(194) .symbol::after { animation-delay: 1808ms; }
+.isChar:nth-child(195) .symbol::after { animation-delay: 2139ms; }
+.isChar:nth-child(196) .symbol::after { animation-delay: 4072ms; }
+.isChar:nth-child(197) .symbol::after { animation-delay: 4699ms; }
+.isChar:nth-child(198) .symbol::after { animation-delay: 3986ms; }
+.isChar:nth-child(199) .symbol::after { animation-delay: 1267ms; }
+.isChar:nth-child(200) .symbol::after { animation-delay: 1531ms; }
+.isChar:nth-child(201) .symbol::after { animation-delay: 1252ms; }
+.isChar:nth-child(202) .symbol::after { animation-delay: 4602ms; }
+.isChar:nth-child(203) .symbol::after { animation-delay: 1497ms; }
+.isChar:nth-child(204) .symbol::after { animation-delay: 2374ms; }
+.isChar:nth-child(205) .symbol::after { animation-delay: 253ms; }
+.isChar:nth-child(206) .symbol::after { animation-delay: 249ms; }
+.isChar:nth-child(207) .symbol::after { animation-delay: 794ms; }
+.isChar:nth-child(208) .symbol::after { animation-delay: 3469ms; }
+.isChar:nth-child(209) .symbol::after { animation-delay: 1551ms; }
+.isChar:nth-child(210) .symbol::after { animation-delay: 4685ms; }
+.isChar:nth-child(211) .symbol::after { animation-delay: 3655ms; }
+.isChar:nth-child(212) .symbol::after { animation-delay: 3654ms; }
+.isChar:nth-child(213) .symbol::after { animation-delay: 514ms; }
+.isChar:nth-child(214) .symbol::after { animation-delay: 1353ms; }
+.isChar:nth-child(215) .symbol::after { animation-delay: 4388ms; }
+.isChar:nth-child(216) .symbol::after { animation-delay: 1033ms; }
+.isChar:nth-child(217) .symbol::after { animation-delay: 1370ms; }
+.isChar:nth-child(218) .symbol::after { animation-delay: 1479ms; }
+.isChar:nth-child(219) .symbol::after { animation-delay: 4269ms; }
+.isChar:nth-child(220) .symbol::after { animation-delay: 4150ms; }
+.isChar:nth-child(221) .symbol::after { animation-delay: 2275ms; }
+.isChar:nth-child(222) .symbol::after { animation-delay: 1623ms; }
+.isChar:nth-child(223) .symbol::after { animation-delay: 4260ms; }
+.isChar:nth-child(224) .symbol::after { animation-delay: 971ms; }
+.isChar:nth-child(225) .symbol::after { animation-delay: 312ms; }
+.isChar:nth-child(226) .symbol::after { animation-delay: 1901ms; }
+.isChar:nth-child(227) .symbol::after { animation-delay: 4255ms; }
+.isChar:nth-child(228) .symbol::after { animation-delay: 204ms; }
+.isChar:nth-child(229) .symbol::after { animation-delay: 4761ms; }
+.isChar:nth-child(230) .symbol::after { animation-delay: 4371ms; }
+.isChar:nth-child(231) .symbol::after { animation-delay: 1527ms; }
+.isChar:nth-child(232) .symbol::after { animation-delay: 1243ms; }
+.isChar:nth-child(233) .symbol::after { animation-delay: 3586ms; }
+.isChar:nth-child(234) .symbol::after { animation-delay: 3504ms; }
+.isChar:nth-child(235) .symbol::after { animation-delay: 4312ms; }
+.isChar:nth-child(236) .symbol::after { animation-delay: 237ms; }
+.isChar:nth-child(237) .symbol::after { animation-delay: 234ms; }
+.isChar:nth-child(238) .symbol::after { animation-delay: 1505ms; }
+.isChar:nth-child(239) .symbol::after { animation-delay: 4827ms; }
+.isChar:nth-child(240) .symbol::after { animation-delay: 4876ms; }
+.isChar:nth-child(241) .symbol::after { animation-delay: 3722ms; }
+.isChar:nth-child(242) .symbol::after { animation-delay: 3265ms; }
+.isChar:nth-child(243) .symbol::after { animation-delay: 2612ms; }
+.isChar:nth-child(244) .symbol::after { animation-delay: 1282ms; }
+.isChar:nth-child(245) .symbol::after { animation-delay: 2359ms; }
+.isChar:nth-child(246) .symbol::after { animation-delay: 1900ms; }
+.isChar:nth-child(247) .symbol::after { animation-delay: 3729ms; }
+.isChar:nth-child(248) .symbol::after { animation-delay: 4770ms; }
+.isChar:nth-child(249) .symbol::after { animation-delay: 3389ms; }
+.isChar:nth-child(250) .symbol::after { animation-delay: 1800ms; }
+.isChar:nth-child(251) .symbol::after { animation-delay: 3156ms; }
+.isChar:nth-child(252) .symbol::after { animation-delay: 424ms; }
+.isChar:nth-child(253) .symbol::after { animation-delay: 116ms; }
+.isChar:nth-child(254) .symbol::after { animation-delay: 4388ms; }
+.isChar:nth-child(255) .symbol::after { animation-delay: 4711ms; }
+.isChar:nth-child(256) .symbol::after { animation-delay: 1077ms; }
