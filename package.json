@@ -10,7 +10,7 @@
     "start": "webpack-dev-server",
     "clean": "rimraf build",
     "compile": "webpack",
-    "build": "yarn run clean && yarn run compile -- -p"
+    "build": "yarn run clean && yarn run compile -p"
   },
   "dependencies": {},
   "devDependencies": {
@@ -42,6 +42,7 @@
     "tslib": "^1.8.0",
     "tslint": "^5.8.0",
     "typescript": "^2.6.1",
+    "uglifyjs-webpack-plugin": "^1.1.1",
     "url-loader": "^0.5.8",
     "webpack": "^3.8.1",
     "webpack-dev-server": "^2.9.4"

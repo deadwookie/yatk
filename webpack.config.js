@@ -5,6 +5,7 @@ const { TsConfigPathsPlugin, CheckerPlugin } = require('awesome-typescript-loade
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 // variables
 const PORT = process.env.PORT || 8080
@@ -60,7 +61,7 @@ module.exports = {
 	// "eval" (generated code): Each module is executed with eval() and //@ sourceURL
 	// "cheap-module-eval-source-map" (original source - lines only): each module is executed with eval() and a SourceMap is added as a DataUrl
 	// "source-map" (original source): A full SourceMap is emitted as a separate file
-	devtool: IS_PROD ? 'source-map' : 'cheap-module-eval-source-map',
+	devtool: IS_PROD ? 'cheap-module-source-map' : 'cheap-module-eval-source-map',
 	// devtool: 'inline-source-map',
 
 	// These options change how modules are resolved
@@ -200,6 +201,27 @@ module.exports = {
 			// minChunks: (module) => module.context && module.context.indexOf("node_modules") !== -1,
 		}),
 		// new webpack.optimize.AggressiveMergingPlugin(),
+		IS_PROD && new webpack.optimize.UglifyJsPlugin({
+			sourceMap: true,
+			beautify: false,
+			comments: false,
+			compress: {
+				warnings: false,
+				drop_console: true,
+				screw_ie8: true
+			},
+			mangle: {
+				except: [
+					'$', 'webpackJsonp'
+				],
+				screw_ie8: true,
+				keep_fnames: true
+			},
+			output: {
+				comments: false,
+				screw_ie8: true
+			}
+		}),,
 
 		// It moves all the `require("style.css")`s in entry chunks into a separate single CSS file
 		new ExtractTextPlugin({
