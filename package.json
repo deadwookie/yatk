@@ -10,7 +10,10 @@
     "start": "webpack-dev-server",
     "clean": "rimraf build",
     "compile": "webpack",
-    "build": "yarn run clean && yarn run compile -p"
+    "build": "yarn run clean && yarn run compile -p",
+    "zip": "bestzip dist-$npm_package_version.zip build/",
+    "changelog": "standard-version",
+    "release": "yarn zip && yarn changelog"
   },
   "dependencies": {},
   "devDependencies": {
@@ -20,6 +23,7 @@
     "@types/react-hot-loader": "^3.0.5",
     "@types/react-router-dom": "^4.2.2",
     "awesome-typescript-loader": "^3.3.0",
+    "bestzip": "^1.1.4",
     "classnames": "^2.2.5",
     "css-loader": "^0.28.7",
     "dis-gui": "^2.0.10",

@@ -1,4 +1,5 @@
 /build
+/dist*.zip
 *.orig
 npm-debug.log
 yarn-error.log
