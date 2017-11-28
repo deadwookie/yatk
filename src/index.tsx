@@ -6,15 +6,15 @@ import { HashRouter } from 'react-router-dom'
 
 import { GameAnalytics } from 'gameanalytics'
 
+import pkg from '../package.json'
 import './index.css'
 import App from './components/app'
 import { Store } from './stores'
 import { BoardGeometryType } from './stores/board'
 import { CollapseDirection } from './stores/rules'
 
-
 export const store = Store.create({
-	appVersion: '0.0.1',
+	appVersion: pkg.version,
 	board: {
 		worldKey: 'spiral',
 		levelKey: 'intro',

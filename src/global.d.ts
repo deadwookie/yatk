@@ -6,5 +6,10 @@ declare module '*.css' {
 	export = styles
 }
 
+declare module '*.json' {
+	const content: any
+	export default content
+}
+
 declare const module = object
 declare const process = object
