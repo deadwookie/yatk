@@ -5,7 +5,6 @@ import { observer } from 'mobx-react'
 import * as cls from './cell.css'
 
 import autobind from '../../utils/autobind'
-import { random } from '../../utils/numbers'
 import { StoreInjectedProps } from '../../stores'
 import { Cell } from '../../stores/board'
 
