@@ -5,7 +5,8 @@ const { TsConfigPathsPlugin, CheckerPlugin } = require('awesome-typescript-loade
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
+// see https://github.com/webpack/webpack/issues/2545#issuecomment-337605409
+const MinifyPlugin = require('babel-minify-webpack-plugin')
 
 // variables
 const PORT = process.env.PORT || 8080
@@ -36,15 +37,6 @@ module.exports = {
 			// Our app main entry
 			'./index.tsx'
 		],
-		vendor: [
-			'tslib',
-			'react',
-			'react-dom',
-			// 'react-router',
-			// 'mobx',
-			// 'mobx-react',
-			// 'mobx-react-router',
-		],
 	},
 
 	// Set of options instructing webpack on how and where it should output
@@ -61,6 +53,8 @@ module.exports = {
 	// "eval" (generated code): Each module is executed with eval() and //@ sourceURL
 	// "cheap-module-eval-source-map" (original source - lines only): each module is executed with eval() and a SourceMap is added as a DataUrl
 	// "source-map" (original source): A full SourceMap is emitted as a separate file
+
+	// see https://github.com/webpack-contrib/babel-minify-webpack-plugin/issues/68#issuecomment-344462419
 	devtool: IS_PROD ? 'cheap-module-source-map' : 'cheap-module-eval-source-map',
 	// devtool: 'inline-source-map',
 
@@ -196,32 +190,12 @@ module.exports = {
 			filename: `js/vendor.${IS_PROD ? '[chunkhash:6].js' : 'js?[hash:6]'}`,
 			// The minimum number of chunks which need to contain a module before it's moved into the commons chunk
 			// In such case we ensure that no other module goes into the vendor chunk (except explicit list in `entry.vendor`)
-			minChunks: Infinity,
+			// minChunks: Infinity,
 			// Other way is to gather implicit vendor libs from node_modules by providing a callback func
-			// minChunks: (module) => module.context && module.context.indexOf("node_modules") !== -1,
+			minChunks: (module) => module.context && module.context.indexOf("node_modules") !== -1,
 		}),
 		// new webpack.optimize.AggressiveMergingPlugin(),
-		IS_PROD && new webpack.optimize.UglifyJsPlugin({
-			sourceMap: true,
-			beautify: false,
-			comments: false,
-			compress: {
-				warnings: false,
-				drop_console: true,
-				screw_ie8: true
-			},
-			mangle: {
-				except: [
-					'$', 'webpackJsonp'
-				],
-				screw_ie8: true,
-				keep_fnames: true
-			},
-			output: {
-				comments: false,
-				screw_ie8: true
-			}
-		}),,
+		IS_PROD && new MinifyPlugin(),
 
 		// It moves all the `require("style.css")`s in entry chunks into a separate single CSS file
 		new ExtractTextPlugin({
