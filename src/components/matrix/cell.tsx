@@ -21,10 +21,11 @@ export namespace CellElement {
 export class CellElement extends React.Component<CellElement.Props, CellElement.State> {
 	render() {
 		const { cell } = this.props
+		const { cellSizePx } = this.props.store.board
 
 		const positionStyle: React.CSSProperties = {
-			left: cell.x * 50,
-			top: cell.y * 50,
+			left: cell.x * cellSizePx,
+			top: cell.y * cellSizePx,
 		}
 
 		const className = join({

@@ -21,6 +21,7 @@ export const store = Store.create({
 		initialSequenceLength: 36,
 		width: 16,
 		height: 16,
+		cellSizePx: 50,
 		geometryType: BoardGeometryType.Spiral,
 
 		movesCount: 0,

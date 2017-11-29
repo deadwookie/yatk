@@ -76,6 +76,7 @@ export interface Board {
 	initialSequenceLength: number
 	width: number
 	height: number
+	cellSizePx: number
 	geometryType: BoardGeometryType
 
 	movesCount: number
@@ -127,6 +128,7 @@ export const Board: IType<{}, Board> = types
 		initialSequenceLength: types.number,
 		width: types.number,
 		height: types.number,
+		cellSizePx: types.number,
 		geometryType: types.union(types.literal(BoardGeometryType.Box), types.literal(BoardGeometryType.Spiral)),
 
 		movesCount: types.number,
