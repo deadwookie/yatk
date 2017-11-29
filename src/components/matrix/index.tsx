@@ -1,9 +1,10 @@
 import * as React from 'react'
+import { findDOMNode } from 'react-dom'
 import { observer } from 'mobx-react'
 
 import * as style from './index.css'
 
-import autobind from '../../utils/autobind'
+import { autobind, throttle } from '../../utils/decorators'
 import { StoreInjectedProps } from '../../stores'
 import { Cell, FinishResult } from '../../stores/board'
 import { CellElement } from './cell'
@@ -15,8 +16,34 @@ export namespace Matrix {
 
 @observer
 export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
+	$board: Element | null
+
 	componentDidMount() {
 		this.props.store.board.newGame()
+
+		window.addEventListener('resize', this.scaleBoard)
+		this.scaleBoard()
+	}
+
+	componentWillUnmount() {
+		window.removeEventListener('resize', this.scaleBoard)
+	}
+
+	@autobind
+	@throttle(200)
+	protected scaleBoard() {
+		if (!this.$board) return
+
+		const { width, height, cellSizePx } = this.props.store.board
+		const { innerWidth, innerHeight } = window
+
+		// We need to keep ratio, so lookin' for a smallest dimension
+		const zoom = Math.min(
+			width * cellSizePx > innerWidth ? innerWidth / (width * cellSizePx) : 1,
+			height * cellSizePx > innerHeight ? innerHeight / (height * cellSizePx) : 1,
+		)
+
+		;((findDOMNode(this.$board) as any).style as React.CSSProperties).transform = `scale(${zoom})`
 	}
 
 	render() {
@@ -37,7 +64,7 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 						<dt className={style.term}><a onClick={this.onRestartClick}>New Game</a></dt>
 					</dl>
 				</header>
-				<div className={style.board}>
+				<div className={style.board} ref={this.refBoard}>
 					{this.renderCells()}
 					{this.renderAlerts()}
 				</div>
@@ -88,6 +115,11 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 	@autobind
 	onNextRoundClick() {
 		this.props.store.board.nextRound()
+	}
+
+	@autobind
+	refBoard($el: Element | null) {
+		this.$board = $el
 	}
 }
 

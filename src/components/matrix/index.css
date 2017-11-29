@@ -25,6 +25,8 @@
 	--msg-font-weight: 400;
 	--msg-font-size: 3.8rem;
 	--msg-bg-color: #333;
+
+	overflow: hidden;
 }
 
 /* Status bar */
@@ -50,6 +52,7 @@
 
 /* Playground */
 .board {
+	transform-origin: 0 0;
 	user-select: none;
 	width: 800px;
 	height: 800px;
