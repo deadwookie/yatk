@@ -19,8 +19,8 @@ export const store = Store.create({
 		worldKey: 'spiral',
 		levelKey: 'intro',
 		initialSequenceLength: 36,
-		width: 16,
-		height: 16,
+		width: 14,
+		height: 14,
 		cellSizePx: 50,
 		geometryType: BoardGeometryType.Spiral,
 
@@ -34,7 +34,7 @@ export const store = Store.create({
 		rules: {
 			targetSum: 10,
 			targetLength: 2,
-			deadPointIndex: 30,
+			deadPointIndex: 14 * 14 - 14,
 			collapseDirection: CollapseDirection.ToDeadPoint,
 			isCollapseRows: true,
 			isCollapseColumns: true,

@@ -54,8 +54,8 @@
 .board {
 	transform-origin: 0 0;
 	user-select: none;
-	width: 800px;
-	height: 800px;
+	/* width: 800px;
+	height: 800px; */
 	margin: 0 auto;
 	position: relative;
 }

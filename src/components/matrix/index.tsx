@@ -64,7 +64,7 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 						<dt className={style.term}><a onClick={this.onRestartClick}>New Game</a></dt>
 					</dl>
 				</header>
-				<div className={style.board} ref={this.refBoard}>
+				<div className={style.board} ref={this.refBoard} style={{ width: board.width * board.cellSizePx, height: board.height * board.cellSizePx }}>
 					{this.renderCells()}
 					{this.renderAlerts()}
 				</div>
