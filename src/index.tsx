@@ -1,5 +1,6 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
+import * as _ from 'lodash'
 
 import { AppContainer } from 'react-hot-loader'
 import { HashRouter } from 'react-router-dom'
@@ -13,14 +14,14 @@ import { Store } from './stores'
 import { BoardGeometryType } from './stores/board'
 import { CollapseDirection } from './stores/rules'
 
-export const store = Store.create({
+const settingsDefault = {
 	appVersion: pkg.version,
 	board: {
 		worldKey: 'spiral',
 		levelKey: 'intro',
 		initialSequenceLength: 36,
-		width: 14,
-		height: 14,
+		width: 16,
+		height: 16,
 		cellSizePx: 50,
 		geometryType: BoardGeometryType.Spiral,
 
@@ -34,7 +35,7 @@ export const store = Store.create({
 		rules: {
 			targetSum: 10,
 			targetLength: 2,
-			deadPointIndex: 14 * 14 - 14,
+			deadPointIndex: 30,
 			collapseDirection: CollapseDirection.ToDeadPoint,
 			isCollapseRows: true,
 			isCollapseColumns: true,
@@ -43,7 +44,22 @@ export const store = Store.create({
 			seqArrangeStepDelayMs: 15
 		}
 	}
-})
+}
+
+const settingsSimplified = {
+	board: {
+		width: 14,
+		height: 14,
+		rules: {
+			deadPointIndex: 14 * 14 - 14,
+		}
+	}
+}
+
+const isSimplified = window.innerWidth < 960 || window.innerHeight < 960
+
+const settings = isSimplified ? _.merge(settingsDefault, settingsSimplified) : settingsDefault
+export const store = Store.create(settings)
 
 export function runApp() {
 	ReactDOM.render(
