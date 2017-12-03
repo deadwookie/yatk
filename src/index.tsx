@@ -32,6 +32,7 @@ const settingsDefault = {
 		cells: [],
 		chain: [],
 		sequence: [],
+		sequenceId: '',
 		rules: {
 			targetSum: 10,
 			targetLength: 2,

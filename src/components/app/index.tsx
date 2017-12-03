@@ -2,7 +2,7 @@ import * as dis from 'dis-gui'
 import * as React from 'react'
 import * as cls from 'classnames'
 import * as style from './index.css'
-import { HashRouter as Router, Route } from 'react-router-dom'
+import { HashRouter as Router, Switch, Route } from 'react-router-dom'
 import Header from './header'
 import Footer from './footer'
 import Matrix from '../matrix'
@@ -53,9 +53,12 @@ export class App extends React.Component<App.Props, App.State> {
 			<div className={cls(style.main, `theme-${theme}`)}>
 				<Header />
 				<Router>
-					<div>
+					<Switch>
 						<Route exact path='/' render={() => {
 							return <Matrix store={store} />
+						}}/>
+						<Route exact path='/game/:sequenceId' render={({match}) => {
+							return <Matrix store={store} sequenceId={match.params.sequenceId} />
 						}}/>
 						<Route exact path='/faq' render={() => {
 							return <div>FAQ: TODO</div>
@@ -85,7 +88,10 @@ export class App extends React.Component<App.Props, App.State> {
 								</div>
 							)
 						}}/>
-					</div>
+						<Route render={() => {
+							return <div>404</div>
+						}} />
+					</Switch>
 				</Router>
 
 				<Footer store={store} />

@@ -10,7 +10,9 @@ import { Cell, FinishResult } from '../../stores/board'
 import { CellElement } from './cell'
 
 export namespace Matrix {
-	export interface Props extends StoreInjectedProps {}
+	export interface Props extends StoreInjectedProps {
+		sequenceId?: string
+	}
 	export interface State {}
 }
 
@@ -19,7 +21,11 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 	$board: Element | null
 
 	componentDidMount() {
-		this.props.store.board.newGame()
+		if (this.props.sequenceId) {
+			this.props.store.board.newGame(this.props.sequenceId)
+		} else {
+			this.props.store.board.newGame()
+		}
 
 		window.addEventListener('resize', this.scaleBoard)
 		this.scaleBoard()

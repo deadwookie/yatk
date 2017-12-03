@@ -86,6 +86,7 @@ export interface Board {
 	score: number
 	finishResult?: FinishResult | null
 
+	sequenceId: string
 	sequenceCounter: number
 	sequence: Array<SequenceValue>
 	cells: Array<Cell>
@@ -111,11 +112,14 @@ export interface Board {
 
 	finish: (result: FinishResult) => void
 	generateSequence: (length: number, isDummy?: boolean) => void
+	generateSequenceId: () => void
+	sequenceToId: (sequenceValues: Array<number | null>) => string
+	sequenceFromId: (sequenceId: string) => Array<number | null>
 	resetSequenceTo: (sequence: Array<number | null>) => void
 	replicateSequence: () => void
 	arrangeSequence: (sequence: Array<SequenceValue>) => void
-	generate: (seqLength?: number, isDummy?: boolean) => void
-	newGame: (seqLength?: number, isDummy?: boolean) => void
+	generate: (sequenceId?: string, isDummy?: boolean) => void
+	newGame: (sequenceId?: string, isDummy?: boolean) => void
 	nextRound: () => void
 	processChain: () => void
 	clearChain: () => void
@@ -141,7 +145,8 @@ export const Board: IType<{}, Board> = types
 		score: types.number,
 		finishResult: types.maybe(types.union(types.literal(FinishResult.Win), types.literal(FinishResult.Fail))),
 
-		sequenceCounter: types.optional(types.number, 0),
+		sequenceId: types.string,
+		sequenceCounter: types.optional(types.number, -1),
 		sequence: types.array(SequenceValue),
 		cells: types.array(Cell),
 		chain: types.array(types.reference(Cell)),
@@ -310,6 +315,14 @@ export const Board: IType<{}, Board> = types
 		getPrevCursor(): Cell | null {
 			const prevIndex = getNextIndex(self.cursor!.index, self.width, self.getPrevCursorDir())
 			return prevIndex === null ? null : self.cells[prevIndex]
+		},
+
+		sequenceToId(sequenceValues: Array<number | null>): string {
+			return sequenceValues.join('')
+		},
+
+		sequenceFromId(sequenceId: string): Array<number | null> {
+			return sequenceId.split('').map(value => Number(value))
 		},
 
 		clearSequence() {
@@ -571,12 +584,16 @@ export const Board: IType<{}, Board> = types
 	.actions((self) => ({
 		generateSequence(length: number, isDummy?: boolean) {
 			self.clearSequence()
-			self.sequenceCounter = -1
+
 			if (isDummy) {
 				self.appendSequence(Array.from(Array(length)).map((_, ind) => ind % 2 === 0 ? 8 : 2))
 			} else {
 				self.appendSequence(Array.from(Array(length)).map(_ => randomN()))
 			}
+		},
+
+		generateSequenceId() {
+			self.sequenceId = self.sequenceToId(self.sequence.map(seqValue => seqValue.value))
 		},
 
 		resetSequenceTo(sequence: Array<number | null>) {
@@ -650,8 +667,15 @@ export const Board: IType<{}, Board> = types
 		}
 	}))
 	.actions((self) => ({
-		generate(seqLength?: number, isDummy?: boolean) {
-			self.generateSequence(seqLength || self.initialSequenceLength, isDummy)
+		generate(sequenceId?: string, isDummy?: boolean) {
+			if (sequenceId) {
+				self.sequenceId = sequenceId
+				self.clearSequence()
+				self.appendSequence(self.sequenceFromId(sequenceId))
+			} else {
+				self.generateSequence(self.initialSequenceLength, isDummy)
+				self.generateSequenceId()
+			}
 			self.generateCells()
 			self.arrangeSequence(self.sequence)
 			self.arrangeDeadPoint()
@@ -698,14 +722,14 @@ export const Board: IType<{}, Board> = types
 			self.arrangeSequence(self.replicateSequence())
 		},
 
-		newGame(seqLength?: number, isDummy?: boolean) {
+		newGame(sequenceId?: string, isDummy?: boolean) {
 			self._stopProcessingAsync()
 			self.movesCount = 0
 			self.round = 1
 			self.score = 1000
 			self.finishResult = null
 			self.clearChain()
-			self.generate(seqLength, isDummy)
+			self.generate(sequenceId, isDummy)
 
 			GameAnalytics.addProgressionEvent(EGAProgressionStatus.Start, self.worldKey, self.levelKey, self.round)
 		},
