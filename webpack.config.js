@@ -5,9 +5,11 @@ const { TsConfigPathsPlugin, CheckerPlugin } = require('awesome-typescript-loade
 const webpack = require('webpack')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
+// see https://github.com/webpack/webpack/issues/2545#issuecomment-337605409
+const MinifyPlugin = require('babel-minify-webpack-plugin')
 
 // variables
-const PORT = process.env.PORT || 9000
+const PORT = process.env.PORT || 8080
 const IS_PROD = Boolean(~process.argv.indexOf('-p') || process.env.NODE_ENV === 'production')
 const SRC_PATH = path.resolve(__dirname, 'src')
 const BUILD_PATH = path.resolve(__dirname, 'build')
@@ -35,15 +37,6 @@ module.exports = {
 			// Our app main entry
 			'./index.tsx'
 		],
-		vendor: [
-			'tslib',
-			'react',
-			'react-dom',
-			// 'react-router',
-			// 'mobx',
-			// 'mobx-react',
-			// 'mobx-react-router',
-		],
 	},
 
 	// Set of options instructing webpack on how and where it should output
@@ -60,7 +53,9 @@ module.exports = {
 	// "eval" (generated code): Each module is executed with eval() and //@ sourceURL
 	// "cheap-module-eval-source-map" (original source - lines only): each module is executed with eval() and a SourceMap is added as a DataUrl
 	// "source-map" (original source): A full SourceMap is emitted as a separate file
-	devtool: IS_PROD ? 'source-map' : 'cheap-module-eval-source-map',
+
+	// see https://github.com/webpack-contrib/babel-minify-webpack-plugin/issues/68#issuecomment-344462419
+	devtool: IS_PROD ? 'cheap-module-source-map' : 'cheap-module-eval-source-map',
 	// devtool: 'inline-source-map',
 
 	// These options change how modules are resolved
@@ -195,11 +190,12 @@ module.exports = {
 			filename: `js/vendor.${IS_PROD ? '[chunkhash:6].js' : 'js?[hash:6]'}`,
 			// The minimum number of chunks which need to contain a module before it's moved into the commons chunk
 			// In such case we ensure that no other module goes into the vendor chunk (except explicit list in `entry.vendor`)
-			minChunks: Infinity,
+			// minChunks: Infinity,
 			// Other way is to gather implicit vendor libs from node_modules by providing a callback func
-			// minChunks: (module) => module.context && module.context.indexOf("node_modules") !== -1,
+			minChunks: (module) => module.context && module.context.indexOf("node_modules") !== -1,
 		}),
 		// new webpack.optimize.AggressiveMergingPlugin(),
+		IS_PROD && new MinifyPlugin(),
 
 		// It moves all the `require("style.css")`s in entry chunks into a separate single CSS file
 		new ExtractTextPlugin({
@@ -234,12 +230,13 @@ module.exports = {
 		// When using the HTML5 History API
 		historyApiFallback: true,
 		// All the stats options here: https://webpack.js.org/configuration/stats/
-		stats: {
-			// Color is life
-			colors: true,
-			// This reduces the amount of stuff in terminal
-			chunks: false,
-			// 'errors-only': true
-		}
+		stats: 'minimal',
+		// stats: {
+		// 	// Color is life
+		// 	colors: true,
+		// 	// This reduces the amount of stuff in terminal
+		// 	chunks: false,
+		// 	// 'errors-only': true
+		// }
 	},
 }

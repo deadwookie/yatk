@@ -1,16 +1,48 @@
-:global(html, body) {
+:global(html) {
+	font-size: 10px;
 	height: 100%;
+}
+:global(body) {
 	margin: 0;
 	padding: 0;
-	background: lightgrey;
+	color: #999;
+	background: #333;
 }
 
-:global #main {
-	box-sizing: border-box;
-	width: 75%;
-	min-width: 800px;
-	min-height: 300px;
-	margin: 0 auto;
-	padding: 20px;
-	background: white;
+:global(.theme-matrix) {
+	--color: #999;
+	--bg-color: #333;
+
+	--accent-color: #090;
+	--accent-bg-color: var(--bg-color);
+
+	--hover-color: #6f9;
+	--hover-bg-color: transparent;
+	--hover-shadow-blur: .5em;
+	--hover-shadow-color: #f00;
+	--hover-text-shadow: 0 0 var(--hover-shadow-blur) var(--hover-shadow-color);
+
+	--active-color: #fff;
+	--active-bg-color: var(--hover-bg-color);
+	--active-shadow-blur: 2em;
+	--active-shadow-color: var(--hover-shadow-color);
+	--active-text-shadow: 0 0 .1em var(--active-shadow-color), 0 0 var(--active-shadow-blur) var(--active-shadow-color);
+}
+
+a, button {
+	background: var(--accent-bg-color);
+	color: var(--accent-color);
+}
+
+a {
+	border-bottom: 1px dotted var(--accent-color);
+}
+
+a:hover, button:enabled:focus, button:enabled:hover {
+	cursor: pointer;
+	outline: none;
+	background: var(--hover-bg-color);
+	color: var(--hover-color);
+	border-color: var(--hover-color);
+	text-shadow: var(--hover-text-shadow);
 }

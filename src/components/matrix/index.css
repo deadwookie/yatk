@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css?family=PT+Sans+Caption:400,700|PT+Serif+Caption&subset=latin-ext');
+
+.main {
+	--cell-number: 16;
+	--cell-size: 5rem;
+	--matrix-size: calc(var(--cell-number) * var(--cell-size));
+
+	--border-width: 0;
+	--border-color: #999;
+	--border-style: solid;
+	--border: var(--border-width) var(--border-style) var(--border-color);
+	--color: #0b0;
+	--bg-color: transparent;
+
+	--glow-color: var(--hover-color);
+	--glow-shadow-blur: .2em;
+	--glow-shadow-color: var(--accent-color);
+	--glow-text-shadow: 0 0 var(--glow-shadow-blur) var(--glow-shadow-color);
+
+	--char-font-family: 'PT Sans Caption';
+	--char-font-weight: 700;
+	--char-font-size: 4.4rem;
+
+	--msg-font-family: 'PT Serif Caption';
+	--msg-font-weight: 400;
+	--msg-font-size: 3.8rem;
+	--msg-bg-color: #333;
+
+	overflow: hidden;
+}
+
+/* Status bar */
+.info {
+	opacity: .5;
+}
+.info:hover {
+	opacity: 1;
+}
+.term, .desc {
+	display: inline;
+	margin: 0;
+	list-style: none;
+	font-size: 1.2rem;
+}
+.term + .desc {
+	margin-left: .2em;
+}
+.desc + .term::before {
+	content: "| ";
+	padding: 0 5px;
+}
+
+/* Playground */
+.board {
+	transform-origin: 0 0;
+	user-select: none;
+	/* width: 800px;
+	height: 800px; */
+	margin: 0 auto;
+	position: relative;
+}
+
+.alert {
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+}
+.message {
+	z-index: 1;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	margin: 0;
+	padding: 0 1rem 0;
+
+	text-transform: uppercase;
+	font-family: var(--msg-font-family), Tahoma, sans-serif;
+	font-weight: var(--msg-font-weight);
+	font-size: var(--msg-font-size);
+	letter-spacing: .2rem;
+	text-shadow: 0 0 var(--glow-shadow-blur) var(--glow-shadow-color);
+	color: var(--glow-color);
+	background: var(--msg-bg-color);
+	border: 3px solid var(--glow-color);
+	box-shadow: 0 0 calc(var(--glow-shadow-blur) * 2) var(--hover-color);
+}

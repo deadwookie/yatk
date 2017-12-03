@@ -1,0 +1,72 @@
+.main {
+	background: #444;
+	position: relative;
+	margin: auto;
+	padding: 0;
+	overflow: hidden;
+	user-select: none;
+}
+.main::after {
+	display: none;
+	opacity: 0;
+	background: #111;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	content: '';
+}
+
+.paused {
+	filter: blur(7px);
+}
+.paused::after {
+	display: block;
+	opacity: .5;
+	transition: opacity .1s ease-in;
+}
+
+/* https://stackoverflow.com/questions/18529381/what-does-webkit-transform-translate3d0-0-0-exactly-do-apply-to-body */
+/* .main * {
+	transform: translate3d(0, 0, 0);
+	transform-style: inherit;
+} */
+
+.stream {
+	/* outline: 1px dotted lawngreen; */
+	list-style: none;
+	position: absolute;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+
+	top: 0;
+	bottom: 0;
+	transform: translateY(-100%);
+	color: lightgreen;
+}
+
+/* .stream.odd {
+	color: blue
+} */
+
+.drop {
+	display: block;
+	text-align: center;
+	line-height: 100%;
+	padding: 0;
+}
+.symbol {
+	font-size: 90%;
+}
+
+@keyframes fallThrough {
+	0% {
+		transform: translateY(-100%);
+	}
+	100% {
+		transform: translateY(100%);
+	}
+}

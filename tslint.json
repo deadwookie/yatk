@@ -1,61 +1,86 @@
 {
-  "_doc": "https://palantir.github.io/tslint/rules/",
+  "extends": [
+    // https://github.com/palantir/tslint/blob/master/src/configs/recommended.ts
+    "tslint:recommended",
+    "tslint-eslint-rules"
+  ],
+  "rulesDirectory": [
+    "node_modules/tslint-origin-ordered-imports-rule/dist"
+  ],
+
+  "defaultSeverity": "warning",
+
+  // https://palantir.github.io/tslint/rules/
   "rules": {
-    "class-name": true,
-    "curly": true,
+    "no-console": [false],
+    "curly": [
+      true,
+      "ignore-same-line"
+    ],
     "indent": [
       true,
-      "tabs"
-    ],
-    "quotemark": [
-      true,
-      "single"
-    ],
-    "max-line-length": [
-      true,
-      160
-    ],
-    "member-ordering": [
-      true,
-      "statics-first"
-    ],
-    "new-parens": true,
-    "no-arg": true,
-    "no-consecutive-blank-lines": [true],
-    "no-console": [
-      true,
-      "time",
-      "timeEnd"
-    ],
-    "no-debugger": true,
-    "no-eval": true,
-    "no-internal-module": true,
-    "no-trailing-whitespace": true,
-    "no-unused-expression": true,
-    "no-var-keyword": true,
-    "one-variable-per-declaration": [
-      true,
-      "ignore-for-loop"
+      "tabs",
+      4
     ],
     "semicolon": [
       true,
       "never"
     ],
-    "triple-equals": [
+    "quotemark": [
       true,
-      "allow-null-check"
+      "single",
+      "avoid-escape",
+      "avoid-template"
     ],
-    "typedef-whitespace": [
-      true
-    ],
-    "use-isnan": true,
-    "whitespace": [
+    "interface-name": [
       true,
-      "check-branch",
-      "check-decl",
-      "check-operator",
-      "check-separator",
-      "check-type"
+      "never-prefix"
+    ],
+    "max-line-length": [
+      true,
+      160
+    ],
+    "member-access": [
+      true,
+      "no-public"
+    ],
+    "member-ordering": [
+      true,
+      {
+        "order": [
+          "static-field",
+          "instance-field",
+          "static-method",
+          "constructor",
+          "public-instance-method",
+          "protected-instance-method",
+          "private-instance-method"
+        ]
+      }
+    ],
+    "no-empty-interface": false,
+    "no-namespace": false,
+    "no-unused-expression": [
+      true,
+      "allow-fast-null-checks"
+    ],
+    "object-literal-sort-keys": false,
+    "ordered-imports": false,
+    "variable-name": [
+      true,
+      "ban-keywords",
+      "check-format",
+      "allow-leading-underscore",
+      "allow-pascal-case"
+    ],
+
+    // https://github.com/marcuzy/tslint-origin-ordered-imports-rule
+    "origin-ordered-imports": true,
+
+    // https://github.com/buzinas/tslint-eslint-rules
+    "object-curly-spacing": [
+      true,
+      "always"
     ]
   }
 }
