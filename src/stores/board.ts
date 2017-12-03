@@ -70,6 +70,8 @@ export enum FinishResult {
 }
 
 export interface Board {
+	_processingAsyncId: number
+
 	worldKey: string
 	levelKey: string
 
@@ -93,6 +95,7 @@ export interface Board {
 	rules: Rules
 	behavior: Behavior
 
+	_stopProcessingAsync: (asyncId?: number) => void
 	copyRow: (srcY: number, dstY: number) => void
 	copyColumn: (srcX: number, dstX: number) => void
 	getRow: (y: number) => Cell[] | null
@@ -122,6 +125,8 @@ export interface Board {
 
 export const Board: IType<{}, Board> = types
 	.model('Board', {
+		_processingAsyncId: types.optional(types.number, -1),
+
 		worldKey: types.string,
 		levelKey: types.string,
 
@@ -146,6 +151,12 @@ export const Board: IType<{}, Board> = types
 		behavior: Behavior
 	})
 	.actions((self) => ({
+		_stopProcessingAsync(asyncId?: number) {
+			if (!asyncId || self._processingAsyncId === asyncId) {
+				self._processingAsyncId = -1
+			}
+		},
+
 		getNextCursorDir(): Direction | null {
 			const next = getNextIndex.bind(null, self.cursor!.index, self.width)
 			const can = canMove.bind(null, self.cursor!, self)
@@ -579,6 +590,8 @@ export const Board: IType<{}, Board> = types
 
 		arrangeSequence: flow(function* (sequenceFragment: Array<SequenceValue>) {
 			const delayTime = self.behavior.seqArrangeStepDelayMs
+			const asyncId = Date.now()
+			self._processingAsyncId = asyncId
 			for (const sv of sequenceFragment) {
 				if (!self.cursor || self.cursor === self.deadPoint) {
 					self.finish(FinishResult.Fail)
@@ -586,8 +599,13 @@ export const Board: IType<{}, Board> = types
 				}
 				self.cursor!.sequenceValue = sv
 				yield delay(delayTime)
+
+				if (self._processingAsyncId !== asyncId) {
+					break
+				}
 				self.cursor = self.getNextCursor()
 			}
+			self._stopProcessingAsync(asyncId)
 		}),
 
 		arrangeDeadPoint() {
@@ -668,6 +686,7 @@ export const Board: IType<{}, Board> = types
 	.actions((self) => ({
 		nextRound() {
 			GameAnalytics.addProgressionEvent(EGAProgressionStatus.Complete, self.worldKey, self.levelKey, self.round)
+			self._stopProcessingAsync()
 
 			self.round++
 			self.score -= 100
@@ -680,6 +699,7 @@ export const Board: IType<{}, Board> = types
 		},
 
 		newGame(seqLength?: number, isDummy?: boolean) {
+			self._stopProcessingAsync()
 			self.movesCount = 0
 			self.round = 1
 			self.score = 1000
