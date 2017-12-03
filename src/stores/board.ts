@@ -112,7 +112,7 @@ export interface Board {
 
 	finish: (result: FinishResult) => void
 	generateSequence: (length: number, isDummy?: boolean) => void
-	generateSequenceId: () => void
+	generateSequenceId: (sequenceId?: string) => void
 	sequenceToId: (sequenceValues: Array<number | null>) => string
 	sequenceFromId: (sequenceId: string) => Array<number | null>
 	resetSequenceTo: (sequence: Array<number | null>) => void
@@ -271,6 +271,14 @@ export const Board: IType<{}, Board> = types
 			} else {
 				throw new Error(`Unknown geometry type for the board: ${self.geometryType}`)
 			}
+		},
+
+		sequenceToId(sequenceValues: Array<number | null>): string {
+			return sequenceValues.join('')
+		},
+
+		sequenceFromId(sequenceId: string): Array<number | null> {
+			return sequenceId.split('').map(value => Number(value))
 		}
 	}))
 	.actions((self) => ({
@@ -307,6 +315,10 @@ export const Board: IType<{}, Board> = types
 			}
 		},
 
+		generateSequenceId(sequenceId?: string) {
+			self.sequenceId = sequenceId || self.sequenceToId(self.sequence.map(seqValue => seqValue.value))
+		},
+
 		getNextCursor(): Cell | null {
 			const nextIndex = getNextIndex(self.cursor!.index, self.width, self.getNextCursorDir())
 			return nextIndex === null ? null : self.cells[nextIndex]
@@ -315,14 +327,6 @@ export const Board: IType<{}, Board> = types
 		getPrevCursor(): Cell | null {
 			const prevIndex = getNextIndex(self.cursor!.index, self.width, self.getPrevCursorDir())
 			return prevIndex === null ? null : self.cells[prevIndex]
-		},
-
-		sequenceToId(sequenceValues: Array<number | null>): string {
-			return sequenceValues.join('')
-		},
-
-		sequenceFromId(sequenceId: string): Array<number | null> {
-			return sequenceId.split('').map(value => Number(value))
 		},
 
 		clearSequence() {
@@ -579,21 +583,15 @@ export const Board: IType<{}, Board> = types
 			})
 
 			return sequenceFragments
-		},
+		}
 	}))
 	.actions((self) => ({
 		generateSequence(length: number, isDummy?: boolean) {
-			self.clearSequence()
-
 			if (isDummy) {
-				self.appendSequence(Array.from(Array(length)).map((_, ind) => ind % 2 === 0 ? 8 : 2))
+				return Array.from(Array(length)).map((_, ind) => ind % 2 === 0 ? 8 : 2)
 			} else {
-				self.appendSequence(Array.from(Array(length)).map(_ => randomN()))
+				return Array.from(Array(length)).map(_ => randomN())
 			}
-		},
-
-		generateSequenceId() {
-			self.sequenceId = self.sequenceToId(self.sequence.map(seqValue => seqValue.value))
 		},
 
 		resetSequenceTo(sequence: Array<number | null>) {
@@ -668,14 +666,18 @@ export const Board: IType<{}, Board> = types
 	}))
 	.actions((self) => ({
 		generate(sequenceId?: string, isDummy?: boolean) {
+			let sequence: Array<number | null> = []
+
 			if (sequenceId) {
-				self.sequenceId = sequenceId
-				self.clearSequence()
-				self.appendSequence(self.sequenceFromId(sequenceId))
+				sequence = self.sequenceFromId(sequenceId)
 			} else {
-				self.generateSequence(self.initialSequenceLength, isDummy)
-				self.generateSequenceId()
+				sequence = self.generateSequence(self.initialSequenceLength, isDummy)
 			}
+
+			self.clearSequence()
+			self.appendSequence(sequence)
+			self.generateSequenceId(sequenceId)
+
 			self.generateCells()
 			self.arrangeSequence(self.sequence)
 			self.arrangeDeadPoint()
