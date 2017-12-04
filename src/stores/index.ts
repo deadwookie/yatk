@@ -10,5 +10,7 @@ export const Store = types.model('Store', {
 export type Store = typeof Store.Type
 
 export interface StoreInjectedProps {
-	store: Store
+	store: Store,
+	// TODO: review router store/better way
+	router?: any
 }

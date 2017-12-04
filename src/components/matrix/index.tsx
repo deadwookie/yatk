@@ -1,6 +1,6 @@
 import * as React from 'react'
 import { findDOMNode } from 'react-dom'
-import { observer } from 'mobx-react'
+import { observer, inject } from 'mobx-react'
 
 import * as style from './index.css'
 
@@ -10,22 +10,19 @@ import { Cell, FinishResult } from '../../stores/board'
 import { CellElement } from './cell'
 
 export namespace Matrix {
-	export interface Props extends StoreInjectedProps {
+	export interface Props {
 		sequenceId?: string
 	}
 	export interface State {}
 }
 
+
 @observer
-export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
+export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, Matrix.State> {
 	$board: Element | null
 
 	componentDidMount() {
-		if (this.props.sequenceId) {
-			this.props.store.board.newGame(this.props.sequenceId)
-		} else {
-			this.props.store.board.newGame()
-		}
+		this.startGame(this.props.sequenceId)
 
 		window.addEventListener('resize', this.scaleBoard)
 		this.scaleBoard()
@@ -33,6 +30,12 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 
 	componentWillUnmount() {
 		window.removeEventListener('resize', this.scaleBoard)
+	}
+
+	componentWillReceiveProps(nextProps: Matrix.Props) {
+		if (nextProps.sequenceId !== this.props.sequenceId) {
+			this.startGame(nextProps.sequenceId)
+		}
 	}
 
 	@autobind
@@ -113,9 +116,16 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 		)
 	}
 
+	startGame(sequenceId?: string) {
+		this.props.store.board.newGame(sequenceId)
+	}
+
+
 	@autobind
 	onRestartClick() {
-		this.props.store.board.newGame()
+		// TODO: re-route on restart ?
+		// this.props.router.go('/')
+		this.startGame()
 	}
 
 	@autobind
@@ -129,4 +139,4 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 	}
 }
 
-export default Matrix
+export default inject('store', 'router')(Matrix) as React.ComponentClass<Matrix.Props>

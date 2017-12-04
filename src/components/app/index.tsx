@@ -2,7 +2,7 @@ import * as dis from 'dis-gui'
 import * as React from 'react'
 import * as cls from 'classnames'
 import * as style from './index.css'
-import { HashRouter as Router, Switch, Route } from 'react-router-dom'
+import { Switch, Route } from 'react-router-dom'
 import Header from './header'
 import Footer from './footer'
 import Matrix from '../matrix'
@@ -10,14 +10,13 @@ import Meter from '../meter'
 import Rain from '../rain'
 
 import autobind from '../../utils/autobind'
-import { StoreInjectedProps } from '../../stores'
 
 export enum Theme {
 	MatrixGreen = 'matrix',
 }
 
 export namespace App {
-	export interface Props extends StoreInjectedProps {
+	export interface Props {
 		theme?: Theme
 	}
 	export interface State extends Rain.Sizes {
@@ -47,54 +46,49 @@ export class App extends React.Component<App.Props, App.State> {
 	meter?: Meter | null
 
 	render() {
-		const {store, theme} = this.props
+		const { theme } = this.props
 
 		return (
 			<div className={cls(style.main, `theme-${theme}`)}>
 				<Header />
-				<Router>
-					<Switch>
-						<Route exact path='/' render={() => {
-							return <Matrix store={store} />
-						}}/>
-						<Route exact path='/game/:sequenceId' render={({match}) => {
-							return <Matrix store={store} sequenceId={match.params.sequenceId} />
-						}}/>
-						<Route exact path='/faq' render={() => {
-							return <div>FAQ: TODO</div>
-						}}/>
-						<Route exact path='/rain' render={() => {
-							return (
-								<div>
-									<div className={style.rain}>
-										<Rain
-											isPaused={!this.isRaining()}
-											pace={this.state.pace}
-											windowWidth={this.state.windowWidth}
-											windowHeight={this.state.windowHeight}
-											dropWidth={this.state.dropWidth}
-											dropHeight={this.state.dropHeight}
-											onBeforeUpdate={this.onBeforeRainDrop}
-											onAfterUpdate={this.onAfterRainDrop}
-										/>
-									</div>
-
-									<div className={style.controls}>
-										{this.renderControls()}
-									</div>
-									<div className={style.meter}>
-										<Meter ref={this.refMeter} />
-									</div>
+				<Switch>
+					<Route exact path='/' component={Matrix}/>
+					<Route path='/game/:sequenceId' render={({match}) => {
+						return <Matrix sequenceId={match.params.sequenceId} />
+					}}/>
+					<Route exact path='/faq' render={() => {
+						return <div>FAQ: TODO</div>
+					}}/>
+					<Route exact path='/rain' render={() => {
+						return (
+							<div>
+								<div className={style.rain}>
+									<Rain
+										isPaused={!this.isRaining()}
+										pace={this.state.pace}
+										windowWidth={this.state.windowWidth}
+										windowHeight={this.state.windowHeight}
+										dropWidth={this.state.dropWidth}
+										dropHeight={this.state.dropHeight}
+										onBeforeUpdate={this.onBeforeRainDrop}
+										onAfterUpdate={this.onAfterRainDrop}
+									/>
 								</div>
-							)
-						}}/>
-						<Route render={() => {
-							return <div>404</div>
-						}} />
-					</Switch>
-				</Router>
 
-				<Footer store={store} />
+								<div className={style.controls}>
+									{this.renderControls()}
+								</div>
+								<div className={style.meter}>
+									<Meter ref={this.refMeter} />
+								</div>
+							</div>
+						)
+					}}/>
+					<Route render={() => {
+						return <div>404</div>
+					}} />
+				</Switch>
+				<Footer />
 			</div>
 		)
 	}

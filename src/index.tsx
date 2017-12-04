@@ -2,8 +2,11 @@ import * as React from 'react'
 import * as ReactDOM from 'react-dom'
 import * as _ from 'lodash'
 
+import { Provider } from 'mobx-react'
+import { HashRouter as Router } from 'react-router-dom'
+import createHashHistory from 'history/createHashHistory'
+import { RouterStore, syncHistoryWithStore } from 'mobx-react-router'
 import { AppContainer } from 'react-hot-loader'
-import { HashRouter } from 'react-router-dom'
 
 import { GameAnalytics } from 'gameanalytics'
 
@@ -58,16 +61,23 @@ const settingsSimplified = {
 }
 
 const isSimplified = window.innerWidth < 960 || window.innerHeight < 960
-
 const settings = isSimplified ? _.merge(settingsDefault, settingsSimplified) : settingsDefault
+
 export const store = Store.create(settings)
+export const router = new RouterStore()
+
+// const hashHistory = createHashHistory()
+// const history = syncHistoryWithStore(hashHistory, router)
+syncHistoryWithStore(createHashHistory(), router)
 
 export function runApp() {
 	ReactDOM.render(
 		<AppContainer>
-			<HashRouter>
-				<App store={store} />
-			</HashRouter>
+			<Provider store={store} router={router}>
+				<Router>
+					<App />
+				</Router>
+			</Provider>
 		</AppContainer>,
 		document.getElementById('main')
 	)

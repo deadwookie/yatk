@@ -1,18 +1,16 @@
 import * as React from 'react'
 import * as style from './footer.css'
-import { observer } from 'mobx-react'
+import { observer, inject } from 'mobx-react'
 
 import { StoreInjectedProps } from '../../stores'
 
 export namespace Footer {
-	export interface Props extends StoreInjectedProps {
-
-	}
+	export interface Props {}
 	export interface State {}
 }
 
 @observer
-export class Footer extends React.Component<Footer.Props, Footer.State> {
+export class Footer extends React.Component<Footer.Props & StoreInjectedProps, Footer.State> {
 	render() {
 		return (
 			<footer className={style.main}>
@@ -22,4 +20,5 @@ export class Footer extends React.Component<Footer.Props, Footer.State> {
 	}
 }
 
-export default Footer
+export default inject('store')(Footer) as React.ComponentClass<Footer.Props>
+
