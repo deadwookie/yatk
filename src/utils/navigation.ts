@@ -6,20 +6,24 @@ export enum Direction {
 	Down = 'down',
 	DownLeft = 'downLeft',
 	Left = 'left',
-	UpLeft = 'upLeft'
+	UpLeft = 'upLeft',
+	Deep = 'deep',
+	High = 'high'
 }
 
 export interface Point {
 	x: number
 	y: number
+	z: number
 }
 
 export interface Size {
 	width: number
 	height: number
+	depth: number
 }
 
-export function getNextIndex(baseIndex: number, width: number, dir: Direction | null): number | null {
+export function getNextIndex(baseIndex: number, size: Size, dir: Direction | null): number | null {
 	let nextIndex = null
 
 	switch (dir) {
@@ -27,25 +31,31 @@ export function getNextIndex(baseIndex: number, width: number, dir: Direction | 
 			nextIndex = baseIndex + 1
 			break
 		case Direction.Down:
-			nextIndex = baseIndex + width
+			nextIndex = baseIndex + size.width
 			break
 		case Direction.Left:
 			nextIndex = baseIndex - 1
 			break
 		case Direction.Up:
-			nextIndex = baseIndex - width
+			nextIndex = baseIndex - size.width
 			break
+		case Direction.Deep:
+			nextIndex = baseIndex - size.width * size.height
+			break
+		case Direction.High:
+			nextIndex = baseIndex + size.width * size.height
+			break	
 		case Direction.UpRight:
-			nextIndex = baseIndex - width + 1
+			nextIndex = getNextIndex(getNextIndex(baseIndex, size, Direction.Up)!, size, Direction.Right)
 			break
 		case Direction.DownRight:
-			nextIndex = baseIndex + width + 1
+			nextIndex = getNextIndex(getNextIndex(baseIndex, size, Direction.Down)!, size, Direction.Right)
 			break
 		case Direction.UpLeft:
-			nextIndex = baseIndex - width - 1
+			nextIndex = getNextIndex(getNextIndex(baseIndex, size, Direction.Up)!, size, Direction.Left)
 			break
 		case Direction.DownLeft:
-			nextIndex = baseIndex + width - 1
+			nextIndex = getNextIndex(getNextIndex(baseIndex, size, Direction.Down)!, size, Direction.Left)
 			break
 	}
 
@@ -57,19 +67,23 @@ export function canMove(cursor: Point, size: Size, dir: Direction): boolean {
 		case Direction.Right:
 			return cursor.x < size.width - 1
 		case Direction.Down:
-			return cursor.y < size.height - 1
+			return (cursor.y < size.height - 1) || (cursor.z < size.depth - 1)
 		case Direction.Left:
 			return cursor.x > 0
 		case Direction.Up:
-			return cursor.y > 0
+			return cursor.y > 0 || cursor.z > 0
+		case Direction.Deep:
+			return cursor.z > 0
+		case Direction.High:
+			return cursor.z	< size.depth - 1
 		case Direction.UpRight:
-			return cursor.y > 0 && (cursor.x < size.width - 1)
+			return canMove(cursor, size, Direction.Up) && canMove(cursor, size, Direction.Right)
 		case Direction.DownRight:
-			return (cursor.y < size.height - 1) && (cursor.x < size.width - 1)
+			return canMove(cursor, size, Direction.Down) && canMove(cursor, size, Direction.Right)
 		case Direction.UpLeft:
-			return cursor.y > 0 && cursor.x > 0
+			return canMove(cursor, size, Direction.Up) && canMove(cursor, size, Direction.Left)
 		case Direction.DownLeft:
-			return (cursor.y < size.height - 1) && cursor.x > 0
+			return canMove(cursor, size, Direction.Down) && canMove(cursor, size, Direction.Left)
 	}
 
 	return false

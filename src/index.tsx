@@ -19,11 +19,12 @@ const settingsDefault = {
 	board: {
 		worldKey: 'spiral',
 		levelKey: 'intro',
-		initialSequenceLength: 36,
-		width: 16,
-		height: 16,
+		initialSequenceLength: 40,
+		width: 8,
+		height: 8,
+		depth: 8,
 		cellSizePx: 50,
-		geometryType: BoardGeometryType.Spiral,
+		geometryType: BoardGeometryType.Box,
 
 		movesCount: 0,
 		round: 1,
@@ -35,10 +36,10 @@ const settingsDefault = {
 		rules: {
 			targetSum: 10,
 			targetLength: 2,
-			deadPointIndex: 30,
-			collapseDirection: CollapseDirection.ToDeadPoint,
+			deadPointIndex: 8 * 8 * 8,
+			collapseDirection: CollapseDirection.ToTopLeft,
 			isCollapseRows: true,
-			isCollapseColumns: true,
+			isCollapseColumns: false,
 		},
 		behavior: {
 			seqArrangeStepDelayMs: 15
@@ -48,10 +49,11 @@ const settingsDefault = {
 
 const settingsSimplified = {
 	board: {
-		width: 14,
-		height: 14,
+		width: 8,
+		height: 8,
+		depth: 8,
 		rules: {
-			deadPointIndex: 14 * 14 - 14,
+			deadPointIndex: 8 * 8 * 8,
 		}
 	}
 }

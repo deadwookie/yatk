@@ -2,6 +2,7 @@ import { types, IType } from 'mobx-state-tree'
 import { Cell } from './board'
 
 export enum CollapseDirection {
+	ToTopLeft = 'toTopLeft',
 	ToCenter = 'toCenter',
 	ToDeadPoint = 'toDeadPoint'
 }
@@ -139,7 +140,8 @@ export const Rules: IType<{}, Rules> = types
 		deadPointIndex: types.maybe(types.number),
 		collapseDirection: types.maybe(types.union(
 			types.literal(CollapseDirection.ToCenter),
-			types.literal(CollapseDirection.ToDeadPoint)
+			types.literal(CollapseDirection.ToDeadPoint),
+			types.literal(CollapseDirection.ToTopLeft)
 		)),
 		isCollapseRows: types.optional(types.boolean, true),
 		isCollapsePartialRows: types.optional(types.boolean, false),

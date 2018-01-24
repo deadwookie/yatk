@@ -12,6 +12,18 @@ export function randomN(from = 0, upto = 10, asInt = true) {
 	return asInt ? Math.floor(n) : n
 }
 
+function getVisibleCellByCoordinate(board: Board, x: number, y: number, maxZ: number = board.depth): Cell | null {
+	let cell = board.getCell(x, y, maxZ)
+
+
+	while (cell && (cell.isEmpty || cell.isNullSequence)) {
+		const nextIndex = getNextIndex(cell.index, board, Direction.Deep)
+		cell = nextIndex === null ? null : board.cells[nextIndex]
+	}
+
+	return cell
+}
+
 export interface SequenceValue {
 	key: number
 	value: number | null
@@ -28,6 +40,7 @@ export interface Cell {
 	index: number
 	x: number
 	y: number
+	z: number
 	isChained?: boolean
 	glyph?: string
 	sequenceValue?: SequenceValue | null
@@ -43,6 +56,7 @@ export const Cell: IType<{}, Cell> = types
 		index: types.number,
 		x: types.number,
 		y: types.number,
+		z: types.number,
 		isChained: types.optional(types.boolean, false),
 		glyph: types.optional(types.string, ''),
 		sequenceValue: types.maybe(types.reference(SequenceValue))
@@ -61,7 +75,8 @@ export const Cell: IType<{}, Cell> = types
 
 export enum BoardGeometryType {
 	Box = 'box',
-	Spiral = 'spiral'
+	Spiral = 'spiral',
+	ZigZag = 'zig-zag'
 }
 
 export enum FinishResult {
@@ -78,6 +93,7 @@ export interface Board {
 	initialSequenceLength: number
 	width: number
 	height: number
+	depth: number
 	cellSizePx: number
 	geometryType: BoardGeometryType
 
@@ -86,6 +102,7 @@ export interface Board {
 	score: number
 	finishResult?: FinishResult | null
 
+	currentStage: number
 	sequenceCounter: number
 	sequence: Array<SequenceValue>
 	cells: Array<Cell>
@@ -94,12 +111,14 @@ export interface Board {
 	deadPoint?: Cell | null
 	rules: Rules
 	behavior: Behavior
+	visibleCells: Array<Cell>
 
 	_stopProcessingAsync: (asyncId?: number) => void
 	copyRow: (srcY: number, dstY: number) => void
 	copyColumn: (srcX: number, dstX: number) => void
 	getRow: (y: number) => Cell[] | null
 	getColumn: (x: number) => Cell[] | null
+	getCell: (x: number, y: number, z: number) => Cell | null
  	generateCells: () => void
 	getNextCursor: () => Cell | null
 	getPrevCursor: () => Cell | null
@@ -133,6 +152,7 @@ export const Board: IType<{}, Board> = types
 		initialSequenceLength: types.number,
 		width: types.number,
 		height: types.number,
+		depth: types.number,
 		cellSizePx: types.number,
 		geometryType: types.union(types.literal(BoardGeometryType.Box), types.literal(BoardGeometryType.Spiral)),
 
@@ -150,6 +170,32 @@ export const Board: IType<{}, Board> = types
 		rules: Rules,
 		behavior: Behavior
 	})
+	.views((self: any)=> ({
+		get currentStage() {
+			if (!self.cursor) {
+				return 0
+			}
+			let z = self.cursor.z
+			if (self.cursor.x === 0 && self.cursor.y === 0 && z > 0) {
+				z--
+			}
+			return z
+		},
+		get visibleCells() {
+			const cells: Cell[] = []
+			const z = self.cursor ? self.cursor.z : 0
+			for (let x = 0; x < self.width; x++) {
+				for (let y = 0; y < self.height; y++) {
+					const cell = getVisibleCellByCoordinate(self, x, y, z) || self.getCell(x, y, 0)
+					if (cell) {
+						cells.push(cell)
+					}
+				}
+			}
+
+			return cells
+		}
+	}))
 	.actions((self) => ({
 		_stopProcessingAsync(asyncId?: number) {
 			if (!asyncId || self._processingAsyncId === asyncId) {
@@ -275,20 +321,23 @@ export const Board: IType<{}, Board> = types
 			const cells: Cell[] = []
 			let cellIndex = -1
 
-			for (let y = 0; y < self.height; y++) {
-				cells.push(...Array.from(Array(self.width)).map((_, x) => {
-					const symbol = randomN()
-					const chars = CHARMAP[symbol]
-					cellIndex++
+			for (let z = 0; z < self.depth; z++) {
+				for (let y = 0; y < self.height; y++) {
+					cells.push(...Array.from(Array(self.width)).map((_, x) => {
+						const symbol = randomN()
+						const chars = CHARMAP[symbol]
+						cellIndex++
 
-					return {
-						key: `${x}_${y}`,
-						index: cellIndex,
-						x,
-						y,
-						glyph: chars[randomN(0, chars.length)],
-					}
-				}))
+						return {
+							key: `${x}_${y}_${z}`,
+							index: cellIndex,
+							x,
+							y,
+							z,
+							glyph: chars[randomN(0, chars.length)],
+						}
+					}))
+				}
 			}
 
 			self.cells.push(...cells)
@@ -303,12 +352,12 @@ export const Board: IType<{}, Board> = types
 		},
 
 		getNextCursor(): Cell | null {
-			const nextIndex = getNextIndex(self.cursor!.index, self.width, self.getNextCursorDir())
+			const nextIndex = getNextIndex(self.cursor!.index, self, self.getNextCursorDir())
 			return nextIndex === null ? null : self.cells[nextIndex]
 		},
 
 		getPrevCursor(): Cell | null {
-			const prevIndex = getNextIndex(self.cursor!.index, self.width, self.getPrevCursorDir())
+			const prevIndex = getNextIndex(self.cursor!.index, self, self.getPrevCursorDir())
 			return prevIndex === null ? null : self.cells[prevIndex]
 		},
 
@@ -413,6 +462,10 @@ export const Board: IType<{}, Board> = types
 			}
 
 			return cells
+		},
+
+		getCell(x: number, y: number, z: number): Cell | null {
+			return self.cells[z * self.width * self.height + y * self.width + x]
 		}
 	}))
 	.actions((self) => ({
@@ -427,6 +480,9 @@ export const Board: IType<{}, Board> = types
 					break
 				case CollapseDirection.ToDeadPoint:
 					collapseToY = self.deadPoint ? self.deadPoint.y : 0
+					break
+				case CollapseDirection.ToTopLeft:
+					collapseToY = 0
 					break
 			}
 
@@ -503,6 +559,9 @@ export const Board: IType<{}, Board> = types
 					break
 				case CollapseDirection.ToDeadPoint:
 					collapseToX = self.deadPoint ? self.deadPoint.x : 0
+					break
+				case CollapseDirection.ToTopLeft:
+					collapseToX = 0
 					break
 			}
 
@@ -705,7 +764,7 @@ export const Board: IType<{}, Board> = types
 			self.score = 1000
 			self.finishResult = null
 			self.clearChain()
-			self.generate(seqLength, isDummy)
+			self.generate(seqLength, isDummy || true)
 
 			GameAnalytics.addProgressionEvent(EGAProgressionStatus.Start, self.worldKey, self.levelKey, self.round)
 		},

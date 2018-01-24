@@ -53,6 +53,9 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 			<section className={style.main}>
 				<header>
 					<dl className={style.info}>
+						<dt className={style.term}><a onClick={this.onNextRoundClick}>Next Round</a></dt>
+						<dt className={style.term}>Depth:</dt>
+						<dd className={style.desc}>{board.currentStage + 1}</dd>
 						<dt className={style.term}>Score:</dt>
 						<dd className={style.desc}>{board.score} points</dd>
 						<dt className={style.term}>Round</dt>
@@ -75,21 +78,17 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 	renderCells() {
 		const { store } = this.props
 
-		if (store.board.cells.length) {
-			return store.board.cells.map((cell: Cell) => {
-				return (
-					<CellElement
-						key={'box-cell-' + cell.key}
-						store={store}
-						cell={cell}
-						isCursor={cell === store.board.cursor}
-						isDeadPoint={cell === store.board.deadPoint}
-					/>
-				)
-			})
-		}
-
-		return null
+		return store.board.visibleCells.map((cell: Cell) => {
+			return (
+				<CellElement
+					key={'box-cell-' + cell.key}
+					store={store}
+					cell={cell}
+					isCursor={cell === store.board.cursor}
+					isDeadPoint={cell === store.board.deadPoint}
+				/>
+			)
+		})
 	}
 
 	// TODO: support different alerts/messages

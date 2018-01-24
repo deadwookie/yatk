@@ -20,10 +20,11 @@ export namespace CellElement {
 @observer
 export class CellElement extends React.Component<CellElement.Props, CellElement.State> {
 	render() {
-		const { cell } = this.props
-		const { cellSizePx } = this.props.store.board
-
+		const { cell, store } = this.props
+		const { cellSizePx, currentStage } = this.props.store.board
+		
 		const positionStyle: React.CSSProperties = {
+			opacity: (cell.z + 1) / (currentStage + 1),
 			left: cell.x * cellSizePx,
 			top: cell.y * cellSizePx,
 		}
@@ -38,6 +39,7 @@ export class CellElement extends React.Component<CellElement.Props, CellElement.
 			[cls.isDeadPoint]: this.props.isDeadPoint,
 		})
 
+		const z = cell.z + 1
 		const value = cell.sequenceValue
 			? (cell.sequenceValue.value === null ? '•' : cell.sequenceValue.value)
 			: cell.glyph
@@ -51,6 +53,7 @@ export class CellElement extends React.Component<CellElement.Props, CellElement.
 				<span className={cls.symbol} data-value={value}>
 					{value}
 				</span>
+				<small className={cls.depth}>{z}</small>
 			</div>
 		)
 	}
