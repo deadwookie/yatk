@@ -1,7 +1,7 @@
 import { types, IType, flow } from 'mobx-state-tree'
 import { GameAnalytics, EGAProgressionStatus } from 'gameanalytics'
 
-import { Rules, CollapseDirection, isEmptyColumn, isEmptyRow } from './rules'
+import { Rules, CollapseDirection, isEmptyColumn, isEmptyRow, RulesSnapshot } from './rules'
 import { Behavior } from './behavior'
 import { CHARMAP } from '../utils/chars'
 import { delay } from '../utils/times'
@@ -24,9 +24,12 @@ function getVisibleCellByCoordinate(board: Board, x: number, y: number, maxZ: nu
 	return cell
 }
 
-export interface SequenceValue {
+export interface SequenceValueSnapshot {
 	key: number
 	value: number | null
+}
+
+export interface SequenceValue extends SequenceValueSnapshot {
 }
 
 export const SequenceValue: IType<{}, SequenceValue> = types
@@ -35,7 +38,7 @@ export const SequenceValue: IType<{}, SequenceValue> = types
 		value: types.union(types.number, types.null)
 	})
 
-export interface Cell {
+export interface CellSnapshot {
 	key: string
 	index: number
 	x: number
@@ -44,7 +47,9 @@ export interface Cell {
 	isChained?: boolean
 	glyph?: string
 	sequenceValue?: SequenceValue | null
+}
 
+export interface Cell extends CellSnapshot {
 	readonly isEmpty?: boolean
 	readonly isNullSequence?: boolean
 	readonly isValueSequence?: boolean
@@ -84,8 +89,12 @@ export enum FinishResult {
 	Fail = 'fail'
 }
 
-export interface Board {
-	_processingAsyncId: number
+export interface BoardSettings {
+
+}
+
+export interface BoardSnapshot {
+	_processingAsyncId?: number
 
 	worldKey: string
 	levelKey: string
@@ -102,17 +111,19 @@ export interface Board {
 	score: number
 	finishResult?: FinishResult | null
 
-	currentStage: number
+	readonly currentStage: number
 	sequenceCounter: number
 	sequence: Array<SequenceValue>
 	cells: Array<Cell>
 	chain: Array<Cell>
 	cursor?: Cell | null
 	deadPoint?: Cell | null
-	rules: Rules
+	rules: RulesSnapshot
 	behavior: Behavior
 	visibleCells: Array<Cell>
+}
 
+export interface Board extends BoardSnapshot {
 	_stopProcessingAsync: (asyncId?: number) => void
 	copyRow: (srcY: number, dstY: number) => void
 	copyColumn: (srcX: number, dstX: number) => void

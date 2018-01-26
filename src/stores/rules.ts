@@ -117,17 +117,19 @@ export function isUniqueValues(...chain: Cell[]): boolean {
 	return valueSet.size === chain.length
 }
 
-export interface Rules {
+export interface RulesSnapshot {
 	targetSum: number
 	targetLength: number
 	deadPointIndex: number | null
 
-	isCollapseRows: boolean
-	isCollapsePartialRows: boolean
-	isCollapseColumns: boolean
-	isCollapsePartialColumns: boolean
+	isCollapseRows?: boolean
+	isCollapsePartialRows?: boolean
+	isCollapseColumns?: boolean
+	isCollapsePartialColumns?: boolean
 	collapseDirection?: CollapseDirection | null
+}
 
+export interface Rules extends RulesSnapshot {
 	isMatchRules: (...cell: Cell[]) => boolean
 	isMatchGeometry: (cells: Cell[], ...chain: Cell[]) => boolean
 	isMatchApplyRule: (...cell: Cell[]) => boolean

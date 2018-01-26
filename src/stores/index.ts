@@ -2,13 +2,13 @@ import { types } from 'mobx-state-tree'
 
 import { Board } from './board'
 
-export const Store = types.model('Store', {
+export const AppStore = types.model('Store', {
 	appVersion: types.string,
 	board: Board
 })
 
-export type Store = typeof Store.Type
+export type AppStore = typeof AppStore.Type
 
 export interface StoreInjectedProps {
-	store: Store
+	appStore: AppStore
 }
