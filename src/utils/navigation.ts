@@ -11,16 +11,34 @@ export enum Direction {
 	High = 'high'
 }
 
-export interface Point {
+export interface Point2D {
 	x: number
 	y: number
+}
+
+export interface Point extends Point2D {
 	z: number
 }
 
-export interface Size {
+export interface Size2D {
 	width: number
 	height: number
+}
+
+export interface Size extends Size2D {
 	depth: number
+}
+
+export function getIndexByCoordinate2D(point: Point2D, size: Size2D): number {
+	return point.y * size.width + point.x
+}
+
+export function getIndexByCoordinate(point: Point, size: Size): number {
+	return point.z * size.width * size.height + point.y * size.width + point.x
+}
+
+export function getByCoordinate<T>(points: T[], point: Point, size: Size): T | null {
+	return points[getIndexByCoordinate(point, size)] || null
 }
 
 export function getNextIndex(baseIndex: number, size: Size, dir: Direction | null): number | null {
@@ -44,7 +62,7 @@ export function getNextIndex(baseIndex: number, size: Size, dir: Direction | nul
 			break
 		case Direction.High:
 			nextIndex = baseIndex + size.width * size.height
-			break	
+			break
 		case Direction.UpRight:
 			nextIndex = getNextIndex(getNextIndex(baseIndex, size, Direction.Up)!, size, Direction.Right)
 			break

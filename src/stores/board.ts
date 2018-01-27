@@ -5,7 +5,7 @@ import { Rules, CollapseDirection, isEmptyColumn, isEmptyRow, RulesSnapshot } fr
 import { Behavior } from './behavior'
 import { CHARMAP } from '../utils/chars'
 import { delay } from '../utils/times'
-import { Direction, getNextIndex, canMove, isHorizontal, isVertical } from '../utils/navigation'
+import { Direction, getByCoordinate, getNextIndex, canMove, isHorizontal, isVertical } from '../utils/navigation'
 
 export function randomN(from = 0, upto = 10, asInt = true) {
 	const n = Math.random() * (upto - from) + from
@@ -195,8 +195,8 @@ export const Board: IType<{}, Board> = types
 		get visibleCells() {
 			const cells: Cell[] = []
 			const z = self.cursor ? self.cursor.z : 0
-			for (let x = 0; x < self.width; x++) {
-				for (let y = 0; y < self.height; y++) {
+			for (let y = 0; y < self.height; y++) {
+				for (let x = 0; x < self.width; x++) {
 					const cell = getVisibleCellByCoordinate(self, x, y, z) || self.getCell(x, y, 0)
 					if (cell) {
 						cells.push(cell)
@@ -476,7 +476,7 @@ export const Board: IType<{}, Board> = types
 		},
 
 		getCell(x: number, y: number, z: number): Cell | null {
-			return self.cells[z * self.width * self.height + y * self.width + x]
+			return getByCoordinate(self.cells, {x, y, z}, self)
 		}
 	}))
 	.actions((self) => ({
@@ -690,10 +690,10 @@ export const Board: IType<{}, Board> = types
 			const sequenceFragments: Array<SequenceValue> = []
 
 			chain.forEach(cell => {
-				if (isEmptyRow(self.cells, self.width, cell.y)) {
+				if (isEmptyRow(self.cells, self, cell.y, cell.z)) {
 					yToCollapse[cell.y.toString()] = cell.y
 				}
-				if (isEmptyColumn(self.cells, self.width, self.height, cell.x)) {
+				if (isEmptyColumn(self.cells, self, cell.x, cell.z)) {
 					xToCollapse[cell.x.toString()] = cell.x
 				}
 			})
@@ -785,7 +785,10 @@ export const Board: IType<{}, Board> = types
 				return
 			}
 
-			if (self.chain.length && self.rules.isMatchRules(cell, ...self.chain) && self.rules.isMatchGeometry(self.cells, cell, ...self.chain)) {
+			if (self.chain.length &&
+				self.rules.isMatchRules(cell, ...self.chain) &&
+				self.rules.isMatchGeometry(self, self.visibleCells, cell, ...self.chain)) {
+
 				self.chain.push(cell)
 			} else {
 				self.chain.forEach((cell: Cell) => {
