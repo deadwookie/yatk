@@ -91,6 +91,8 @@
 	padding: 0 1rem 0;
 
 	text-transform: uppercase;
+	white-space: nowrap;
+
 	font-family: var(--msg-font-family), Tahoma, sans-serif;
 	font-weight: var(--msg-font-weight);
 	font-size: var(--msg-font-size);
