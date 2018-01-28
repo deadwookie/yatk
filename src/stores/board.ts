@@ -122,6 +122,7 @@ export interface BoardSnapshot {
 	rules: RulesSnapshot
 	behavior: Behavior
 	visibleCells: Array<Cell>
+	strain: Array<Cell>
 }
 
 export interface Board extends BoardSnapshot {
@@ -207,7 +208,10 @@ export const Board: IType<{}, Board> = types
 			}
 
 			return cells
-		}
+		},
+		get strain() {
+			return self.sequence.filter((v: SequenceValue) => v.value !== null)
+		},
 	}))
 	.actions((self) => ({
 		_stopProcessingAsync(asyncId?: number) {
@@ -741,7 +745,7 @@ export const Board: IType<{}, Board> = types
 			self.clearChain()
 			self.movesCount += 1
 
-			if (!self.sequence.length) {
+			if (!self.strain.length) {
 				self.finish(FinishResult.Win)
 			}
 		},

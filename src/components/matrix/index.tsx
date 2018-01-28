@@ -73,7 +73,7 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 						<dt className={style.term}>Moves:</dt>
 						<dd className={style.desc}>{board.movesCount}</dd>
 						<dt className={style.term}>Sequence length:</dt>
-						<dd className={style.desc}>{board.sequence.filter(v => v.value !== null).length}</dd>
+						<dd className={style.desc}>{board.strain.length}</dd>
 					</dl>
 					<button onClick={this.onRestartClick}>New Game</button>
 				</footer>
