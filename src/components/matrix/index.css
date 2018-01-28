@@ -40,7 +40,7 @@
 	display: inline;
 	margin: 0;
 	list-style: none;
-	font-size: 1.2rem;
+	font-size: 1.5rem;
 }
 .term + .desc {
 	margin-left: .2em;
@@ -48,6 +48,20 @@
 .desc + .term::before {
 	content: "| ";
 	padding: 0 5px;
+}
+
+.actions {
+	margin: 10px;
+}
+
+.actions button {
+	/* font-size: 2em; */
+	text-transform: uppercase;
+	font-family: var(--msg-font-family), Tahoma, sans-serif;
+	font-weight: var(--msg-font-weight);
+	font-size: calc(.5 * var(--msg-font-size));
+	letter-spacing: .2rem;
+	padding: .2em 1em .21em;
 }
 
 /* Playground */

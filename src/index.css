@@ -29,6 +29,11 @@
 	--active-text-shadow: 0 0 .1em var(--active-shadow-color), 0 0 var(--active-shadow-blur) var(--active-shadow-color);
 }
 
+button {
+	line-height: 1em;
+	border: 1px dotted var(--accent-color);
+}
+
 a, button {
 	background: var(--accent-bg-color);
 	color: var(--accent-color);

@@ -53,24 +53,30 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 			<section className={style.main}>
 				<header>
 					<dl className={style.info}>
-						<dt className={style.term}><a onClick={this.onNextRoundClick}>Next Round</a></dt>
+						<dt className={style.term}>Round</dt>
+						<dd className={style.desc}>#{board.round}</dd>
 						<dt className={style.term}>Depth:</dt>
 						<dd className={style.desc}>{board.currentStage + 1}</dd>
 						<dt className={style.term}>Score:</dt>
 						<dd className={style.desc}>{board.score} points</dd>
-						<dt className={style.term}>Round</dt>
-						<dd className={style.desc}>#{board.round}</dd>
-						<dt className={style.term}>Moves:</dt>
-						<dd className={style.desc}>{board.movesCount}</dd>
-						<dt className={style.term}>Sequence length:</dt>
-						<dd className={style.desc}>{board.sequence.filter(v => v.value !== null).length}</dd>
-						<dt className={style.term}><a onClick={this.onRestartClick}>New Game</a></dt>
 					</dl>
 				</header>
+				<nav className={style.actions}>
+					<button onClick={this.onNextRoundClick}>Next Round</button>
+				</nav>
 				<div className={style.board} ref={this.refBoard} style={{ width: board.width * board.cellSizePx, height: board.height * board.cellSizePx }}>
 					{this.renderCells()}
 					{this.renderAlerts()}
 				</div>
+				<footer>
+					<dl className={style.info}>
+						<dt className={style.term}>Moves:</dt>
+						<dd className={style.desc}>{board.movesCount}</dd>
+						<dt className={style.term}>Sequence length:</dt>
+						<dd className={style.desc}>{board.sequence.filter(v => v.value !== null).length}</dd>
+					</dl>
+					<button onClick={this.onRestartClick}>New Game</button>
+				</footer>
 			</section>
 		)
 	}
