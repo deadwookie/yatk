@@ -25,7 +25,7 @@ export const defaultBoard: Partial<BoardSnapshot> = {
 		targetLength: 2,
 		deadPointIndex: 8 * 8 * 8,
 		collapseDirection: CollapseDirection.ToTopLeft,
-		isCollapseRows: true,
+		isCollapseRows: false,
 		isCollapseColumns: false,
 	},
 	behavior: {
