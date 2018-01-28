@@ -1,6 +1,6 @@
 import * as React from 'react'
 import * as join from 'classnames'
-import { observer } from 'mobx-react'
+import { inject, observer } from 'mobx-react'
 
 import * as cls from './cell.css'
 
@@ -9,7 +9,7 @@ import { StoreInjectedProps } from '../../stores'
 import { Cell } from '../../stores/board'
 
 export namespace CellElement {
-	export interface Props extends StoreInjectedProps {
+	export interface Props {
 		cell: Cell
 		isCursor: boolean
 		isDeadPoint: boolean
@@ -18,11 +18,11 @@ export namespace CellElement {
 }
 
 @observer
-export class CellElement extends React.Component<CellElement.Props, CellElement.State> {
+export class CellElement extends React.Component<CellElement.Props & StoreInjectedProps, CellElement.State> {
 	render() {
-		const { cell, store } = this.props
-		const { cellSizePx, currentStage } = this.props.store.board
-		
+		const { cell, appStore } = this.props
+		const { cellSizePx, currentStage } = appStore.board
+
 		const positionStyle: React.CSSProperties = {
 			opacity: (cell.z + 1) / (currentStage + 1),
 			left: cell.x * cellSizePx,
@@ -61,15 +61,15 @@ export class CellElement extends React.Component<CellElement.Props, CellElement.
 	@autobind
 	onCellClick() {
 		if (this.props.isCursor) {
-			this.props.store.board.nextRound()
+			this.props.appStore.board.nextRound()
 		} else {
 			if (this.props.cell.isChained) {
-				this.props.store.board.removeFromChain(this.props.cell)
+				this.props.appStore.board.removeFromChain(this.props.cell)
 			} else {
-				this.props.store.board.addToChain(this.props.cell)
+				this.props.appStore.board.addToChain(this.props.cell)
 			}
 		}
 	}
 }
 
-export default CellElement
+export default inject('appStore')(CellElement) as React.ComponentClass<CellElement.Props>

@@ -1,25 +1,25 @@
 import * as React from 'react'
 import { findDOMNode } from 'react-dom'
-import { observer } from 'mobx-react'
+import { inject, observer } from 'mobx-react'
 
 import * as style from './index.css'
 
 import { autobind, throttle } from '../../utils/decorators'
 import { StoreInjectedProps } from '../../stores'
 import { Cell, FinishResult } from '../../stores/board'
-import { CellElement } from './cell'
+import CellElement from './cell'
 
 export namespace Matrix {
-	export interface Props extends StoreInjectedProps {}
+	export interface Props {}
 	export interface State {}
 }
 
 @observer
-export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
+export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, Matrix.State> {
 	$board: Element | null
 
 	componentDidMount() {
-		this.props.store.board.newGame()
+		this.props.appStore.board.newGame()
 
 		window.addEventListener('resize', this.scaleBoard)
 		this.scaleBoard()
@@ -34,7 +34,7 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 	protected scaleBoard() {
 		if (!this.$board) return
 
-		const { width, height, cellSizePx } = this.props.store.board
+		const { width, height, cellSizePx } = this.props.appStore.board
 		const { innerWidth, innerHeight } = window
 
 		// We need to keep ratio, so lookin' for a smallest dimension
@@ -47,7 +47,7 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 	}
 
 	render() {
-		const { board } = this.props.store
+		const { board } = this.props.appStore
 
 		return (
 			<section className={style.main}>
@@ -76,16 +76,15 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 	}
 
 	renderCells() {
-		const { store } = this.props
+		const { appStore } = this.props
 
-		return store.board.visibleCells.map((cell: Cell) => {
+		return appStore.board.visibleCells.map((cell: Cell) => {
 			return (
 				<CellElement
 					key={'box-cell-' + cell.key}
-					store={store}
 					cell={cell}
-					isCursor={cell === store.board.cursor}
-					isDeadPoint={cell === store.board.deadPoint}
+					isCursor={cell === appStore.board.cursor}
+					isDeadPoint={cell === appStore.board.deadPoint}
 				/>
 			)
 		})
@@ -93,7 +92,7 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 
 	// TODO: support different alerts/messages
 	renderAlerts() {
-		const { board } = this.props.store
+		const { board } = this.props.appStore
 
 		if (!board.finishResult) {
 			return null
@@ -108,12 +107,12 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 
 	@autobind
 	onRestartClick() {
-		this.props.store.board.newGame()
+		this.props.appStore.board.newGame()
 	}
 
 	@autobind
 	onNextRoundClick() {
-		this.props.store.board.nextRound()
+		this.props.appStore.board.nextRound()
 	}
 
 	@autobind
@@ -122,4 +121,4 @@ export class Matrix extends React.Component<Matrix.Props, Matrix.State> {
 	}
 }
 
-export default Matrix
+export default inject('appStore')(Matrix) as React.ComponentClass<Matrix.Props>

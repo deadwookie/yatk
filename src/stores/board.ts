@@ -1,11 +1,11 @@
 import { types, IType, flow } from 'mobx-state-tree'
 import { GameAnalytics, EGAProgressionStatus } from 'gameanalytics'
 
-import { Rules, CollapseDirection, isEmptyColumn, isEmptyRow } from './rules'
+import { Rules, CollapseDirection, isEmptyColumn, isEmptyRow, RulesSnapshot } from './rules'
 import { Behavior } from './behavior'
 import { CHARMAP } from '../utils/chars'
 import { delay } from '../utils/times'
-import { Direction, getNextIndex, canMove, isHorizontal, isVertical } from '../utils/navigation'
+import { Direction, getByCoordinate, getNextIndex, canMove, isHorizontal, isVertical } from '../utils/navigation'
 
 export function randomN(from = 0, upto = 10, asInt = true) {
 	const n = Math.random() * (upto - from) + from
@@ -24,9 +24,12 @@ function getVisibleCellByCoordinate(board: Board, x: number, y: number, maxZ: nu
 	return cell
 }
 
-export interface SequenceValue {
+export interface SequenceValueSnapshot {
 	key: number
 	value: number | null
+}
+
+export interface SequenceValue extends SequenceValueSnapshot {
 }
 
 export const SequenceValue: IType<{}, SequenceValue> = types
@@ -35,7 +38,7 @@ export const SequenceValue: IType<{}, SequenceValue> = types
 		value: types.union(types.number, types.null)
 	})
 
-export interface Cell {
+export interface CellSnapshot {
 	key: string
 	index: number
 	x: number
@@ -44,7 +47,9 @@ export interface Cell {
 	isChained?: boolean
 	glyph?: string
 	sequenceValue?: SequenceValue | null
+}
 
+export interface Cell extends CellSnapshot {
 	readonly isEmpty?: boolean
 	readonly isNullSequence?: boolean
 	readonly isValueSequence?: boolean
@@ -84,8 +89,12 @@ export enum FinishResult {
 	Fail = 'fail'
 }
 
-export interface Board {
-	_processingAsyncId: number
+export interface BoardSettings {
+
+}
+
+export interface BoardSnapshot {
+	_processingAsyncId?: number
 
 	worldKey: string
 	levelKey: string
@@ -102,17 +111,19 @@ export interface Board {
 	score: number
 	finishResult?: FinishResult | null
 
-	currentStage: number
+	readonly currentStage: number
 	sequenceCounter: number
 	sequence: Array<SequenceValue>
 	cells: Array<Cell>
 	chain: Array<Cell>
 	cursor?: Cell | null
 	deadPoint?: Cell | null
-	rules: Rules
+	rules: RulesSnapshot
 	behavior: Behavior
 	visibleCells: Array<Cell>
+}
 
+export interface Board extends BoardSnapshot {
 	_stopProcessingAsync: (asyncId?: number) => void
 	copyRow: (srcY: number, dstY: number) => void
 	copyColumn: (srcX: number, dstX: number) => void
@@ -184,8 +195,8 @@ export const Board: IType<{}, Board> = types
 		get visibleCells() {
 			const cells: Cell[] = []
 			const z = self.cursor ? self.cursor.z : 0
-			for (let x = 0; x < self.width; x++) {
-				for (let y = 0; y < self.height; y++) {
+			for (let y = 0; y < self.height; y++) {
+				for (let x = 0; x < self.width; x++) {
 					const cell = getVisibleCellByCoordinate(self, x, y, z) || self.getCell(x, y, 0)
 					if (cell) {
 						cells.push(cell)
@@ -465,7 +476,7 @@ export const Board: IType<{}, Board> = types
 		},
 
 		getCell(x: number, y: number, z: number): Cell | null {
-			return self.cells[z * self.width * self.height + y * self.width + x]
+			return getByCoordinate(self.cells, {x, y, z}, self)
 		}
 	}))
 	.actions((self) => ({
@@ -679,10 +690,10 @@ export const Board: IType<{}, Board> = types
 			const sequenceFragments: Array<SequenceValue> = []
 
 			chain.forEach(cell => {
-				if (isEmptyRow(self.cells, self.width, cell.y)) {
+				if (isEmptyRow(self.cells, self, cell.y, cell.z)) {
 					yToCollapse[cell.y.toString()] = cell.y
 				}
-				if (isEmptyColumn(self.cells, self.width, self.height, cell.x)) {
+				if (isEmptyColumn(self.cells, self, cell.x, cell.z)) {
 					xToCollapse[cell.x.toString()] = cell.x
 				}
 			})
@@ -774,7 +785,10 @@ export const Board: IType<{}, Board> = types
 				return
 			}
 
-			if (self.chain.length && self.rules.isMatchRules(cell, ...self.chain) && self.rules.isMatchGeometry(self.cells, cell, ...self.chain)) {
+			if (self.chain.length &&
+				self.rules.isMatchRules(cell, ...self.chain) &&
+				self.rules.isMatchGeometry(self, self.visibleCells, cell, ...self.chain)) {
+
 				self.chain.push(cell)
 			} else {
 				self.chain.forEach((cell: Cell) => {

@@ -1,5 +1,15 @@
 import { types, IType } from 'mobx-state-tree'
 import { Cell } from './board'
+import {
+	Size,
+	getByCoordinate,
+	getIndexByCoordinate2D,
+	getNextIndex,
+	Direction,
+	Point,
+	isHorizontal,
+	isVertical
+} from '../utils/navigation'
 
 export enum CollapseDirection {
 	ToTopLeft = 'toTopLeft',
@@ -7,7 +17,48 @@ export enum CollapseDirection {
 	ToDeadPoint = 'toDeadPoint'
 }
 
-export function isRow(cells: Cell[], ...chain: Cell[]): boolean {
+export function isEmptyByDirection(vCells: Cell[], size: Size, startPoint: Point, dir: Direction) {
+	let stepsLimit = 0
+
+	if (isHorizontal(dir)) {
+		stepsLimit = size.width
+	} else if (isVertical(dir)) {
+		stepsLimit = size.height
+	} else {
+		throw new Error('Only horizontal and vertical directions are allowed')
+	}
+
+	let isEmpty: boolean = true
+	let index = getByCoordinate(vCells, startPoint, size)!.index
+	let i = 0
+
+	while (i < stepsLimit) {
+		if (vCells[index].isValueSequence) {
+			isEmpty = false
+			break
+		}
+		index = getNextIndex(index, size, dir)!
+		i++
+	}
+
+	return isEmpty
+}
+
+export function isEmptyBetweenCells(vCells: Cell[], sortedChain: Cell[], size: Size, step: number): boolean {
+	const indexesBetween: number[] = []
+
+	for (let i = 1; i < sortedChain.length; i++) {
+		const prevIndex = getIndexByCoordinate2D(sortedChain[i - 1], size)
+		const currentIndex = getIndexByCoordinate2D(sortedChain[i], size)
+		for (let j = prevIndex + step; j !== currentIndex; j += step) {
+			indexesBetween.push(j)
+		}
+	}
+
+	return indexesBetween.every(ind => vCells[ind].isEmpty! || vCells[ind].isNullSequence!)
+}
+
+export function isRow(size: Size, vCells: Cell[], ...chain: Cell[]): boolean {
 	const sortedChain = chain.sort((a, b) => a.x - b.x)
 	const first = sortedChain[0]
 
@@ -15,28 +66,14 @@ export function isRow(cells: Cell[], ...chain: Cell[]): boolean {
 		return false
 	}
 
-	const indexesBetween: number[] = []
-
-	for (let i = 1; i < sortedChain.length; i++) {
-		for (let j = sortedChain[i - 1].index + 1; j < sortedChain[i].index; j++) {
-			indexesBetween.push(j)
-		}
-	}
-	return indexesBetween.every(ind => cells[ind].isEmpty! || cells[ind].isNullSequence!)
+	return isEmptyBetweenCells(vCells, sortedChain, size, 1)
 }
 
-export function isEmptyRow(cells: Cell[], width: number, y: number) {
-	let isEmpty: boolean = true
-	for (let i = cells[y * width].index; i < ((y + 1) * width - 1); i++) {
-		if (cells[i].isValueSequence) {
-			isEmpty = false
-			break
-		}
-	}
-	return isEmpty
+export function isEmptyRow(vCells: Cell[], size: Size, y: number, z: number) {
+	return isEmptyByDirection(vCells, size, {x: 0, y, z}, Direction.Right)
 }
 
-export function isColumn(cells: Cell[], ...chain: Cell[]): boolean {
+export function isColumn(size: Size, vCells: Cell[], ...chain: Cell[]): boolean {
 	const sortedChain = chain.sort((a, b) => a.y - b.y)
 	const first = sortedChain[0]
 
@@ -44,30 +81,14 @@ export function isColumn(cells: Cell[], ...chain: Cell[]): boolean {
 		return false
 	}
 
-	const second = sortedChain[1]
-	const indexesBetween: number[] = []
-	const width = Math.floor((second.index - first.index) / (second.y - first.y))
-
-	for (let i = 1; i < sortedChain.length; i++) {
-		for (let j = sortedChain[i - 1].index + width; j < sortedChain[i].index; j += width) {
-			indexesBetween.push(j)
-		}
-	}
-	return indexesBetween.every(ind => cells[ind].isEmpty! || cells[ind].isNullSequence!)
+	return isEmptyBetweenCells(vCells, sortedChain, size, size.width)
 }
 
-export function isEmptyColumn(cells: Cell[], width: number, height: number, x: number) {
-	let isEmpty: boolean = true
-	for (let i = 0; i < height; i++) {
-		if (cells[i * width + x].isValueSequence) {
-			isEmpty = false
-			break
-		}
-	}
-	return isEmpty
+export function isEmptyColumn(vCells: Cell[], size: Size, x: number, z: number) {
+	return isEmptyByDirection(vCells, size, {x, y: 0, z}, Direction.Down)
 }
 
-export function isDiagonal(cells: Cell[], ...chain: Cell[]): boolean {
+export function isDiagonal(size: Size, vCells: Cell[], ...chain: Cell[]): boolean {
 	if (chain.length < 2) {
 		return false
 	}
@@ -81,17 +102,7 @@ export function isDiagonal(cells: Cell[], ...chain: Cell[]): boolean {
 		return false
 	}
 
-	const width = Math.abs(Math.floor((second.index - first.index - direction * (second.y - first.y))) / (second.y - first.y))
-	const indexesBetween: number[] = []
-
-	for (let i = 1; i < sortedChain.length; i++) {
-		const step = width * direction + 1
-		for (let j = sortedChain[i - 1].index + step; j !== sortedChain[i].index; j += step) {
-			indexesBetween.push(j)
-		}
-	}
-
-	return indexesBetween.every(ind => cells[ind].isEmpty! || cells[ind].isNullSequence!)
+	return isEmptyBetweenCells(vCells, sortedChain, size, size.width * direction + 1)
 }
 
 export function isTargetSum(targetSum: number, ...chain: Cell[]): boolean {
@@ -117,19 +128,21 @@ export function isUniqueValues(...chain: Cell[]): boolean {
 	return valueSet.size === chain.length
 }
 
-export interface Rules {
+export interface RulesSnapshot {
 	targetSum: number
 	targetLength: number
 	deadPointIndex: number | null
 
-	isCollapseRows: boolean
-	isCollapsePartialRows: boolean
-	isCollapseColumns: boolean
-	isCollapsePartialColumns: boolean
+	isCollapseRows?: boolean
+	isCollapsePartialRows?: boolean
+	isCollapseColumns?: boolean
+	isCollapsePartialColumns?: boolean
 	collapseDirection?: CollapseDirection | null
+}
 
+export interface Rules extends RulesSnapshot {
 	isMatchRules: (...cell: Cell[]) => boolean
-	isMatchGeometry: (cells: Cell[], ...chain: Cell[]) => boolean
+	isMatchGeometry: (size: Size, vCells: Cell[], ...chain: Cell[]) => boolean
 	isMatchApplyRule: (...cell: Cell[]) => boolean
 }
 
@@ -153,8 +166,8 @@ export const Rules: IType<{}, Rules> = types
 			return isTargetSum(self.targetSum, ...chain) || isSameValue(...chain)
 		},
 
-		isMatchGeometry(cells: Cell[], ...chain: Cell[]) {
-			return isRow(cells, ...chain) || isColumn(cells, ...chain) || isDiagonal(cells, ...chain)
+		isMatchGeometry(size: Size, vCells: Cell[], ...chain: Cell[]) {
+			return isRow(size, vCells, ...chain) || isColumn(size, vCells, ...chain) || isDiagonal(size, vCells, ...chain)
 		},
 
 		isMatchApplyRule(...chain: Cell[]) {
