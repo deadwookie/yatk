@@ -122,7 +122,7 @@ export interface BoardSnapshot {
 	rules: RulesSnapshot
 	behavior: Behavior
 	visibleCells: Array<Cell>
-	strain: Array<Cell>
+	strain: Array<SequenceValue>
 }
 
 export interface Board extends BoardSnapshot {
