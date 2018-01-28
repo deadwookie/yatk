@@ -22,9 +22,11 @@ export class CellElement extends React.Component<CellElement.Props & StoreInject
 	render() {
 		const { cell, appStore } = this.props
 		const { cellSizePx, currentStage } = appStore.board
+		const emerged = (cell.z + 1) / (currentStage + 1)
 
 		const positionStyle: React.CSSProperties = {
-			opacity: (cell.z + 1) / (currentStage + 1),
+			opacity: emerged,
+			filter: emerged < 1 ? `blur(${currentStage - cell.z}px)` : undefined,
 			left: cell.x * cellSizePx,
 			top: cell.y * cellSizePx,
 		}
