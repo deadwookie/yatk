@@ -1,15 +1,17 @@
 import { BoardGeometryType, BoardSnapshot } from '../stores/board'
 import { CollapseDirection } from '../stores/rules'
 
+const SIZE = 8
+
 export const defaultBoard: Partial<BoardSnapshot> = {
 	worldKey: 'spiral',
 	levelKey: 'intro',
 
 	isDummySequence: false,
-	initialSequenceLength: 64,
-	width: 8,
-	height: 8,
-	depth: 8,
+	initialSequenceLength: SIZE * SIZE * 2,
+	width: SIZE,
+	height: SIZE,
+	depth: SIZE,
 	cellSizePx: 50,
 	geometryType: BoardGeometryType.Box,
 
@@ -23,13 +25,13 @@ export const defaultBoard: Partial<BoardSnapshot> = {
 	rules: {
 		targetSum: 10,
 		targetLength: 2,
-		deadPointIndex: 8 * 8 * 8,
+		deadPointIndex: SIZE * SIZE * SIZE,
 		collapseDirection: CollapseDirection.ToTopLeft,
 		isCollapseRows: false,
 		isCollapseColumns: false,
 	},
 	behavior: {
-		seqArrangeStepDelayMs: 15
+		seqArrangeStepDelayMs: 5
 	}
 }
 
