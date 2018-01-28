@@ -17,7 +17,8 @@ export const defaultBoard: Partial<BoardSnapshot> = {
 
 	movesCount: 0,
 	round: 1,
-	score: 1000,
+	initialScore: 0,
+	score: 0,
 
 	cells: [],
 	chain: [],

@@ -109,6 +109,7 @@ export interface BoardSnapshot {
 
 	movesCount: number
 	round: number
+	initialScore: number
 	score: number
 	finishResult?: FinishResult | null
 
@@ -147,7 +148,7 @@ export interface Board extends BoardSnapshot {
 	replicateSequence: () => void
 	arrangeSequence: (sequence: Array<SequenceValue>) => void
 	generate: (seqLength?: number, isDummy?: boolean) => void
-	newGame: (seqLength?: number, isDummy?: boolean) => void
+	newGame: (seqLength?: number, score?: number) => void
 	nextRound: () => void
 	processChain: () => void
 	clearChain: () => void
@@ -172,6 +173,7 @@ export const Board: IType<{}, Board> = types
 
 		movesCount: types.number,
 		round: types.number,
+		initialScore: types.number,
 		score: types.number,
 		finishResult: types.maybe(types.union(types.literal(FinishResult.Win), types.literal(FinishResult.Fail))),
 
@@ -774,11 +776,11 @@ export const Board: IType<{}, Board> = types
 			self.arrangeSequence(self.replicateSequence())
 		},
 
-		newGame(seqLength?: number) {
+		newGame(seqLength?: number, score?: number) {
 			self._stopProcessingAsync()
 			self.movesCount = 0
 			self.round = 1
-			self.score = 1000
+			self.score = score !== undefined ? score : self.initialScore
 			self.finishResult = null
 			self.clearChain()
 			self.generate(seqLength, self.isDummySequence)
