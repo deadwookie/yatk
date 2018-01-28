@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=PT+Sans+Caption:400,700|PT+Serif+Caption&subset=latin-ext');
+
 :global(html) {
 	font-size: 10px;
 	height: 100%;
@@ -7,11 +9,22 @@
 	padding: 0;
 	color: #999;
 	background: #333;
+
+	--ff: 'Avenir', 'Lucida Sans', 'Lucida Sans Unicode', Helvetica, Verdana, sans-serif;
+	font-family: var(--ff);
+
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 :global(.theme-matrix) {
-	--color: #999;
+	--color: #777;
 	--bg-color: #333;
+
+	--accent-ff: 'PT Sans Caption', Tahoma, sans-serif;
+	--accent-fw: 700;
+	--caption-ff: 'PT Serif Caption', Tahoma, sans-serif;
+	--caption-fw: 400;
 
 	--accent-color: #090;
 	--accent-bg-color: var(--bg-color);
@@ -30,8 +43,13 @@
 }
 
 button {
-	line-height: 1em;
 	border: 1px dotted var(--accent-color);
+	text-transform: uppercase;
+	line-height: 1em;
+	letter-spacing: .1rem;
+
+	font-family: var(--caption-ff);
+	font-weight: var(--caption-fw);
 }
 
 a, button {
@@ -49,5 +67,4 @@ a:hover, button:enabled:focus, button:enabled:hover {
 	background: var(--hover-bg-color);
 	color: var(--hover-color);
 	border-color: var(--hover-color);
-	text-shadow: var(--hover-text-shadow);
 }

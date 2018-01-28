@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css?family=PT+Sans+Caption:400,700|PT+Serif+Caption&subset=latin-ext');
-
 .main {
 	--cell-number: 16;
 	--cell-size: 5rem;
@@ -30,12 +28,6 @@
 }
 
 /* Status bar */
-.info {
-	opacity: .5;
-}
-.info:hover {
-	opacity: 1;
-}
 .term, .desc {
 	display: inline;
 	margin: 0;
@@ -55,13 +47,9 @@
 }
 
 .actions button {
-	/* font-size: 2em; */
-	text-transform: uppercase;
-	font-family: var(--msg-font-family), Tahoma, sans-serif;
-	font-weight: var(--msg-font-weight);
-	font-size: calc(.5 * var(--msg-font-size));
-	letter-spacing: .2rem;
-	padding: .2em 1em .21em;
+	/* letter-spacing: .2rem; */
+	font-size: 1.6rem;
+	padding: 5px 1em 6px;
 }
 
 /* Playground */

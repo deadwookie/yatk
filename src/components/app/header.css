@@ -3,10 +3,11 @@
 
 .logo {
 	position: relative;
-	font-size: 4.5rem;
-	font-weight: bold;
-	font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Verdana, sans-serif;
+	font-size: 5.2rem;
+	font-family: var(--accent-ff);
+	font-weight: var(--accent-fw);
 	color: var(--accent-color);
+  	transform: scale(1, 1.5);
 }
 
 .logo::after {
@@ -29,7 +30,11 @@
 
 .title {
 	margin-top: -1rem;
-	font-weight: normal;
+	font-size: 1.6rem;
+	font-family: var(--accent-ff);
+	font-weight: var(--accent-fw);
+	text-transform: uppercase;
+	letter-spacing: .1rem;
 }
 
 @keyframes appear {
