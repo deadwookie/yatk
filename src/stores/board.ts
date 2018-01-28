@@ -99,6 +99,7 @@ export interface BoardSnapshot {
 	worldKey: string
 	levelKey: string
 
+	isDummySequence: boolean
 	initialSequenceLength: number
 	width: number
 	height: number
@@ -160,6 +161,7 @@ export const Board: IType<{}, Board> = types
 		worldKey: types.string,
 		levelKey: types.string,
 
+		isDummySequence: types.boolean,
 		initialSequenceLength: types.number,
 		width: types.number,
 		height: types.number,
@@ -768,14 +770,14 @@ export const Board: IType<{}, Board> = types
 			self.arrangeSequence(self.replicateSequence())
 		},
 
-		newGame(seqLength?: number, isDummy?: boolean) {
+		newGame(seqLength?: number) {
 			self._stopProcessingAsync()
 			self.movesCount = 0
 			self.round = 1
 			self.score = 1000
 			self.finishResult = null
 			self.clearChain()
-			self.generate(seqLength, isDummy || true)
+			self.generate(seqLength, self.isDummySequence)
 
 			GameAnalytics.addProgressionEvent(EGAProgressionStatus.Start, self.worldKey, self.levelKey, self.round)
 		},

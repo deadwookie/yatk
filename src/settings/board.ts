@@ -4,7 +4,9 @@ import { CollapseDirection } from '../stores/rules'
 export const defaultBoard: Partial<BoardSnapshot> = {
 	worldKey: 'spiral',
 	levelKey: 'intro',
-	initialSequenceLength: 40,
+
+	isDummySequence: false,
+	initialSequenceLength: 64,
 	width: 8,
 	height: 8,
 	depth: 8,
