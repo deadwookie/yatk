@@ -105,6 +105,11 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 
 	renderCursor() {
 		const { board } = this.props.appStore
+		if (board.finishResult) {
+			// We don't need it at the end
+			return null
+		}
+
 		const cursor = board.cursor && board.cells[board.cursor.index - 1]
 		if (!cursor) {
 			return null
