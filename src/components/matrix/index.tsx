@@ -68,6 +68,7 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 				</nav>
 				<div className={style.board} ref={this.refBoard} style={{ width: board.width * board.cellSizePx, height: board.height * board.cellSizePx }}>
 					{this.renderCells()}
+					{this.renderCursor()}
 					{this.renderAlerts()}
 				</div>
 				<footer>
@@ -100,6 +101,28 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 				/>
 			)
 		})
+	}
+
+	renderCursor() {
+		const { board } = this.props.appStore
+		const cursor = board.cursor && board.cells[board.cursor.index - 1]
+		if (!cursor) {
+			return null
+		}
+
+		const cls = join({
+			[style.cursor]: true,
+			[style.isActive]: board.isProcessing,
+		})
+
+		const styles = {
+			left: cursor.x * board.cellSizePx,
+			top: cursor.y * board.cellSizePx,
+		}
+
+		return (
+			<div className={cls} style={styles} />
+		)
 	}
 
 	// TODO: support different alerts/messages

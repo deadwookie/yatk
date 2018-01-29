@@ -75,6 +75,20 @@
 	position: relative;
 }
 
+.cursor {
+	position: absolute;
+	width: 0;
+	height: var(--cell-size);
+	margin-left: var(--cell-size);
+	border-right: 1px solid var(--hover-color);
+	opacity: .3;
+	animation: blink 1.5s step-end infinite normal;
+}
+.cursor.isActive {
+	animation: none;
+	opacity: .5;
+}
+
 .alert {
 	position: absolute;
 	left: 0;
@@ -103,4 +117,13 @@
 	background: var(--msg-bg-color);
 	border: 3px solid var(--glow-color);
 	box-shadow: 0 0 calc(var(--glow-shadow-blur) * 2) var(--hover-color);
+}
+
+@keyframes blink {
+	0%, 100% {
+		opacity: 0;
+	}
+	50% {
+		opacity: .3;
+	}
 }
