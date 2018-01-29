@@ -24,6 +24,8 @@
 	--msg-font-size: 3.8rem;
 	--msg-bg-color: #333;
 
+	--disabled-button-color: #777;
+
 	overflow: hidden;
 	position: relative;
 }
@@ -63,6 +65,11 @@
 	/* letter-spacing: .2rem; */
 	font-size: 1.6rem;
 	padding: 5px 1em 6px;
+}
+
+.actions button:disabled {
+	color: var(--disabled-button-color);
+	border-color: var(--disabled-button-color)
 }
 
 /* Playground */

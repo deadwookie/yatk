@@ -51,6 +51,7 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 		const { board } = this.props.appStore
 
 		const isGonnaLoose = board.strain.length > board.freeSpaceLeft
+		const isGameFinished = !!board.finishResult
 
 		return (
 			<section className={style.main}>
@@ -70,7 +71,7 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 					{this.renderAlerts()}
 				</div>
 				<nav className={style.actions}>
-					<button onClick={this.onNextRoundClick}>Next Round</button>
+					<button onClick={this.onNextRoundClick} disabled={isGameFinished}>Next Round</button>
 				</nav>
 				<footer>
 					<dl className={style.info}>
