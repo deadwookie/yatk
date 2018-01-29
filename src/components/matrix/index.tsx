@@ -22,13 +22,13 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 	componentDidMount() {
 		this.props.appStore.board.newGame()
 
-		window.addEventListener('resize', this.scaleBoard)
-		this.scaleBoard()
+		// window.addEventListener('resize', this.scaleBoard)
+		// this.scaleBoard()
 	}
 
-	componentWillUnmount() {
-		window.removeEventListener('resize', this.scaleBoard)
-	}
+	// componentWillUnmount() {
+	// 	window.removeEventListener('resize', this.scaleBoard)
+	// }
 
 	@autobind
 	@throttle(200)
