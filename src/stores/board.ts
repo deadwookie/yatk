@@ -126,6 +126,7 @@ export interface BoardSnapshot {
 	readonly visibleCells: Array<Cell>
 	readonly strain: Array<SequenceValue>
 	readonly freeSpaceLeft: number
+	readonly isProcessing: boolean
 }
 
 export interface Board extends BoardSnapshot {
@@ -223,7 +224,10 @@ export const Board: IType<{}, Board> = types
 		},
 		get freeSpaceLeft() {
 			return self.rules.deadPointIndex - (self.cursor ? self.cursor.index : 0)
-		}
+		},
+		get isProcessing() {
+			return self._processingAsyncId !== -1
+		},
 	}))
 	.actions((self) => ({
 		_stopProcessingAsync(asyncId?: number) {

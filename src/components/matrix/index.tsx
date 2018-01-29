@@ -81,6 +81,8 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 					</dl>
 					<button onClick={this.onRestartClick}>New Game</button>
 				</footer>
+
+				{this.renderOverlay()}
 			</section>
 		)
 	}
@@ -112,6 +114,18 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 			<aside className={style.alert}>
 				<p className={style.message}>{board.finishResult === FinishResult.Win ? 'You Win' : 'Game Over'}</p>
 			</aside>
+		)
+	}
+
+	renderOverlay() {
+		const { board } = this.props.appStore
+
+		if (!board.isProcessing) {
+			return null
+		}
+
+		return (
+			<div className={style.freezeOverlay}/>
 		)
 	}
 

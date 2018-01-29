@@ -25,6 +25,16 @@
 	--msg-bg-color: #333;
 
 	overflow: hidden;
+	position: relative;
+}
+
+.freezeOverlay {
+	cursor: wait;
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
 }
 
 /* Status bar */
