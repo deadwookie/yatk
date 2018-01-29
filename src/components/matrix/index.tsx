@@ -1,4 +1,5 @@
 import * as React from 'react'
+import * as join from 'classnames'
 import { findDOMNode } from 'react-dom'
 import { inject, observer } from 'mobx-react'
 
@@ -49,16 +50,17 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 	render() {
 		const { board } = this.props.appStore
 
+		const isGonnaLoose = board.strain.length > board.freeSpaceLeft
+
 		return (
 			<section className={style.main}>
 				<header>
 					<dl className={style.info}>
 						<dt className={style.term}>Round</dt>
 						<dd className={style.desc}>#{board.round}</dd>
-						<dt className={style.term}>Cleared:</dt>
-						<dd className={style.desc}>{board.movesCount * 2} cells</dd>
 						<dt className={style.term}>Score:</dt>
 						<dd className={style.desc}>{board.score} points</dd>
+						<dd className={style.desc}>{board.movesCount * 2} cells cleared</dd>
 					</dl>
 				</header>
 				<nav className={style.actions}>
@@ -71,9 +73,11 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 				<footer>
 					<dl className={style.info}>
 						<dt className={style.term}>Depth:</dt>
-						<dd className={style.desc}>{board.currentStage + 1}</dd>
+						<dd className={style.desc}>{board.currentStage + 1}/{board.maxStage}</dd>
 						<dt className={style.term}>Infected:</dt>
 						<dd className={style.desc}>{board.strain.length} cells</dd>
+						<dt className={join(style.term, isGonnaLoose && style.warn)}>Rest:</dt>
+						<dd className={join(style.desc, isGonnaLoose && style.warn)}>{board.freeSpaceLeft} cells</dd>
 					</dl>
 					<button onClick={this.onRestartClick}>New Game</button>
 				</footer>

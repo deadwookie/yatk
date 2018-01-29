@@ -26,13 +26,16 @@
 	--caption-ff: 'PT Serif Caption', Tahoma, sans-serif;
 	--caption-fw: 400;
 
+	--warn-color: #f00;
+	--warn-bg-color: var(--bg-color);
+
 	--accent-color: #090;
 	--accent-bg-color: var(--bg-color);
 
 	--hover-color: #6f9;
 	--hover-bg-color: transparent;
 	--hover-shadow-blur: .5em;
-	--hover-shadow-color: #f00;
+	--hover-shadow-color: var(--warn-color);
 	--hover-text-shadow: 0 0 var(--hover-shadow-blur) var(--hover-shadow-color);
 
 	--active-color: #fff;

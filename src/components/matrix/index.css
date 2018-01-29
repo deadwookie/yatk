@@ -28,6 +28,10 @@
 }
 
 /* Status bar */
+.warn {
+	color: var(--warn-color);
+}
+
 .term, .desc {
 	display: inline;
 	margin: 0;
@@ -37,9 +41,8 @@
 .term + .desc {
 	margin-left: .2em;
 }
-.desc + .term::before {
-	content: "| ";
-	padding: 0 5px;
+.desc + .term, .desc + .desc {
+	margin-left: 1.5em;
 }
 
 .actions {

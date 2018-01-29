@@ -114,6 +114,7 @@ export interface BoardSnapshot {
 	finishResult?: FinishResult | null
 
 	readonly currentStage: number
+	readonly maxStage: number
 	sequenceCounter: number
 	sequence: Array<SequenceValue>
 	cells: Array<Cell>
@@ -122,8 +123,9 @@ export interface BoardSnapshot {
 	deadPoint?: Cell | null
 	rules: RulesSnapshot
 	behavior: Behavior
-	visibleCells: Array<Cell>
-	strain: Array<SequenceValue>
+	readonly visibleCells: Array<Cell>
+	readonly strain: Array<SequenceValue>
+	readonly freeSpaceLeft: number
 }
 
 export interface Board extends BoardSnapshot {
@@ -197,6 +199,11 @@ export const Board: IType<{}, Board> = types
 			}
 			return z
 		},
+		get maxStage() {
+			const lastCell = self.rules.deadPointIndex - 1
+			const layerSize = self.width * self.height
+			return Math.ceil(lastCell / layerSize)
+		},
 		get visibleCells() {
 			const cells: Cell[] = []
 			const z = self.cursor ? self.cursor.z : 0
@@ -214,6 +221,9 @@ export const Board: IType<{}, Board> = types
 		get strain() {
 			return self.sequence.filter((v: SequenceValue) => v.value !== null)
 		},
+		get freeSpaceLeft() {
+			return self.rules.deadPointIndex - (self.cursor ? self.cursor.index : 0)
+		}
 	}))
 	.actions((self) => ({
 		_stopProcessingAsync(asyncId?: number) {
