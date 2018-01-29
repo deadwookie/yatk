@@ -2,6 +2,39 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.7.0"></a>
+# [0.7.0](https://github.com/deadwookie/yatk/compare/v0.6.0...v0.7.0) (2018-01-29)
+
+
+### Bug Fixes
+
+* **board:** abort async sequence arrange on "New Game" or "Next Round" click ([c4d5c91](https://github.com/deadwookie/yatk/commit/c4d5c91))
+* **board:** add `initialScore`and set it to zero ([0d0aeab](https://github.com/deadwookie/yatk/commit/0d0aeab))
+* **board:** fix board behavior if cursor was moved out of the last stage ([5ff3177](https://github.com/deadwookie/yatk/commit/5ff3177))
+* **board:** make win condition to be based on actual strain length ([3069679](https://github.com/deadwookie/yatk/commit/3069679))
+* **board:** typings for strain ([c713d26](https://github.com/deadwookie/yatk/commit/c713d26))
+* **cell:** simplify far cells distinction ([ca60baa](https://github.com/deadwookie/yatk/commit/ca60baa))
+* **game:** simplify mobile-adaption ([493ac22](https://github.com/deadwookie/yatk/commit/493ac22))
+* **matrix:** disable "Next Round" button for finished game ([4b07862](https://github.com/deadwookie/yatk/commit/4b07862))
+* **matrix:** hide cursor when game's over ([ade8ae3](https://github.com/deadwookie/yatk/commit/ade8ae3))
+* **matrix:** re-arrange buttons and info layout ([55789eb](https://github.com/deadwookie/yatk/commit/55789eb))
+* **matrix:** remove text wrap on finish message ([fd65ece](https://github.com/deadwookie/yatk/commit/fd65ece))
+* **matrix:** reorganize status info ([423aa26](https://github.com/deadwookie/yatk/commit/423aa26))
+* **rules:** temporary disable row collapse ([ec9f14e](https://github.com/deadwookie/yatk/commit/ec9f14e))
+* **theme:** improve text colors and fonts ([657d848](https://github.com/deadwookie/yatk/commit/657d848))
+
+
+### Features
+
+* initial cube implementation ([3ba08e5](https://github.com/deadwookie/yatk/commit/3ba08e5))
+* **matrix:** add a separate cursor ([d87f018](https://github.com/deadwookie/yatk/commit/d87f018))
+* **matrix:** add max stage and rest cells information ([db2bce8](https://github.com/deadwookie/yatk/commit/db2bce8))
+* **matrix:** blur cells based on their depth ([b4b7081](https://github.com/deadwookie/yatk/commit/b4b7081))
+* **matrix:** render overlay while board is processing next round ([75bd101](https://github.com/deadwookie/yatk/commit/75bd101))
+* **matrix:** reorganize actions to prevent mis-clicking, and move info to keep consistency ([acd321e](https://github.com/deadwookie/yatk/commit/acd321e))
+
+
+
 <a name="0.6.0"></a>
 # [0.6.0](https://github.com/deadwookie/yatk/compare/v0.5.0...v0.6.0) (2017-12-01)
 
