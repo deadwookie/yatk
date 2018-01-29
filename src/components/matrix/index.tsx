@@ -56,29 +56,29 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 			<section className={style.main}>
 				<header>
 					<dl className={style.info}>
-						<dt className={style.term}>Round</dt>
-						<dd className={style.desc}>#{board.round}</dd>
-						<dt className={style.term}>Score:</dt>
-						<dd className={style.desc}>{board.score} points</dd>
-						<dd className={style.desc}>{board.movesCount * 2} cells cleared</dd>
-					</dl>
-				</header>
-				<nav className={style.actions}>
-					<button onClick={this.onNextRoundClick}>Next Round</button>
-				</nav>
-				<div className={style.board} ref={this.refBoard} style={{ width: board.width * board.cellSizePx, height: board.height * board.cellSizePx }}>
-					{this.renderCells()}
-					{this.renderCursor()}
-					{this.renderAlerts()}
-				</div>
-				<footer>
-					<dl className={style.info}>
 						<dt className={style.term}>Depth:</dt>
 						<dd className={style.desc}>{board.currentStage + 1}/{board.maxStage}</dd>
 						<dt className={style.term}>Infected:</dt>
 						<dd className={style.desc}>{board.strain.length} cells</dd>
 						<dt className={join(style.term, isGonnaLoose && style.warn)}>Rest:</dt>
 						<dd className={join(style.desc, isGonnaLoose && style.warn)}>{board.freeSpaceLeft} cells</dd>
+					</dl>
+				</header>
+				<div className={style.board} ref={this.refBoard} style={{ width: board.width * board.cellSizePx, height: board.height * board.cellSizePx }}>
+					{this.renderCells()}
+					{this.renderCursor()}
+					{this.renderAlerts()}
+				</div>
+				<nav className={style.actions}>
+					<button onClick={this.onNextRoundClick}>Next Round</button>
+				</nav>
+				<footer>
+					<dl className={style.info}>
+						<dt className={style.term}>Round</dt>
+						<dd className={style.desc}>#{board.round}</dd>
+						<dt className={style.term}>Score:</dt>
+						<dd className={style.desc}>{board.score} points</dd>
+						<dd className={style.desc}>{board.movesCount * 2} cells cleared</dd>
 					</dl>
 					<button onClick={this.onRestartClick}>New Game</button>
 				</footer>
