@@ -22,40 +22,47 @@ export class CellElement extends React.Component<CellElement.Props & StoreInject
 	render() {
 		const { cell, appStore } = this.props
 		const { cellSizePx, currentStage } = appStore.board
-		const emerged = (cell.z + 1) / (currentStage + 1)
 
-		const positionStyle: React.CSSProperties = {
-			opacity: emerged,
-			filter: emerged < 1 ? `blur(${currentStage - cell.z}px)` : undefined,
-			left: cell.x * cellSizePx,
-			top: cell.y * cellSizePx,
-		}
+		const isEmpty = cell.isEmpty || cell.isNullSequence
 
 		const className = join({
 			[cls.main]: true,
-			[cls.isChar]: cell.isValueSequence,
-			[cls.isClear]: cell.isNullSequence,
-			[cls.isEmpty]: cell.isEmpty,
+			// [cls.isChar]: cell.isValueSequence,
+			// [cls.isClear]: cell.isNullSequence,
+			// [cls.isEmpty]: cell.isEmpty,
+			[cls.isEmpty]: isEmpty,
+			[cls.isChar]: !isEmpty,
 			[cls.isActive]: cell.isChained,
 			[cls.isCursor]: this.props.isCursor,
 			[cls.isDeadPoint]: this.props.isDeadPoint,
 		})
 
-		const z = cell.z + 1
-		const value = cell.sequenceValue
-			? (cell.sequenceValue.value === null ? '•' : cell.sequenceValue.value)
-			: cell.glyph
+		const ratio = 1 - ( (currentStage - cell.z) / 10 / 1.5 )
+		const blur = Math.min(currentStage - cell.z, 4)
+
+		const styles: React.CSSProperties = {
+			left: cell.x * cellSizePx,
+			top: cell.y * cellSizePx,
+			// opacity: (cell.z + 1) / (currentStage + 1),
+			filter: !isEmpty && blur > 0 ? `blur(${blur}px)` : undefined,
+			transform: !isEmpty && ratio < 1 ? `scale(${ratio}, ${ratio})` : undefined,
+		}
+
+		const value = cell.sequenceValue && cell.sequenceValue.value !== null ? cell.sequenceValue.value : cell.glyph
+		// const value = cell.sequenceValue
+		// 	? (cell.sequenceValue.value === null ? '•' : cell.sequenceValue.value)
+		// 	: cell.glyph
 
 		return (
 			<div
 				className={className}
-				style={positionStyle}
+				style={styles}
 				onClick={this.onCellClick}
 			>
 				<span className={cls.symbol} data-value={value}>
 					{value}
 				</span>
-				<small className={cls.depth}>{z}</small>
+				{/* <small className={cls.depth}>{cell.z + 1}</small> */}
 			</div>
 		)
 	}
