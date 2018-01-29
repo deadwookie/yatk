@@ -55,8 +55,8 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 					<dl className={style.info}>
 						<dt className={style.term}>Round</dt>
 						<dd className={style.desc}>#{board.round}</dd>
-						<dt className={style.term}>Depth:</dt>
-						<dd className={style.desc}>{board.currentStage + 1}</dd>
+						<dt className={style.term}>Cleared:</dt>
+						<dd className={style.desc}>{board.movesCount * 2} cells</dd>
 						<dt className={style.term}>Score:</dt>
 						<dd className={style.desc}>{board.score} points</dd>
 					</dl>
@@ -70,10 +70,10 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 				</div>
 				<footer>
 					<dl className={style.info}>
-						<dt className={style.term}>Moves:</dt>
-						<dd className={style.desc}>{board.movesCount}</dd>
-						<dt className={style.term}>Sequence length:</dt>
-						<dd className={style.desc}>{board.strain.length}</dd>
+						<dt className={style.term}>Depth:</dt>
+						<dd className={style.desc}>{board.currentStage + 1}</dd>
+						<dt className={style.term}>Infected:</dt>
+						<dd className={style.desc}>{board.strain.length} cells</dd>
 					</dl>
 					<button onClick={this.onRestartClick}>New Game</button>
 				</footer>
