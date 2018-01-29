@@ -192,7 +192,7 @@ export const Board: IType<{}, Board> = types
 	.views((self: any)=> ({
 		get currentStage() {
 			if (!self.cursor) {
-				return 0
+				return self.depth - 1
 			}
 			let z = self.cursor.z
 			if (self.cursor.x === 0 && self.cursor.y === 0 && z > 0) {
@@ -207,7 +207,8 @@ export const Board: IType<{}, Board> = types
 		},
 		get visibleCells() {
 			const cells: Cell[] = []
-			const z = self.cursor ? self.cursor.z : 0
+			const z = self.cursor ? self.cursor.z : (self.depth - 1)
+
 			for (let y = 0; y < self.height; y++) {
 				for (let x = 0; x < self.width; x++) {
 					const cell = getVisibleCellByCoordinate(self, x, y, z) || self.getCell(x, y, 0)
@@ -223,7 +224,7 @@ export const Board: IType<{}, Board> = types
 			return self.sequence.filter((v: SequenceValue) => v.value !== null)
 		},
 		get freeSpaceLeft() {
-			return self.rules.deadPointIndex - (self.cursor ? self.cursor.index : 0)
+			return self.rules.deadPointIndex - (self.cursor ? self.cursor.index : self.cells.length)
 		},
 		get isProcessing() {
 			return self._processingAsyncId !== -1
