@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.7.3"></a>
+## [0.7.3](https://github.com/deadwookie/yatk/compare/v0.7.2...v0.7.3) (2018-01-30)
+
+
+### Bug Fixes
+
+* **game:** tune up resize formula to add gaps ([3ca092b](https://github.com/deadwookie/yatk/commit/3ca092b))
+
+
+
 <a name="0.7.2"></a>
 ## [0.7.2](https://github.com/deadwookie/yatk/compare/v0.7.1...v0.7.2) (2018-01-30)
 
