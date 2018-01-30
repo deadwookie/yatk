@@ -37,8 +37,8 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 
 		const { width, height, cellSizePx } = this.props.appStore.board
 		const GAP = 20
-		const winWidth = window.innerWidth + GAP
-		const winHeight = window.innerHeight + GAP
+		const winWidth = window.innerWidth - GAP
+		const winHeight = window.innerHeight - GAP
 
 		// We need to keep ratio, so lookin' for a smallest dimension
 		const zoom = Math.min(
