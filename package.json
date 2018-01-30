@@ -1,6 +1,6 @@
 {
   "name": "yatk",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Yet Another Time Killer",
   "main": "build/index.js",
   "repository": "git@github.com:deadwookie/yatk.git",
