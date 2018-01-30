@@ -22,13 +22,13 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 	componentDidMount() {
 		this.props.appStore.board.newGame()
 
-		// window.addEventListener('resize', this.scaleBoard)
-		// this.scaleBoard()
+		window.addEventListener('resize', this.scaleBoard)
+		this.scaleBoard()
 	}
 
-	// componentWillUnmount() {
-	// 	window.removeEventListener('resize', this.scaleBoard)
-	// }
+	componentWillUnmount() {
+		window.removeEventListener('resize', this.scaleBoard)
+	}
 
 	@autobind
 	@throttle(200)
@@ -36,12 +36,14 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 		if (!this.$board) return
 
 		const { width, height, cellSizePx } = this.props.appStore.board
-		const { innerWidth, innerHeight } = window
+		const GAP = 20
+		const winWidth = window.innerWidth + GAP
+		const winHeight = window.innerHeight + GAP
 
 		// We need to keep ratio, so lookin' for a smallest dimension
 		const zoom = Math.min(
-			width * cellSizePx > innerWidth ? innerWidth / (width * cellSizePx) : 1,
-			height * cellSizePx > innerHeight ? innerHeight / (height * cellSizePx) : 1,
+			width * cellSizePx > winWidth ? winWidth / (width * cellSizePx) : 1,
+			height * cellSizePx > winHeight ? winHeight / (height * cellSizePx) : 1,
 		)
 
 		;((findDOMNode(this.$board) as any).style as React.CSSProperties).transform = `scale(${zoom})`
