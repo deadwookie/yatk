@@ -4,7 +4,7 @@ import { CollapseDirection } from '../stores/rules'
 const SIZE = 8
 
 export const defaultBoard: Partial<BoardSnapshot> = {
-	worldKey: 'spiral',
+	worldKey: 'cube',
 	levelKey: 'intro',
 
 	isDummySequence: false,
