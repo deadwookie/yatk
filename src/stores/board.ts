@@ -136,6 +136,7 @@ export interface Board extends BoardSnapshot {
 	getRow: (y: number) => Cell[] | null
 	getColumn: (x: number) => Cell[] | null
 	getCell: (x: number, y: number, z: number) => Cell | null
+	findVisibleCell: (x: number, y: number, z: number) => Cell | null
  	generateCells: () => void
 	getNextCursor: () => Cell | null
 	getPrevCursor: () => Cell | null
@@ -500,7 +501,11 @@ export const Board: IType<{}, Board> = types
 
 		getCell(x: number, y: number, z: number): Cell | null {
 			return getByCoordinate(self.cells, {x, y, z}, self)
-		}
+		},
+
+		findVisibleCell(x: number, y: number, z: number): Cell | null {
+			return getVisibleCellByCoordinate(self as any as Board, x, y, z)
+		},
 	}))
 	.actions((self) => ({
 		collapseRows(yToCollapse: {[key: string]: number}): Array<SequenceValue> {

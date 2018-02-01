@@ -16,6 +16,11 @@
 	/* outline: 1px dashed red; */
 }
 
+.isNotLast {
+	font-family: var(--accent-font-family);
+	font-weight: var(--accent-font-weight);
+}
+
 .isEmpty {
 	opacity: .33;
 }

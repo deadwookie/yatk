@@ -21,36 +21,36 @@ export namespace CellElement {
 export class CellElement extends React.Component<CellElement.Props & StoreInjectedProps, CellElement.State> {
 	render() {
 		const { cell, appStore } = this.props
-		const { cellSizePx, currentStage } = appStore.board
+		const { cellSizePx, currentStage, maxStage } = appStore.board
 
-		const isEmpty = cell.isEmpty || cell.isNullSequence
+		const isNotLast = Boolean(
+			cell.isValueSequence && cell.z > 0 && appStore.board.findVisibleCell(cell.x, cell.y, cell.z - 1)
+		)
 
 		const className = join({
 			[cls.main]: true,
-			// [cls.isChar]: cell.isValueSequence,
-			// [cls.isClear]: cell.isNullSequence,
-			// [cls.isEmpty]: cell.isEmpty,
-			[cls.isEmpty]: isEmpty,
-			[cls.isChar]: !isEmpty,
+			[cls.isChar]: cell.isValueSequence,
+			[cls.isClear]: cell.isNullSequence,
+			[cls.isEmpty]: cell.isEmpty,
 			[cls.isActive]: cell.isChained,
 			[cls.isCursor]: this.props.isCursor,
 			[cls.isDeadPoint]: this.props.isDeadPoint,
+			[cls.isNotLast]: isNotLast,
 		})
 
-		const ratio = 1 - ( (currentStage - cell.z) / 10 / 1.5 )
-		const blur = Math.min(currentStage - cell.z, 4)
+		const opacity = cell.isValueSequence && cell.z !== currentStage
+			? ((cell.z + maxStage - currentStage) / maxStage).toFixed(3)
+			: undefined
 
 		const styles: React.CSSProperties = {
 			left: cell.x * cellSizePx,
 			top: cell.y * cellSizePx,
-			// opacity: (cell.z + 1) / (currentStage + 1),
-			filter: !isEmpty && blur > 0 ? `blur(${blur}px)` : undefined,
-			transform: !isEmpty && ratio < 1 ? `scale(${ratio}, ${ratio})` : undefined,
+			opacity: opacity ? Number(opacity) : undefined,
 		}
 
-		const value = cell.sequenceValue && cell.sequenceValue.value !== null ? cell.sequenceValue.value : cell.glyph
+		const value = cell.isValueSequence ? cell.sequenceValue!.value : '•'
 		// const value = cell.sequenceValue
-		// 	? (cell.sequenceValue.value === null ? '•' : cell.sequenceValue.value)
+		// 	? (cell.isNullSequence ? '•' : cell.sequenceValue.value)
 		// 	: cell.glyph
 
 		return (
