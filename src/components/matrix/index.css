@@ -1,12 +1,7 @@
 .main {
-	--cell-number: 16;
 	--cell-size: 5rem;
-	--matrix-size: calc(var(--cell-number) * var(--cell-size));
+	--cell-font-size: 4.8rem;
 
-	--border-width: 0;
-	--border-color: #999;
-	--border-style: solid;
-	--border: var(--border-width) var(--border-style) var(--border-color);
 	--color: #0b0;
 	--bg-color: transparent;
 
@@ -15,16 +10,10 @@
 	--glow-shadow-color: var(--accent-color);
 	--glow-text-shadow: 0 0 var(--glow-shadow-blur) var(--glow-shadow-color);
 
-	--char-font-family: 'PT Sans Caption';
-	--char-font-weight: 700;
-	--char-font-size: 4.4rem;
-
-	--msg-font-family: 'PT Serif Caption';
-	--msg-font-weight: 400;
+	--msg-font-family: var(--caption-font-family);
+	--msg-font-weight: var(--caption-font-weight);
 	--msg-font-size: 3.8rem;
 	--msg-bg-color: #333;
-
-	--disabled-button-color: #777;
 
 	overflow: hidden;
 	position: relative;
@@ -48,7 +37,7 @@
 	display: inline;
 	margin: 0;
 	list-style: none;
-	font-size: 1.5rem;
+	font-size: var(--default-font-size);
 }
 .term + .desc {
 	margin-left: .2em;
@@ -62,22 +51,14 @@
 }
 
 .actions button {
-	/* letter-spacing: .2rem; */
-	font-size: 1.6rem;
-	padding: 5px 1em 6px;
-}
-
-.actions button:disabled {
-	color: var(--disabled-button-color);
-	border-color: var(--disabled-button-color)
+	font-size: 1.8rem;
 }
 
 /* Playground */
 .board {
-	transform-origin: 0 0;
+	/* transform-origin: 0 0; */
 	user-select: none;
-	/* width: 800px;
-	height: 800px; */
+	-webkit-user-select: none;
 	margin: 0 auto;
 	position: relative;
 }

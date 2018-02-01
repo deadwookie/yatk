@@ -5,18 +5,19 @@
 	padding: 0;
 	width: var(--cell-size);
 	height: var(--cell-size);
-	line-height: var(--cell-size);
+	line-height: 1.1;
 	text-align: center;
 
-	font-family: var(--char-font-family), Tahoma, sans-serif;
-	font-weight: var(--char-font-weight);
-	font-size: var(--char-font-size);
+	font-size: var(--cell-font-size);
+	font-family: var(--default-font-family);
+	font-weight: var(--default-font-weight);
 	background: var(--bg-color);
 	cursor: default;
+	/* outline: 1px dashed red; */
 }
 
 .isEmpty {
-	opacity: .3;
+	opacity: .33;
 }
 .isClear {
 	opacity: .33;
@@ -43,6 +44,7 @@
 }
 
 .symbol::after {
+	display: block;
 	content: attr(data-value);
 	color: #fff;
 	position: absolute;
@@ -51,7 +53,6 @@
 	left: 0;
 	top: 0;
 	font: inherit;
-	line-height: 1.2em;
 
 	will-change: opacity;
 	opacity: 0;
@@ -60,7 +61,7 @@
 .depth {
 	position: absolute;
 	font-size: 0.3em;
-	line-height: 1.2em;
+	line-height: 1.2;
 	color: #666;
 	top: 0;
 	right: 0;

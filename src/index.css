@@ -5,13 +5,13 @@
 	height: 100%;
 }
 :global(body) {
+	--font-family: Verdana, sans-serif;
+
 	margin: 0;
 	padding: 0;
 	color: #999;
 	background: #333;
-
-	--ff: 'Avenir', 'Lucida Sans', 'Lucida Sans Unicode', Helvetica, Verdana, sans-serif;
-	font-family: var(--ff);
+	font: normal 1.2rem/1.4 var(--font-family);
 
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
@@ -20,11 +20,15 @@
 :global(.theme-matrix) {
 	--color: #777;
 	--bg-color: #333;
+	--disabled-color: #777;
 
-	--accent-ff: 'PT Sans Caption', Tahoma, sans-serif;
-	--accent-fw: 700;
-	--caption-ff: 'PT Serif Caption', Tahoma, sans-serif;
-	--caption-fw: 400;
+	--default-font-size: 1.4rem;
+	--default-font-family: 'PT Sans Caption', var(--font-family);
+	--default-font-weight: 400;
+	--accent-font-family: var(--default-font-family);
+	--accent-font-weight: 700;
+	--caption-font-family: 'PT Serif Caption', var(--font-family);
+	--caption-font-weight: 400;
 
 	--warn-color: #f00;
 	--warn-bg-color: var(--bg-color);
@@ -46,21 +50,27 @@
 }
 
 button {
+	padding: .2rem .8em .3rem;
+
 	border: 1px dotted var(--accent-color);
 	text-transform: uppercase;
-	line-height: 1em;
 	letter-spacing: .1rem;
 
-	font-family: var(--caption-ff);
-	font-weight: var(--caption-fw);
+	font-family: var(--caption-font-family);
+	font-weight: var(--caption-font-weight);
 }
 
-a, button {
+a, button, :global(.btn) {
 	background: var(--accent-bg-color);
 	color: var(--accent-color);
 }
 
-a {
+button:disabled {
+	color: var(--disabled-color);
+	border-color: var(--disabled-color);
+}
+
+a, :global(.btn) {
 	border-bottom: 1px dotted var(--accent-color);
 }
 

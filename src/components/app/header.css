@@ -1,24 +1,25 @@
-
 /* .main {} */
 
 .logo {
+	display: block;
 	position: relative;
-	font-size: 5.2rem;
-	font-family: var(--accent-ff);
-	font-weight: var(--accent-fw);
+	font-size: 5.4rem;
+	letter-spacing: .2rem;
+	font-family: var(--accent-font-family);
+	font-weight: var(--accent-font-weight);
 	color: var(--accent-color);
-  	transform: scale(1, 1.5);
+	/* transform: scale(1.1, 1); */
 }
 
 .logo::after {
 	content: attr(title);
+	display: block;
 	position: absolute;
 	width: 100%;
 	height: 100%;
 	left: 0;
 	top: 0;
 	font: inherit;
-	line-height: 1.2em;
 
 	color: var(--active-color);
 	text-shadow: var(--active-text-shadow);
@@ -29,10 +30,11 @@
 }
 
 .title {
-	margin-top: -1rem;
-	font-size: 1.6rem;
-	font-family: var(--accent-ff);
-	font-weight: var(--accent-fw);
+	margin-top: -.6em;
+	margin-bottom: 0;
+	font-size: 1.8rem;
+	font-family: var(--caption-font-family);
+	font-weight: var(--caption-font-weight);
 	text-transform: uppercase;
 	letter-spacing: .1rem;
 }
