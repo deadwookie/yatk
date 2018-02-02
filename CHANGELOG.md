@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.8.0"></a>
+# [0.8.0](https://github.com/deadwookie/yatk/compare/v0.7.3...v0.8.0) (2018-02-02)
+
+
+### Bug Fixes
+
+* **matrix:** make cursor much less annoying ([f2af3bb](https://github.com/deadwookie/yatk/commit/f2af3bb))
+* **theme:** cleanup feel & look ([1d3a7a7](https://github.com/deadwookie/yatk/commit/1d3a7a7))
+
+
+### Features
+
+* **matrix:** add some blowing job to dissapearing cells ([634d53d](https://github.com/deadwookie/yatk/commit/634d53d))
+* **matrix:** emphasize cell if it's not last by z-index ([22167c9](https://github.com/deadwookie/yatk/commit/22167c9))
+
+
+
 <a name="0.7.3"></a>
 ## [0.7.3](https://github.com/deadwookie/yatk/compare/v0.7.2...v0.7.3) (2018-01-30)
 
