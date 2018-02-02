@@ -30,8 +30,8 @@ export namespace App {
 	}
 }
 
+@inject('appStore') 
 @observer
-@inject('appStore')
 export class App extends React.Component<App.Props & StoreInjectedProps, App.State> {
 	static defaultProps: Partial<App.Props> = {
 		theme: Theme.MatrixGreen,
