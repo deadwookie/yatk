@@ -63,13 +63,16 @@
 }
 
 .cursor {
+	display: block;
 	position: absolute;
-	width: 0;
-	height: var(--cell-size);
-	margin-left: var(--cell-size);
-	border-right: 1px solid var(--hover-color);
+	width: .5rem;
+	height: .5rem;
+	margin-left: calc(var(--cell-size) - .5rem);
+	margin-top: calc(var(--cell-size) - 1em);
+	background: var(--hover-color);
+	/* border-bottom: 1px solid var(--hover-color); */
 	opacity: .3;
-	animation: blink 1.5s step-end infinite normal;
+	animation: disappear 3s cubic-bezier(0.6, -0.28, 0.735, 0.045) infinite alternate;
 }
 .cursor.isActive {
 	animation: none;
@@ -106,11 +109,8 @@
 	box-shadow: 0 0 calc(var(--glow-shadow-blur) * 2) var(--hover-color);
 }
 
-@keyframes blink {
-	0%, 100% {
+@keyframes disappear {
+	100% {
 		opacity: 0;
-	}
-	50% {
-		opacity: .3;
 	}
 }
