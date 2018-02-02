@@ -55,7 +55,7 @@
 
 /* Playground */
 .board {
-	/* transform-origin: 0 0; */
+	transform-origin: 0 50%;
 	user-select: none;
 	-webkit-user-select: none;
 	margin: 0 auto;
