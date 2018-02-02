@@ -1,0 +1,30 @@
+.main {
+	/* TODO: @extend ./cell */
+	display: block;
+	position: absolute;
+	margin: 0;
+	padding: 0;
+	width: var(--cell-size);
+	height: var(--cell-size);
+	line-height: 1.1;
+	text-align: center;
+
+	font-size: var(--cell-font-size);
+	font-family: var(--default-font-family);
+	font-weight: var(--default-font-weight);
+	background: var(--bg-color);
+	cursor: default;
+	/* outline: 1px dashed red; */
+
+	/* added: */
+	color: var(--active-color);
+	background: var(--bg-color);
+	transform: scale(.9, .9);
+	opacity: .8;
+}
+
+.blow {
+	opacity: 0;
+	transform: scale(1.5, 1.5);
+	transition: all .33s cubic-bezier(0.1, 0.085, 0.68, 0.53);
+}

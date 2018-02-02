@@ -9,14 +9,20 @@ import { autobind, throttle } from '../../utils/decorators'
 import { StoreInjectedProps } from '../../stores'
 import { Cell, FinishResult } from '../../stores/board'
 import CellElement from './cell'
+import Particle from './particle'
 
 export namespace Matrix {
 	export interface Props {}
-	export interface State {}
+	export interface State {
+		blowing: Cell[]
+	}
 }
 
 @observer
 export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, Matrix.State> {
+	state: Matrix.State = {
+		blowing: [],
+	}
 	$board: Element | null
 
 	componentDidMount() {
@@ -67,6 +73,7 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 				</dl>
 				<div className={style.board} ref={this.refBoard} style={{ width: board.width * board.cellSizePx, height: board.height * board.cellSizePx }}>
 					{this.renderCells()}
+					{this.renderBlowing()}
 					{this.renderCursor()}
 					{this.renderAlerts()}
 				</div>
@@ -99,9 +106,30 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 					cell={cell}
 					isCursor={cell === appStore.board.cursor}
 					isDeadPoint={cell === appStore.board.deadPoint}
+					onBlow={this.onCellIsGonnaBlow}
 				/>
 			)
 		})
+	}
+
+	renderBlowing() {
+		const { blowing } = this.state
+		if (!blowing.length) {
+			return null
+		}
+
+		const { cellSizePx } = this.props.appStore.board
+
+		return blowing.map((cell) => (
+			<Particle
+				key={`blowing-${cell.key}`}
+				x={cellSizePx * cell.x}
+				y={cellSizePx * cell.y}
+				onDone={() => this.onCellHasBeenBlown(cell)}
+			>
+				{cell.glyph}
+			</Particle>
+		))
 	}
 
 	renderCursor() {
@@ -156,6 +184,20 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 		return (
 			<div className={style.freezeOverlay}/>
 		)
+	}
+
+	@autobind
+	onCellIsGonnaBlow(cell: Cell) {
+		this.setState(({blowing}) => {
+			return !~blowing.indexOf(cell) ? { blowing: [cell].concat(blowing) } : undefined
+		})
+	}
+
+	@autobind
+	onCellHasBeenBlown(cell: Cell) {
+		this.setState(({blowing}) => ({
+			blowing: blowing.filter(c => c !== cell),
+		}))
 	}
 
 	@autobind

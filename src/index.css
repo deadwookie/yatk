@@ -20,7 +20,7 @@
 :global(.theme-matrix) {
 	--color: #777;
 	--bg-color: #333;
-	--disabled-color: #777;
+	--disabled-color: var(--color);
 
 	--default-font-size: 1.4rem;
 	--default-font-family: 'PT Sans Caption', var(--font-family);
