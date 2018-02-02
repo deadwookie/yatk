@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.8.1"></a>
+## [0.8.1](https://github.com/deadwookie/yatk/compare/v0.8.0...v0.8.1) (2018-02-02)
+
+
+### Bug Fixes
+
+* **app:** use correct order of the mobx decorators ([02f0430](https://github.com/deadwookie/yatk/commit/02f0430))
+* **game:** remove hard-setted width and gaps to fix sizing on mobile ([85d2b0f](https://github.com/deadwookie/yatk/commit/85d2b0f))
+* **matrix/cell:** check the cell.sequenceValue to null before subscribe for blow effect ([06a5105](https://github.com/deadwookie/yatk/commit/06a5105))
+
+
+
 <a name="0.8.0"></a>
 # [0.8.0](https://github.com/deadwookie/yatk/compare/v0.7.3...v0.8.0) (2018-02-02)
 
