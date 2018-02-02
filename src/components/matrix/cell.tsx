@@ -25,7 +25,9 @@ export class CellElement extends React.Component<CellElement.Props & StoreInject
 		const { cell, onBlow } = this.props
 		if (onBlow) {
 			// TODO: is it proper place? should i unsubscribe onUnmount?
-			onPatch(cell.sequenceValue as any, (ch) => ch.path === '/value' && ch.value === null && onBlow(cell))
+			if (cell.sequenceValue) {
+				onPatch(cell.sequenceValue as any, (ch) => ch.path === '/value' && ch.value === null && onBlow(cell))
+			}
 		}
 	}
 
