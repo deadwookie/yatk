@@ -3,7 +3,7 @@ import * as join from 'classnames'
 import { findDOMNode } from 'react-dom'
 import { inject, observer } from 'mobx-react'
 
-import * as style from './board.css'
+import * as style from './index.css'
 
 import { autobind, throttle } from '../../utils/decorators'
 import { StoreInjectedProps } from '../../stores'
