@@ -7,11 +7,11 @@ import * as cls from './cell.css'
 
 import autobind from '../../utils/autobind'
 import { StoreInjectedProps } from '../../stores'
-import { Cell } from '../../stores/board'
+import { Cell, CellStack } from '../../stores/board'
 
 export namespace CellElement {
 	export interface Props {
-		cell: Cell
+		stack: CellStack
 		isCursor: boolean
 		isDeadPoint: boolean
 		onBlow?: (cell: Cell) => void
@@ -22,7 +22,9 @@ export namespace CellElement {
 @observer
 export class CellElement extends React.Component<CellElement.Props & StoreInjectedProps, CellElement.State> {
 	componentDidMount() {
-		const { cell, onBlow } = this.props
+		const { stack, onBlow } = this.props
+		const cell = stack.top
+
 		if (onBlow) {
 			// TODO: is it proper place? should i unsubscribe onUnmount?
 			if (cell.sequenceValue) {
@@ -32,12 +34,11 @@ export class CellElement extends React.Component<CellElement.Props & StoreInject
 	}
 
 	render() {
-		const { cell, appStore } = this.props
+		const { stack, appStore } = this.props
 		const { cellSizePx, currentStage, maxStage } = appStore.board
+		const cell = stack.top
 
-		const isNotLast = Boolean(
-			cell.isValueSequence && cell.z > 0 && appStore.board.findVisibleCell(cell.x, cell.y, cell.z - 1)
-		)
+		const isNotLast = stack.length > 1
 
 		const className = join({
 			[cls.main]: true,
@@ -84,10 +85,11 @@ export class CellElement extends React.Component<CellElement.Props & StoreInject
 		if (this.props.isCursor) {
 			this.props.appStore.board.nextRound()
 		} else {
-			if (this.props.cell.isChained) {
-				this.props.appStore.board.removeFromChain(this.props.cell)
+			const cell = this.props.stack.top
+			if (cell.isChained) {
+				this.props.appStore.board.removeFromChain(cell)
 			} else {
-				this.props.appStore.board.addToChain(this.props.cell)
+				this.props.appStore.board.addToChain(cell)
 			}
 		}
 	}

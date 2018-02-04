@@ -1,11 +1,11 @@
-import { types, IType, flow } from 'mobx-state-tree'
+import { types, IType, IModelType, flow } from 'mobx-state-tree'
 import { GameAnalytics, EGAProgressionStatus } from 'gameanalytics'
 
 import { Rules, CollapseDirection, isEmptyColumn, isEmptyRow, RulesSnapshot } from './rules'
 import { Behavior } from './behavior'
 import { CHARMAP } from '../utils/chars'
 import { delay } from '../utils/times'
-import { Direction, getByCoordinate, getNextIndex, canMove, isHorizontal, isVertical } from '../utils/navigation'
+import { Direction, getByCoordinate, getIndexByCoordinate2D, getNextIndex, canMove, isHorizontal, isVertical } from '../utils/navigation'
 
 export function randomN(from = 0, upto = 10, asInt = true) {
 	const n = Math.random() * (upto - from) + from
@@ -41,6 +41,7 @@ export const SequenceValue: IType<{}, SequenceValue> = types
 export interface CellSnapshot {
 	key: string
 	index: number
+	index2D: number
 	x: number
 	y: number
 	z: number
@@ -55,10 +56,11 @@ export interface Cell extends CellSnapshot {
 	readonly isValueSequence?: boolean
 }
 
-export const Cell: IType<{}, Cell> = types
+export const Cell: IModelType<{}, Cell> = types
 	.model('Cell', {
 		key: types.identifier(types.string),
 		index: types.number,
+		index2D: types.number,
 		x: types.number,
 		y: types.number,
 		z: types.number,
@@ -78,6 +80,40 @@ export const Cell: IType<{}, Cell> = types
 		}
 	}))
 
+export interface CellStackSnapshot {
+	key: string
+	stack: Cell[]
+}
+
+export interface CellStack extends CellStackSnapshot {
+	readonly top: Cell
+	readonly length: number
+	pop: () => Cell | undefined
+	push: (cell: Cell) => number
+}
+
+export const CellStack: IModelType<{}, CellStack> = types
+	.model('CellStack', {
+		key: types.string,
+		stack: types.array(types.reference(Cell))
+	})
+	.views((self) => ({
+		get length(): number {
+			return self.stack.length
+		},
+		get top(): Cell {
+			return self.stack[self.stack.length - 1]!
+		}
+	}))
+	.actions((self) => ({
+		pop(): Cell | undefined {
+			return self.stack.length === 1 ? undefined : self.stack.pop()
+		},
+		push(cell: Cell) {
+			return self.stack.push(cell)
+		}
+	}))
+
 export enum BoardGeometryType {
 	Box = 'box',
 	Spiral = 'spiral',
@@ -87,10 +123,6 @@ export enum BoardGeometryType {
 export enum FinishResult {
 	Win = 'win',
 	Fail = 'fail'
-}
-
-export interface BoardSettings {
-
 }
 
 export interface BoardSnapshot {
@@ -123,7 +155,7 @@ export interface BoardSnapshot {
 	deadPoint?: Cell | null
 	rules: RulesSnapshot
 	behavior: Behavior
-	readonly visibleCells: Array<Cell>
+	readonly visibilityStacks: Array<CellStack>
 	readonly strain: Array<SequenceValue>
 	readonly freeSpaceLeft: number
 	readonly isProcessing: boolean
@@ -136,7 +168,6 @@ export interface Board extends BoardSnapshot {
 	getRow: (y: number) => Cell[] | null
 	getColumn: (x: number) => Cell[] | null
 	getCell: (x: number, y: number, z: number) => Cell | null
-	findVisibleCell: (x: number, y: number, z: number) => Cell | null
  	generateCells: () => void
 	getNextCursor: () => Cell | null
 	getPrevCursor: () => Cell | null
@@ -184,6 +215,7 @@ export const Board: IType<{}, Board> = types
 		sequenceCounter: types.optional(types.number, 0),
 		sequence: types.array(SequenceValue),
 		cells: types.array(Cell),
+		visibilityStacks: types.optional(types.array(CellStack), []),
 		chain: types.array(types.reference(Cell)),
 		cursor: types.maybe(types.reference(Cell)),
 		deadPoint: types.maybe(types.reference(Cell)),
@@ -205,21 +237,6 @@ export const Board: IType<{}, Board> = types
 			const lastCell = self.rules.deadPointIndex - 1
 			const layerSize = self.width * self.height
 			return Math.ceil(lastCell / layerSize)
-		},
-		get visibleCells() {
-			const cells: Cell[] = []
-			const z = self.cursor ? self.cursor.z : (self.depth - 1)
-
-			for (let y = 0; y < self.height; y++) {
-				for (let x = 0; x < self.width; x++) {
-					const cell = getVisibleCellByCoordinate(self, x, y, z) || self.getCell(x, y, 0)
-					if (cell) {
-						cells.push(cell)
-					}
-				}
-			}
-
-			return cells
 		},
 		get strain() {
 			return self.sequence.filter((v: SequenceValue) => v.value !== null)
@@ -347,25 +364,42 @@ export const Board: IType<{}, Board> = types
 			} else {
 				throw new Error(`Unknown geometry type for the board: ${self.geometryType}`)
 			}
+		},
+
+		generateCellStacks() {
+			const stacks: CellStackSnapshot[] = []
+			for (let y = 0; y < self.height; y++) {
+				for (let x = 0; x < self.width; x++) {
+					stacks.push({
+						key: `stack_${x}_${y}`,
+						// We can use 2D index because we only want cells from the first level
+						stack: [self.cells[getIndexByCoordinate2D({x, y}, self)]]
+					})
+				}
+			}
+
+			self.visibilityStacks.splice(0, self.visibilityStacks.length, ...stacks)
 		}
 	}))
 	.actions((self) => ({
 		generateCells() {
 			self.cells.splice(0)
 
-			const cells: Cell[] = []
+			const cells: CellSnapshot[] = []
 			let cellIndex = -1
 
 			for (let z = 0; z < self.depth; z++) {
+				let cellIndex2D = -1
 				for (let y = 0; y < self.height; y++) {
 					cells.push(...Array.from(Array(self.width)).map((_, x) => {
 						const symbol = randomN()
 						const chars = CHARMAP[symbol]
 						cellIndex++
-
+						cellIndex2D++
 						return {
 							key: `${x}_${y}_${z}`,
 							index: cellIndex,
+							index2D: cellIndex2D,
 							x,
 							y,
 							z,
@@ -384,6 +418,8 @@ export const Board: IType<{}, Board> = types
 			} else {
 				throw new Error(`Unknown geometry type for the board: ${self.geometryType}`)
 			}
+
+			self.generateCellStacks()
 		},
 
 		getNextCursor(): Cell | null {
@@ -696,6 +732,7 @@ export const Board: IType<{}, Board> = types
 					break
 				}
 				self.cursor!.sequenceValue = sv
+				self.visibilityStacks[self.cursor.index2D].push(self.cursor)
 				yield delay(delayTime)
 
 				if (self._processingAsyncId !== asyncId) {
@@ -758,6 +795,7 @@ export const Board: IType<{}, Board> = types
 		processChain() {
 			self.chain.forEach((cell: Cell) => {
 				cell.sequenceValue!.value = null
+				self.visibilityStacks[cell.index2D].pop()
 			})
 
 			if (self.rules.isCollapseRows || self.rules.isCollapseColumns) {
@@ -815,7 +853,7 @@ export const Board: IType<{}, Board> = types
 
 			if (self.chain.length &&
 				self.rules.isMatchRules(cell, ...self.chain) &&
-				self.rules.isMatchGeometry(self, self.visibleCells, cell, ...self.chain)) {
+				self.rules.isMatchGeometry(self, self.visibilityStacks.map(stack => stack.top), cell, ...self.chain)) {
 
 				self.chain.push(cell)
 			} else {

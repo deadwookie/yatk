@@ -7,7 +7,7 @@ import * as style from './board.css'
 
 import { autobind, throttle } from '../../utils/decorators'
 import { StoreInjectedProps } from '../../stores'
-import { Cell, FinishResult } from '../../stores/board'
+import { Cell, CellStack, FinishResult } from '../../stores/board'
 import CellElement from './cell'
 import Particle from './particle'
 
@@ -70,13 +70,14 @@ export class Board extends React.Component<Board.Props & StoreInjectedProps, Boa
 	renderCells() {
 		const { appStore } = this.props
 
-		return appStore.board.visibleCells.map((cell: Cell) => {
+		return appStore.board.visibilityStacks.map((stack: CellStack) => {
+			const topCell = stack.top
 			return (
 				<CellElement
-					key={'box-cell-' + cell.key}
-					cell={cell}
-					isCursor={cell === appStore.board.cursor}
-					isDeadPoint={cell === appStore.board.deadPoint}
+					key={'box-cell-' + stack.key}
+					stack={stack}
+					isCursor={topCell === appStore.board.cursor}
+					isDeadPoint={topCell === appStore.board.deadPoint}
 					onBlow={this.onCellIsGonnaBlow}
 				/>
 			)
