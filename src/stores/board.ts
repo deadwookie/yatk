@@ -150,6 +150,7 @@ export interface BoardSnapshot {
 	sequenceCounter: number
 	sequence: Array<SequenceValue>
 	cells: Array<Cell>
+	blowingCells: Array<Cell> 
 	chain: Array<Cell>
 	cursor?: Cell | null
 	deadPoint?: Cell | null
@@ -189,6 +190,9 @@ export interface Board extends BoardSnapshot {
 	clearChain: () => void
 	addToChain: (cell: Cell) => void
 	removeFromChain: (cell: Cell) => void
+
+	blowCell: (cell?: Cell) => void
+	unBlowCell: (cell: Cell) => void
 }
 
 export const Board: IType<{}, Board> = types
@@ -216,6 +220,7 @@ export const Board: IType<{}, Board> = types
 		sequence: types.array(SequenceValue),
 		cells: types.array(Cell),
 		visibilityStacks: types.optional(types.array(CellStack), []),
+		blowingCells: types.optional(types.array(types.reference(Cell)), []),
 		chain: types.array(types.reference(Cell)),
 		cursor: types.maybe(types.reference(Cell)),
 		deadPoint: types.maybe(types.reference(Cell)),
@@ -379,6 +384,19 @@ export const Board: IType<{}, Board> = types
 			}
 
 			self.visibilityStacks.splice(0, self.visibilityStacks.length, ...stacks)
+		},
+
+		blowCell(cell?: Cell) {
+			if (cell && self.blowingCells.indexOf(cell) === -1) {
+				self.blowingCells.push(cell)
+			}
+		},
+
+		unBlowCell(cell: Cell) {
+			const index = self.blowingCells.indexOf(cell)
+			if (index !== -1) {
+				self.blowingCells.splice(index, 1)
+			}
 		}
 	}))
 	.actions((self) => ({
@@ -796,6 +814,7 @@ export const Board: IType<{}, Board> = types
 			self.chain.forEach((cell: Cell) => {
 				cell.sequenceValue!.value = null
 				self.visibilityStacks[cell.index2D].pop()
+				self.blowCell(self.visibilityStacks[cell.index2D].pop())
 			})
 
 			if (self.rules.isCollapseRows || self.rules.isCollapseColumns) {

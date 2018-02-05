@@ -78,26 +78,23 @@ export class Board extends React.Component<Board.Props & StoreInjectedProps, Boa
 					stack={stack}
 					isCursor={topCell === appStore.board.cursor}
 					isDeadPoint={topCell === appStore.board.deadPoint}
-					onBlow={this.onCellIsGonnaBlow}
 				/>
 			)
 		})
 	}
 
 	renderBlowing() {
-		const { blowing } = this.state
-		if (!blowing.length) {
+		const { board } = this.props.appStore
+		if (!board.blowingCells.length) {
 			return null
 		}
 
-		const { cellSizePx } = this.props.appStore.board
-
-		return blowing.map((cell) => (
+		return board.blowingCells.map((cell) => (
 			<Particle
 				key={`blowing-${cell.key}`}
-				x={cellSizePx * cell.x}
-				y={cellSizePx * cell.y}
-				onDone={() => this.onCellHasBeenBlown(cell)}
+				x={board.cellSizePx * cell.x}
+				y={board.cellSizePx * cell.y}
+				onDone={() => board.unBlowCell(cell)}
 			>
 				{cell.glyph}
 			</Particle>
@@ -149,20 +146,6 @@ export class Board extends React.Component<Board.Props & StoreInjectedProps, Boa
 	@autobind
 	refBoard($el: Element | null) {
 		this.$board = $el
-	}
-
-	@autobind
-	onCellIsGonnaBlow(cell: Cell) {
-		this.setState(({blowing}) => {
-			return !~blowing.indexOf(cell) ? { blowing: [cell].concat(blowing) } : undefined
-		})
-	}
-
-	@autobind
-	onCellHasBeenBlown(cell: Cell) {
-		this.setState(({blowing}) => ({
-			blowing: blowing.filter(c => c !== cell),
-		}))
 	}
 }
 
