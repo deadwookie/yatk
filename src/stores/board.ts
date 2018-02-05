@@ -94,7 +94,7 @@ export interface CellStack extends CellStackSnapshot {
 
 export const CellStack: IModelType<{}, CellStack> = types
 	.model('CellStack', {
-		key: types.string,
+		key: types.identifier(types.string),
 		stack: types.array(types.reference(Cell))
 	})
 	.views((self) => ({
@@ -105,14 +105,27 @@ export const CellStack: IModelType<{}, CellStack> = types
 			return self.stack[self.stack.length - 1]!
 		}
 	}))
-	.actions((self) => ({
-		pop(): Cell | undefined {
-			return self.stack.length === 1 ? undefined : self.stack.pop()
-		},
-		push(cell: Cell) {
-			return self.stack.push(cell)
+	.actions((self) => {
+		const cellSet: WeakSet<Cell> = new WeakSet()
+
+		return {
+			pop(): Cell | undefined {
+				if (self.stack.length === 1) {
+					return undefined
+				}
+				const cell = self.stack.pop()!
+				cellSet.delete(cell)
+				return cell
+			},
+			push(cell: Cell) {
+				if (!cellSet.has(cell)) {
+					cellSet.add(cell)
+					return self.stack.push(cell)
+				}
+				return self.stack.length
+			}
 		}
-	}))
+	})
 
 export enum BoardGeometryType {
 	Box = 'box',
@@ -150,13 +163,14 @@ export interface BoardSnapshot {
 	sequenceCounter: number
 	sequence: Array<SequenceValue>
 	cells: Array<Cell>
+	visibilityStacks: Array<CellStack>
 	blowingCells: Array<Cell> 
 	chain: Array<Cell>
 	cursor?: Cell | null
 	deadPoint?: Cell | null
 	rules: RulesSnapshot
 	behavior: Behavior
-	readonly visibilityStacks: Array<CellStack>
+
 	readonly strain: Array<SequenceValue>
 	readonly freeSpaceLeft: number
 	readonly isProcessing: boolean
@@ -371,15 +385,27 @@ export const Board: IType<{}, Board> = types
 			}
 		},
 
+		arrangeInitialCursor() {
+			if (self.geometryType === BoardGeometryType.Box) {
+				self.cursor = self.cells[0]
+			} else if (self.geometryType === BoardGeometryType.Spiral) {
+				self.cursor = self.cells[Math.floor((self.height - 1) / 2) * self.width + Math.floor((self.width - 1) / 2)]
+			} else {
+				throw new Error(`Unknown geometry type for the board: ${self.geometryType}`)
+			}
+		},
+
 		generateCellStacks() {
 			const stacks: CellStackSnapshot[] = []
 			for (let y = 0; y < self.height; y++) {
 				for (let x = 0; x < self.width; x++) {
-					stacks.push({
+					const stack = CellStack.create({
 						key: `stack_${x}_${y}`,
-						// We can use 2D index because we only want cells from the first level
-						stack: [self.cells[getIndexByCoordinate2D({x, y}, self)]]
+						stack: []
 					})
+					// We can use 2D index because we only want cells from the first level
+					stack.push(self.cells[getIndexByCoordinate2D({x, y}, self)])
+					stacks.push(stack)
 				}
 			}
 
@@ -429,14 +455,7 @@ export const Board: IType<{}, Board> = types
 
 			self.cells.push(...cells)
 
-			if (self.geometryType === BoardGeometryType.Box) {
-				self.cursor = self.cells[0]
-			} else if (self.geometryType === BoardGeometryType.Spiral) {
-				self.cursor = self.cells[Math.floor((self.height - 1) / 2) * self.width + Math.floor((self.width - 1) / 2)]
-			} else {
-				throw new Error(`Unknown geometry type for the board: ${self.geometryType}`)
-			}
-
+			self.arrangeInitialCursor()
 			self.generateCellStacks()
 		},
 
@@ -813,7 +832,6 @@ export const Board: IType<{}, Board> = types
 		processChain() {
 			self.chain.forEach((cell: Cell) => {
 				cell.sequenceValue!.value = null
-				self.visibilityStacks[cell.index2D].pop()
 				self.blowCell(self.visibilityStacks[cell.index2D].pop())
 			})
 
