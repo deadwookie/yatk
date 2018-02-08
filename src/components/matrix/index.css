@@ -69,11 +69,12 @@
 	top: calc(var(--cell-size) * var(--y));
 	width: .5rem;
 	height: .5rem;
-	margin-left: calc(var(--cell-size) - .5rem);
-	margin-top: calc(var(--cell-size) - 1em);
-	background: var(--hover-color);
+	margin-left: calc(var(--cell-size) - .25rem);
+	margin-top: calc(var(--cell-size) / 2);
+	background: var(--warn-color);
+	/* box-shadow: 0 0 1rem var(--warn-color); */
 	/* border-bottom: 1px solid var(--hover-color); */
-	opacity: .3;
+	opacity: .5;
 	animation: disappear 3s cubic-bezier(0.6, -0.28, 0.735, 0.045) infinite alternate;
 }
 .cursor.isActive {
