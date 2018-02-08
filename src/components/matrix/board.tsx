@@ -56,14 +56,8 @@ export class Board extends React.Component<Board.Props & StoreInjectedProps, Boa
 	// }
 
 	render() {
-		const { width, height } = this.props.appStore.board
-		const styles = {
-			'--xn': width,
-			'--yn': height,
-		}
-
 		return (
-			<div className={cls.board} style={styles} ref={this.refBoard}>
+			<div className={cls.board} ref={this.refBoard}>
 				{this.renderCells()}
 				{this.renderBlowing()}
 				{this.renderCursor()}

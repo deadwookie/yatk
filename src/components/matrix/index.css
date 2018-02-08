@@ -1,4 +1,6 @@
 .main {
+	--cell-size: 5rem;
+
 	--cell-font-size: calc(var(--cell-size) * .97);
 
 	--color: #0b0;
@@ -15,6 +17,13 @@
 
 	overflow: hidden;
 	position: relative;
+}
+
+@media (max-width: 440px) and (orientation: portrait) {
+	.main {
+		/* --cell-size: 11.5vw; */
+		--cell-size: calc(96vw / var(--xn));
+	}
 }
 
 .board {

@@ -20,8 +20,13 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 		const { board } = this.props.appStore
 		const isGameFinished = !!board.finishResult
 
+		const styles = {
+			'--xn': board.width,
+			'--yn': board.height,
+		}
+
 		return (
-			<section className={style.main}>
+			<section style={styles} className={style.main}>
 				<StrainInfo />
 				<Board />
 				<ScoreInfo />
