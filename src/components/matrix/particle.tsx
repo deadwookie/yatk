@@ -35,8 +35,8 @@ export class Particle extends React.PureComponent<Particle.Props, Particle.State
 
 		const className = join(cls.main, this.state.classNames)
 		const styles: React.CSSProperties = {
-			left: x,
-			top: y,
+			'--x': x,
+			'--y': y,
 		}
 
 		return (

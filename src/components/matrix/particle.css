@@ -2,6 +2,8 @@
 	/* TODO: @extend ./cell */
 	display: block;
 	position: absolute;
+	left: calc(var(--cell-size) * var(--x));
+	top: calc(var(--cell-size) * var(--y));
 	margin: 0;
 	padding: 0;
 	width: var(--cell-size);
@@ -24,7 +26,7 @@
 }
 
 .blow {
-	opacity: 0;
+	opacity: .01;
 	transform: scale(1.5, 1.5);
 	transition: all .33s cubic-bezier(0.1, 0.085, 0.68, 0.53);
 }

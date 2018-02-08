@@ -3,7 +3,7 @@ import * as join from 'classnames'
 import { findDOMNode } from 'react-dom'
 import { inject, observer } from 'mobx-react'
 
-import * as style from './index.css'
+import * as cls from './index.css'
 
 import { autobind, throttle } from '../../utils/decorators'
 import { StoreInjectedProps } from '../../stores'
@@ -55,10 +55,14 @@ export class Board extends React.Component<Board.Props & StoreInjectedProps, Boa
 	}
 
 	render() {
-		const { board } = this.props.appStore
+		const { width, height } = this.props.appStore.board
+		const styles = {
+			'--xn': width,
+			'--yn': height,
+		}
 
 		return (
-			<div className={style.board} ref={this.refBoard} style={{ width: board.width * board.cellSizePx, height: board.height * board.cellSizePx }}>
+			<div className={cls.board} style={styles} ref={this.refBoard}>
 				{this.renderCells()}
 				{this.renderBlowing()}
 				{this.renderCursor()}
@@ -92,8 +96,8 @@ export class Board extends React.Component<Board.Props & StoreInjectedProps, Boa
 		return board.blowingCells.map((cell) => (
 			<Particle
 				key={`blowing-${cell.key}`}
-				x={board.cellSizePx * cell.x}
-				y={board.cellSizePx * cell.y}
+				x={cell.x}
+				y={cell.y}
 				onDone={() => board.unBlowCell(cell)}
 			>
 				{cell.glyph}
@@ -113,18 +117,18 @@ export class Board extends React.Component<Board.Props & StoreInjectedProps, Boa
 			return null
 		}
 
-		const cls = join({
-			[style.cursor]: true,
-			[style.isActive]: board.isProcessing,
+		const className = join({
+			[cls.cursor]: true,
+			[cls.isActive]: board.isProcessing,
 		})
 
 		const styles = {
-			left: cursor.x * board.cellSizePx,
-			top: cursor.y * board.cellSizePx,
+			'--x': cursor.x,
+			'--y': cursor.y,
 		}
 
 		return (
-			<div className={cls} style={styles} />
+			<div className={className} style={styles} />
 		)
 	}
 
@@ -137,8 +141,8 @@ export class Board extends React.Component<Board.Props & StoreInjectedProps, Boa
 		}
 
 		return (
-			<aside className={style.alert}>
-				<p className={style.message}>{board.finishResult === FinishResult.Win ? 'You Win' : 'Game Over'}</p>
+			<aside className={cls.alert}>
+				<p className={cls.message}>{board.finishResult === FinishResult.Win ? 'You Win' : 'Game Over'}</p>
 			</aside>
 		)
 	}

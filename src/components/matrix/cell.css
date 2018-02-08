@@ -1,6 +1,8 @@
 .main {
 	display: block;
 	position: absolute;
+	left: calc(var(--cell-size) * var(--x));
+	top: calc(var(--cell-size) * var(--y));
 	margin: 0;
 	padding: 0;
 	width: var(--cell-size);

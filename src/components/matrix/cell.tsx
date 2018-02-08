@@ -21,7 +21,7 @@ export namespace CellElement {
 export class CellElement extends React.Component<CellElement.Props & StoreInjectedProps, CellElement.State> {
 	render() {
 		const { stack, appStore } = this.props
-		const { cellSizePx, currentStage, maxStage } = appStore.board
+		const { currentStage, maxStage } = appStore.board
 		const cell = stack.top
 
 		const isNotLast = stack.length > 1
@@ -42,8 +42,9 @@ export class CellElement extends React.Component<CellElement.Props & StoreInject
 			: undefined
 
 		const styles: React.CSSProperties = {
-			left: cell.x * cellSizePx,
-			top: cell.y * cellSizePx,
+			'--x': cell.x,
+			'--y': cell.y,
+			'--z': cell.z,
 			opacity: opacity ? Number(opacity) : undefined,
 		}
 
