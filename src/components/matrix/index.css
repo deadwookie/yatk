@@ -1,5 +1,4 @@
 .main {
-	--cell-size: 5rem;
 	--cell-font-size: calc(var(--cell-size) * .97);
 
 	--color: #0b0;

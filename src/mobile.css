@@ -1,0 +1,32 @@
+/* https://css-tricks.com/snippets/css/orientation-lock/ */
+@media (min-width: 320px) and (max-width: 767px) and (orientation: landscape) {
+	:global(html) {
+		transform: rotate(-90deg) scale(.9);
+		transform-origin: left top;
+		width: 100vh;
+		overflow-x: hidden;
+		position: absolute;
+		top: 100%;
+		left: 0;
+	}
+}
+
+@media (max-width: 460px) and (orientation: portrait) {
+	:global(html) {
+		font-size: 8px;
+	}
+
+	:global(.theme-matrix) {
+		--cell-size: 11.5vw;
+	}
+}
+
+@media (max-height: 400px) and (orientation: landscape) {
+	:global(html) {
+		font-size: 8px;
+	}
+
+	:global(.theme-matrix) {
+		--cell-size: 11.5vh;
+	}
+}

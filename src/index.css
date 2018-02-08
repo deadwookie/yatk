@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css?family=PT+Sans+Caption:400,700|PT+Serif+Caption&subset=latin-ext');
+@import url('./mobile.css') screen;
 
 :global(html) {
 	font-size: 10px;
@@ -18,6 +19,8 @@
 }
 
 :global(.theme-matrix) {
+	--cell-size: 5rem;
+
 	--color: #777;
 	--bg-color: #333;
 	--disabled-color: var(--color);
