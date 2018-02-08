@@ -24,7 +24,7 @@ export class CellElement extends React.Component<CellElement.Props & StoreInject
 		const { currentStage, maxStage } = appStore.board
 		const cell = stack.top
 
-		const isNotLast = stack.length > 1
+		const isNotLast = stack.length > 2
 
 		const className = join({
 			[cls.main]: true,

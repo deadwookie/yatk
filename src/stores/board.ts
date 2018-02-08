@@ -106,23 +106,12 @@ export const CellStack: IModelType<{}, CellStack> = types
 		}
 	}))
 	.actions((self) => {
-		const cellSet: WeakSet<Cell> = new WeakSet()
-
 		return {
 			pop(): Cell | undefined {
-				if (self.stack.length === 1) {
-					return undefined
-				}
-				const cell = self.stack.pop()!
-				cellSet.delete(cell)
-				return cell
+				return self.stack.length === 1 ? void 0 : self.stack.pop()
 			},
 			push(cell: Cell) {
-				if (!cellSet.has(cell)) {
-					cellSet.add(cell)
-					return self.stack.push(cell)
-				}
-				return self.stack.length
+				return self.stack.push(cell)
 			}
 		}
 	})
