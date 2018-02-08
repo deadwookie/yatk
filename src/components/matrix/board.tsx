@@ -1,12 +1,9 @@
 import * as React from 'react'
 import * as join from 'classnames'
-// import { findDOMNode } from 'react-dom'
 import { inject, observer } from 'mobx-react'
 
 import * as cls from './index.css'
 
-import { autobind } from '../../utils/decorators'
-// import { throttle } from '../../utils/decorators'
 import { StoreInjectedProps } from '../../stores'
 import { Cell, CellStack, FinishResult } from '../../stores/board'
 import CellElement from './cell'
@@ -24,40 +21,15 @@ export class Board extends React.Component<Board.Props & StoreInjectedProps, Boa
 	state: Board.State = {
 		blowing: [],
 	}
-	$board: Element | null
 
 	componentDidMount() {
 		this.props.appStore.board.newGame()
-
-		// window.addEventListener('resize', this.scaleBoard)
-		// this.scaleBoard()
 	}
 
-	// componentWillUnmount() {
-	// 	window.removeEventListener('resize', this.scaleBoard)
-	// }
-
-	// @autobind
-	// @throttle(200)
-	// protected scaleBoard() {
-	// 	if (!this.$board) return
-
-	// 	const { width, height, cellSizePx } = this.props.appStore.board
-	// 	const winWidth = window.innerWidth
-	// 	const winHeight = window.innerHeight
-
-	// 	// We need to keep ratio, so lookin' for a smallest dimension
-	// 	const zoom = Math.min(
-	// 		width * cellSizePx > winWidth ? winWidth / (width * cellSizePx) : 1,
-	// 		height * cellSizePx > winHeight ? winHeight / (height * cellSizePx) : 1,
-	// 	)
-
-	// 	;((findDOMNode(this.$board) as any).style as React.CSSProperties).transform = `scale(${zoom})`
-	// }
 
 	render() {
 		return (
-			<div className={cls.board} ref={this.refBoard}>
+			<div className={cls.board}>
 				{this.renderCells()}
 				{this.renderBlowing()}
 				{this.renderCursor()}
@@ -140,11 +112,6 @@ export class Board extends React.Component<Board.Props & StoreInjectedProps, Boa
 				<p className={cls.message}>{board.finishResult === FinishResult.Win ? 'You Win' : 'Game Over'}</p>
 			</aside>
 		)
-	}
-
-	@autobind
-	refBoard($el: Element | null) {
-		this.$board = $el
 	}
 }
 
