@@ -3,7 +3,8 @@ import * as join from 'classnames'
 import * as cls from './index.css'
 
 import autobind from '../../utils/autobind'
-import { generateNaturals, random } from '../../utils/numbers'
+import { random } from '../../utils/numbers'
+import { generateRandom } from '../../utils/sequence'
 import { getGlyph } from '../../utils/chars'
 
 export namespace Rain {
@@ -71,7 +72,7 @@ export class Rain extends React.Component<Rain.Props, Rain.State> {
 
 	protected generateDrops(_streamIdx: number, minLength: number = 3, maxLength: number = 10): Rain.Drop[] {
 		const length = random(minLength, maxLength + 1)
-		return generateNaturals(length).map((char, idx) => ({
+		return generateRandom(length).map((char, idx) => ({
 			idx,
 			char,
 			glyph: getGlyph(char, .3),

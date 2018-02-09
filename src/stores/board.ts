@@ -3,14 +3,10 @@ import { GameAnalytics, EGAProgressionStatus } from 'gameanalytics'
 
 import { Rules, CollapseDirection, isEmptyColumn, isEmptyRow, RulesSnapshot } from './rules'
 import { Behavior } from './behavior'
-import { CHARMAP } from '../utils/chars'
+import { getGlyph } from '../utils/chars'
 import { delay } from '../utils/times'
+import { generateDummy, /* generateRandom, */ generateEqualSpread } from '../utils/sequence'
 import { Direction, getByCoordinate, getIndexByCoordinate2D, getNextIndex, canMove, isHorizontal, isVertical } from '../utils/navigation'
-
-export function randomN(from = 0, upto = 10, asInt = true) {
-	const n = Math.random() * (upto - from) + from
-	return asInt ? Math.floor(n) : n
-}
 
 function getVisibleCellByCoordinate(board: Board, x: number, y: number, maxZ: number = board.depth): Cell | null {
 	let cell = board.getCell(x, y, maxZ)
@@ -153,7 +149,7 @@ export interface BoardSnapshot {
 	sequence: Array<SequenceValue>
 	cells: Array<Cell>
 	visibilityStacks: Array<CellStack>
-	blowingCells: Array<Cell> 
+	blowingCells: Array<Cell>
 	chain: Array<Cell>
 	cursor?: Cell | null
 	deadPoint?: Cell | null
@@ -425,8 +421,6 @@ export const Board: IType<{}, Board> = types
 				let cellIndex2D = -1
 				for (let y = 0; y < self.height; y++) {
 					cells.push(...Array.from(Array(self.width)).map((_, x) => {
-						const symbol = randomN()
-						const chars = CHARMAP[symbol]
 						cellIndex++
 						cellIndex2D++
 						return {
@@ -436,7 +430,7 @@ export const Board: IType<{}, Board> = types
 							x,
 							y,
 							z,
-							glyph: chars[randomN(0, chars.length)],
+							glyph: getGlyph(),
 						}
 					}))
 				}
@@ -732,11 +726,8 @@ export const Board: IType<{}, Board> = types
 		generateSequence(length: number, isDummy?: boolean) {
 			self.clearSequence()
 			self.sequenceCounter = -1
-			if (isDummy) {
-				self.appendSequence(Array.from(Array(length)).map((_, ind) => ind % 2 === 0 ? 8 : 2))
-			} else {
-				self.appendSequence(Array.from(Array(length)).map(_ => randomN()))
-			}
+			// self.appendSequence(isDummy ? generateDummy(length) : generateRandom(length))
+			self.appendSequence(isDummy ? generateDummy(length) : generateEqualSpread(length))
 		},
 
 		resetSequenceTo(sequence: Array<number | null>) {

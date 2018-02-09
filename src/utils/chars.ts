@@ -20,7 +20,7 @@ export const CHARMAP: CharMapOfGlyphs = {
 	9: ['九', '玖', '壬'],
 }
 
-export function getGlyph(char: Char, charAsGlyphChance: number = 0): string {
+export function getGlyph(char: Char = random(), charAsGlyphChance: number = 0): string {
 	if (char == null || !Array.isArray(CHARMAP[char])) {
 		throw new Error(`CHARMAP does not include "${char}" chars`)
 	}
