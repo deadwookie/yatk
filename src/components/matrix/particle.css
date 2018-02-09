@@ -26,7 +26,7 @@
 }
 
 .blow {
-	opacity: .01;
+	opacity: .05;
 	transform: scale(1.5, 1.5);
-	transition: all .33s cubic-bezier(0.1, 0.085, 0.68, 0.53);
+	transition: all .25s cubic-bezier(0.1, 0.085, 0.68, 0.53);
 }
