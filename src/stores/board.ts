@@ -185,6 +185,7 @@ export interface Board extends BoardSnapshot {
 	generate: (seqLength?: number, isDummy?: boolean) => void
 	newGame: (seqLength?: number, score?: number) => void
 	nextRound: () => void
+	applyRules: () => void
 	processChain: () => void
 	clearChain: () => void
 	addToChain: (cell: Cell) => void
@@ -863,6 +864,13 @@ export const Board: IType<{}, Board> = types
 			GameAnalytics.addProgressionEvent(EGAProgressionStatus.Start, self.worldKey, self.levelKey, self.round)
 		},
 
+		applyRules() {
+			if (self.rules.isMatchApplyRule(...self.chain)) {
+				self.updateScore()
+				self.processChain()
+			}
+		},
+
 		addToChain(cell: Cell) {
 			if (cell.isEmpty || cell.isNullSequence || self.chain.indexOf(cell) !== -1) {
 				return
@@ -870,7 +878,7 @@ export const Board: IType<{}, Board> = types
 
 			if (self.chain.length &&
 				self.rules.isMatchRules(cell, ...self.chain) &&
-				self.rules.isMatchGeometry(self, self.visibilityStacks.map(stack => stack.top), cell, ...self.chain)) {
+				self.rules.isMatchGeometry(self, self.visibilityStacks.map(stack => stack.top), cell, self.chain[self.chain.length - 1])) {
 
 				self.chain.push(cell)
 			} else {
@@ -882,11 +890,6 @@ export const Board: IType<{}, Board> = types
 			}
 
 			cell.isChained = true
-
-			if (self.rules.isMatchApplyRule(...self.chain)) {
-				self.updateScore()
-				self.processChain()
-			}
 		},
 
 		removeFromChain(cell: Cell) {

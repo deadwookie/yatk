@@ -10,6 +10,7 @@ import {
 	isHorizontal,
 	isVertical
 } from '../utils/navigation'
+import { hasNumericSolution } from '../utils/numbers'
 
 export enum CollapseDirection {
 	ToTopLeft = 'toTopLeft',
@@ -111,6 +112,22 @@ export function isTargetSum(targetSum: number, ...chain: Cell[]): boolean {
 	}, 0)
 }
 
+export function isTargetSumPossible(targetSum: number, ...chain: Cell[]): boolean {
+	const sum = chain.reduce((acc: number, cell: Cell) => {
+		return acc + (cell.sequenceValue!.value || 0)
+	}, 0)
+
+	if (targetSum === sum) {
+		return true
+	} else if (sum > targetSum) {
+		return false
+	}
+
+	const diff = targetSum - sum
+	// ToDo we need an alphabet here
+	return hasNumericSolution(diff, chain.map(cell => cell.sequenceValue!.value!))
+}
+
 export function isTargetLength(targetLen: number, ...chain: Cell[]): boolean {
 	return targetLen === chain.length
 }
@@ -163,7 +180,7 @@ export const Rules: IType<{}, Rules> = types
 	})
 	.actions((self) => ({
 		isMatchRules(...chain: Cell[]) {
-			return isTargetSum(self.targetSum, ...chain) || isSameValue(...chain)
+			return (isTargetSumPossible(self.targetSum, ...chain) && isUniqueValues(...chain)) || isSameValue(...chain)
 		},
 
 		isMatchGeometry(size: Size, vCells: Cell[], ...chain: Cell[]) {
@@ -171,6 +188,6 @@ export const Rules: IType<{}, Rules> = types
 		},
 
 		isMatchApplyRule(...chain: Cell[]) {
-			return isTargetLength(self.targetLength, ...chain)
+			return (isTargetSum(self.targetSum, ...chain) && isUniqueValues(...chain)) || isSameValue(...chain)
 		}
 	}))

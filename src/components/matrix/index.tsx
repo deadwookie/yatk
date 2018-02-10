@@ -31,6 +31,9 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 				<Board />
 				<ScoreInfo />
 				<nav className={style.actions}>
+					<button onClick={this.onApplyRulesClick} disabled={isGameFinished}>Annihilate</button>
+				</nav>
+				<nav className={style.actions}>
 					<button onClick={this.onNextRoundClick} disabled={isGameFinished}>Next Round</button>
 				</nav>
 				<footer>
@@ -44,6 +47,11 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 	@autobind
 	onRestartClick() {
 		this.props.appStore.board.newGame()
+	}
+
+	@autobind
+	onApplyRulesClick() {
+		this.props.appStore.board.applyRules()
 	}
 
 	@autobind
