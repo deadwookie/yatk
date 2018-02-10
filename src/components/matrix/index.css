@@ -34,6 +34,7 @@
 	position: relative;
 	width: calc(var(--cell-size) * var(--xn));
 	height: calc(var(--cell-size) * var(--yn));
+	user-select: none;
 }
 
 .freezeOverlay {

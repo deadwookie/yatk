@@ -57,9 +57,8 @@ export class CellElement extends React.Component<CellElement.Props & StoreInject
 			<div
 				className={className}
 				style={styles}
-				onClick={this.onCellClick}
 			>
-				<span className={cls.symbol} data-value={value}>
+				<span className={cls.symbol} data-value={value} data-cell-index={cell.index}>
 					{value}
 				</span>
 				{/* <small className={cls.depth}>{cell.z + 1}</small> */}

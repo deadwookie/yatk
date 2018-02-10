@@ -189,6 +189,7 @@ export interface Board extends BoardSnapshot {
 	processChain: () => void
 	clearChain: () => void
 	addToChain: (cell: Cell) => void
+	resetChain: (cell: Cell) => void
 	removeFromChain: (cell: Cell) => void
 
 	blowCell: (cell?: Cell) => void
@@ -800,6 +801,18 @@ export const Board: IType<{}, Board> = types
 			})
 
 			self.chain.splice(0)
+		},
+
+		resetChain(cell: Cell) {
+			self.chain.forEach((cell: Cell) => {
+				cell.isChained = false
+			})
+			self.chain.splice(0)
+
+			if (cell) {
+				self.chain.push(cell)
+				cell.isChained = true
+			}
 		}
 	}))
 	.actions((self) => ({
@@ -865,9 +878,11 @@ export const Board: IType<{}, Board> = types
 		},
 
 		applyRules() {
-			if (self.rules.isMatchApplyRule(...self.chain)) {
+			if (self.chain.length > 1 && self.rules.isMatchApplyRule(...self.chain)) {
 				self.updateScore()
 				self.processChain()
+			} else {
+				self.clearChain()
 			}
 		},
 
@@ -881,15 +896,10 @@ export const Board: IType<{}, Board> = types
 				self.rules.isMatchGeometry(self, self.visibilityStacks.map(stack => stack.top), cell, self.chain[self.chain.length - 1])) {
 
 				self.chain.push(cell)
+				cell.isChained = true
 			} else {
-				self.chain.forEach((cell: Cell) => {
-					cell.isChained = false
-				})
-				self.chain.splice(0)
-				self.chain.push(cell)
+				self.resetChain(cell)
 			}
-
-			cell.isChained = true
 		},
 
 		removeFromChain(cell: Cell) {

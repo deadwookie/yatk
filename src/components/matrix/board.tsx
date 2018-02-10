@@ -4,6 +4,7 @@ import { inject, observer } from 'mobx-react'
 
 import * as cls from './index.css'
 
+import autobind from '../../utils/autobind'
 import { StoreInjectedProps } from '../../stores'
 import { Cell, CellStack, FinishResult } from '../../stores/board'
 import CellElement from './cell'
@@ -26,10 +27,16 @@ export class Board extends React.Component<Board.Props & StoreInjectedProps, Boa
 		this.props.appStore.board.newGame()
 	}
 
-
 	render() {
 		return (
-			<div className={cls.board}>
+			<div 
+				className={cls.board}
+				onTouchStart={this.onTouchStart}
+				onTouchMove={this.onTouchMove}
+				onTouchEnd={this.onTouchEnd}
+				onTouchCancel={this.onTouchCancel}
+				onContextMenu={this.onContextMenu}
+			>
 				{this.renderCells()}
 				{this.renderBlowing()}
 				{this.renderCursor()}
@@ -112,6 +119,46 @@ export class Board extends React.Component<Board.Props & StoreInjectedProps, Boa
 				<p className={cls.message}>{board.finishResult === FinishResult.Win ? 'You Win' : 'Game Over'}</p>
 			</aside>
 		)
+	}
+
+	@autobind
+	onTouchStart(event: React.TouchEvent<HTMLDivElement>) {
+		event.preventDefault()
+		const board = this.props.appStore.board
+		const cellIndex = parseInt((event.target as HTMLSpanElement).dataset.cellIndex || '', 10)
+		if (cellIndex && board.cells[cellIndex]) {
+			board.resetChain(board.cells[cellIndex])
+		}
+	}
+
+	@autobind
+	onTouchEnd() {
+		this.props.appStore.board.applyRules()
+	}
+
+	@autobind
+	onTouchCancel() {
+		this.props.appStore.board.clearChain()
+	}
+
+	@autobind
+	onTouchMove(event: React.TouchEvent<HTMLDivElement>) {
+		event.preventDefault()
+		const board = this.props.appStore.board
+		const { clientX, clientY } = event.touches[0]
+		const el = document.elementFromPoint(clientX, clientY) as HTMLElement
+		if (el && el.dataset.cellIndex) {
+			const cellIndex = parseInt(el.dataset.cellIndex || '', 10)
+			if (cellIndex && board.cells[cellIndex]) {
+				board.addToChain(board.cells[cellIndex])
+			}
+		}
+	}
+
+	@autobind
+	onContextMenu(event: React.MouseEvent<HTMLDivElement>) {
+		// Disable context menu for long touch
+		event.preventDefault()
 	}
 }
 
