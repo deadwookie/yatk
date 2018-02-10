@@ -5,7 +5,8 @@ import { inject, observer } from 'mobx-react'
 import * as cls from './index.css'
 
 import { StoreInjectedProps } from '../../stores'
-import { Cell, CellStack, FinishResult } from '../../stores/board'
+import { Cell, CellStack } from '../../stores/board'
+import { FinishResult } from '../../stores/statistic'
 import CellElement from './cell'
 import Particle from './particle'
 

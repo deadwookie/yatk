@@ -10,12 +10,24 @@ import ScoreInfo from './score-info'
 import Board from './board'
 
 export namespace Matrix {
-	export interface Props {}
+	export interface Props {
+		sequenceId?: string
+	}
 	export interface State {}
 }
 
 @observer
 export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, Matrix.State> {
+
+	componentDidMount() {
+		const { appStore, sequenceId } = this.props
+		if (sequenceId) {
+			appStore.board.newGame(sequenceId)
+		} else {
+			appStore.board.newGame()
+		}
+	}
+
 	render() {
 		const { board } = this.props.appStore
 		const isGameFinished = !!board.finishResult
@@ -37,7 +49,9 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 					<button onClick={this.onNextRoundClick} disabled={isGameFinished}>Next Round</button>
 				</nav>
 				<footer>
-					<a onClick={this.onRestartClick}>New Game</a>
+					<a onClick={this.onRestartClick}>New Game</a> |
+					<a onClick={this.onShowSeqIdClick}>Show seqId</a> |
+					<a onClick={this.onShowStatsClick}>Show stats</a>
 				</footer>
 				{board.isProcessing ? <div className={style.freezeOverlay}/> : null}
 			</section>
@@ -57,6 +71,16 @@ export class Matrix extends React.Component<Matrix.Props & StoreInjectedProps, M
 	@autobind
 	onNextRoundClick() {
 		this.props.appStore.board.nextRound()
+	}
+
+	@autobind
+	onShowSeqIdClick() {
+		console.log(this.props.appStore.board.sequenceId)
+	}
+
+	@autobind
+	onShowStatsClick() {
+		console.log(this.props.appStore.board.debugStats())
 	}
 }
 

@@ -23,6 +23,11 @@ export const defaultBoard: Partial<BoardSnapshot> = {
 	cells: [],
 	chain: [],
 	sequence: [],
+	sequenceId: '',
+	// TODO: get stats from storage
+	statistic: {
+		games: [],
+	},
 	rules: {
 		targetSum: 10,
 		targetLength: 2,

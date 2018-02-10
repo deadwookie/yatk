@@ -1,7 +1,7 @@
 import * as React from 'react'
 import * as cls from 'classnames'
 import * as style from './index.css'
-import { HashRouter as Router, Route } from 'react-router-dom'
+import { HashRouter as Router, Switch, Route } from 'react-router-dom'
 import { observer, inject, Provider } from 'mobx-react'
 import Header from './header'
 import Footer from './footer'
@@ -35,14 +35,20 @@ export class App extends React.Component<App.Props & StoreInjectedProps, App.Sta
 			<div className={cls(style.main, `theme-${theme}`)}>
 				<Header />
 				<Router>
-					<div>
+					<Switch>
 						<Route exact path='/' render={() => {
 							return <Matrix />
+						}}/>
+						<Route exact path='/game/:sequenceId' render={({match}) => {
+							return <Matrix sequenceId={match.params.sequenceId} />
 						}}/>
 						<Route exact path='/faq' render={() => {
 							return <div>FAQ: TODO</div>
 						}}/>
-					</div>
+						<Route render={() => {
+							return <div>404</div>
+						}} />
+					</Switch>
 				</Router>
 
 				<Footer />
